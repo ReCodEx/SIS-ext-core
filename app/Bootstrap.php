@@ -8,10 +8,8 @@ class Bootstrap
 {
     public static function boot(): Configurator
     {
-        $configurator = new Configurator;
+        $configurator = new Configurator();
 
-        //$configurator->setDebugMode('secret@23.75.345.200'); // enable for your remote IP
-        // $configurator->setDebugMode(false);
         $configurator->enableTracy(__DIR__ . '/../log');
 
         $configurator->setTimeZone('Europe/Prague');

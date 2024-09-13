@@ -1,7 +1,7 @@
 {
-    "name": "recodex/api",
-    "description": "Web REST API of ReCodEx Code Evaluator.",
-    "homepage": "https://github.com/ReCodEx/api",
+    "name": "recodex/sis-ext",
+    "description": "ReCodEx SIS adapter extension used for external management of groups and users bound to Student Information System (at MFF CUNI).",
+    "homepage": "https://github.com/ReCodEx/SIS-ext-core",
     "type": "project",
     "license": [
         "MIT"
@@ -9,7 +9,7 @@
     "authors": [
         {
             "name": "ReCodEx Team",
-            "homepage": "https://github.com/ReCodEx/api/graphs/contributors"
+            "homepage": "https://github.com/ReCodEx/SIS-ext-core/graphs/contributors"
         }
     ],
     "scripts": {

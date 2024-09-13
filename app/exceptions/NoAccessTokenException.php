@@ -26,7 +26,7 @@ class NoAccessTokenException extends ApiException
     {
         return array_merge(
             parent::getAdditionalHttpHeaders(),
-            ["WWW-Authenticate" => 'Bearer realm="ReCodEx"']
+            ["WWW-Authenticate" => 'Bearer realm="ReCodEx-SIS-ext"']
         );
     }
 }

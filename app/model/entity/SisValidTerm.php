@@ -57,7 +57,7 @@ class SisValidTerm implements JsonSerializable
     }
 
     /**
-     * Should courses in the term be advertised to the students by ReCodEx clients?
+     * Should courses in the term be advertised to the students?
      * @param DateTime $now
      * @return bool
      */

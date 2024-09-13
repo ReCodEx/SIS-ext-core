@@ -31,12 +31,6 @@ class EmailsConfig
     protected $siteName;
 
     /**
-     * Github address where this project can be found.
-     * @var string
-     */
-    protected $githubUrl;
-
-    /**
      * From whom emails will be sent.
      * @var string
      */
@@ -51,7 +45,6 @@ class EmailsConfig
         $this->apiUrl = Arrays::get($config, ["apiUrl"]);
         $this->footerUrl = Arrays::get($config, ["footerUrl"]);
         $this->siteName = Arrays::get($config, ["siteName"]);
-        $this->githubUrl = Arrays::get($config, ["githubUrl"]);
         $this->from = Arrays::get($config, ["from"]);
     }
 
@@ -68,11 +61,6 @@ class EmailsConfig
     public function getSiteName()
     {
         return $this->siteName;
-    }
-
-    public function getGithubUrl()
-    {
-        return $this->githubUrl;
     }
 
     public function getFrom()

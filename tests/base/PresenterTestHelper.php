@@ -79,7 +79,7 @@ class PresenterTestHelper
     {
         $tmpDir = $container->getParameters()["tempDir"] . DIRECTORY_SEPARATOR . "testDB";
         if (is_dir("/tmp")) { // Creating a sqlite db in tmpfs is much faster than on a regular file system
-            $tmpDir = "/tmp/ReCodEx" . DIRECTORY_SEPARATOR . "testDB";
+            $tmpDir = "/tmp/rex-sis-ext" . DIRECTORY_SEPARATOR . "testDB";
         }
 
         FileSystem::createDir($tmpDir);
@@ -185,7 +185,7 @@ class PresenterTestHelper
     /**
      * Perform regular presenter request and make common asserts.
      * @param mixed $presenter The presenter which should handle the request.
-     * @param string $module String representing the module path (e.g., 'V1:Exercises').
+     * @param string $module String representing the module path (e.g., 'Exercises').
      * @param string $method HTTP method of the request (GET, POST, ...).
      * @param array $params Parameters of the request.
      * @param array $post Body of the request (must be POST).

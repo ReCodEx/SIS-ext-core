@@ -25,7 +25,7 @@ class HttpBasicAuthException extends UnauthorizedException
     {
         return array_merge(
             parent::getAdditionalHttpHeaders(),
-            ["WWW-Authenticate" => 'Basic realm="ReCodEx"']
+            ["WWW-Authenticate" => 'Basic realm="ReCodEx-SIS-ext"']
         );
     }
 }

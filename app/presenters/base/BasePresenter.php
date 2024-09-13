@@ -78,7 +78,7 @@ class BasePresenter extends Nette\Application\UI\Presenter
     public function startup()
     {
         parent::startup();
-        $this->application->errorPresenter = "V1:ApiError";
+        $this->application->errorPresenter = "ApiError";
         $this->parameters = new \stdClass();
 
         try {

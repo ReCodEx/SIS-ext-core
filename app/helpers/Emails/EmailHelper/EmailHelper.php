@@ -26,11 +26,8 @@ class EmailHelper
     /** @var string Url which will be mentioned in mail footer */
     private $footerUrl;
 
-    /** @var string Name of the frontend interface, defaults to "ReCodEx" */
+    /** @var string Name of the frontend interface */
     private $siteName;
-
-    /** @var string Url of project page (GitHub hosted), defaults to "https://github.com/ReCodEx" */
-    private $githubUrl;
 
     /** @var string Address from which emails should be sent if from is not provided */
     private $from;
@@ -38,7 +35,7 @@ class EmailHelper
     /** @var string Prefix of mail subject to be used */
     private $subjectPrefix;
 
-    /** @var bool Whether the ReCodEx mailing subsystem is in debug mode. Debug mode prevents sending anything via SMTP. */
+    /** @var bool Whether the mailing subsystem is in debug mode. Debug mode prevents sending anything via SMTP. */
     private $debugMode;
 
     /** @var string Path to archive directory. If set, copies of all emails are logged there in text files. */
@@ -55,12 +52,11 @@ class EmailHelper
     public function __construct(array $params, Mailer $mailer)
     {
         $this->mailer = $mailer;
-        $this->apiUrl = Arrays::get($params, "apiUrl", "https://recodex.mff.cuni.cz/api");
-        $this->footerUrl = Arrays::get($params, "footerUrl", "https://recodex.mff.cuni.cz");
-        $this->siteName = Arrays::get($params, "siteName", "ReCodEx");
-        $this->githubUrl = Arrays::get($params, "githubUrl", "https://github.com/ReCodEx");
-        $this->from = Arrays::get($params, "from", "ReCodEx <noreply@recodex>");
-        $this->subjectPrefix = Arrays::get($params, "subjectPrefix", "ReCodEx - ");
+        $this->apiUrl = Arrays::get($params, "apiUrl", "<missing-api-url-configuration>");
+        $this->footerUrl = Arrays::get($params, "footerUrl", "<missing-application-url-configuration>");
+        $this->siteName = Arrays::get($params, "siteName", "ReCodEx SIS Adapter");
+        $this->from = Arrays::get($params, "from", "ReCodEx <noreply@recodex-sis-ext>");
+        $this->subjectPrefix = Arrays::get($params, "subjectPrefix", "ReCodEx SIS Adapter - ");
         $this->debugMode = Arrays::get($params, "debugMode", false);
         $this->archivingDir = Arrays::get($params, "archivingDir", "");
     }
@@ -150,7 +146,6 @@ class EmailHelper
             "apiUrl" => $this->apiUrl,
             "footerUrl" => $this->footerUrl,
             "siteName" => $this->siteName,
-            "githubUrl" => $this->githubUrl,
             "showSettingsInfo" => $this->showSettingsInfo,
         ];
         $template = EmailLocalizationHelper::getTemplate($locale, __DIR__ . "/email_{locale}.latte");

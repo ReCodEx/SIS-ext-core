@@ -48,8 +48,8 @@ class AccessManager
         $this->verificationKey = Arrays::get($parameters, "verificationKey");
         $this->expiration = Arrays::get($parameters, "expiration", 24 * 60 * 60); // one day in seconds
         $this->invitationExpiration = Arrays::get($parameters, "invitationExpiration", 24 * 60 * 60); // one day in sec
-        $this->issuer = Arrays::get($parameters, "issuer", "https://recodex.mff.cuni.cz");
-        $this->audience = Arrays::get($parameters, "audience", "https://recodex.mff.cuni.cz");
+        $this->issuer = Arrays::get($parameters, "issuer", "<missing-issuer-configuration>");
+        $this->audience = Arrays::get($parameters, "audience", "<missing-audience-configuration>");
         $this->usedAlgorithm = Arrays::get($parameters, "usedAlgorithm", "HS256");
         JWT::$leeway = Arrays::get($parameters, "leeway", 10); // 10 seconds
     }

@@ -7,12 +7,12 @@ parameters:
     mbstring.substitute_character: ?
 
   webapp:
-    address: "https://your.recodex.domain"
+    address: "https://your.sis-ext.domain"
 
   api:
-    address: "https://your.recodex.domain/api"
-    name: "ReCodEx API"
-    description: "ReCodEx Code Examiner - API Server"
+    address: "https://your.sis-ext.domain/api"
+    name: "ReCodEx SIS Extension Core"
+    description: "ReCodEx SIS adapter -- core, API, and server backend"
     versionFormat: "{tag}"
 
   accessManager:  # configuration of access token in JWT standard. Do not modify unless you really know what are you doing.
@@ -22,7 +22,7 @@ parameters:
     expiration: 86400  # of regular auth tokens (seconds)
     invitationExpiration: 86400  # of an invitation token (seconds)
     usedAlgorithm: HS256
-    verificationKey: "recodex-123"
+    verificationKey: "sis-ext-123"
 
   sis:
     apiBase: https://sis.university.tld/is/
@@ -32,13 +32,12 @@ parameters:
   emails:  # common configuration for sending email (addresses and template variables)
     apiUrl: %api.address%  # base URL of API server including port (for referencing pictures in messages)
     footerUrl: %webapp.address%  # link in the message footer
-    siteName: "ReCodEx"  # name of frontend (ReCodEx, or KSP for unique instance for KSP course)
-    githubUrl: https://github.com/ReCodEx  # URL to GitHub repository of this project
-    from: "ReCodEx <noreply@your.recodex.domain>"  # sending email address
-    subjectPrefix: "ReCodEx - "
+    siteName: "ReCodEx SIS Adapter"  # name of frontend (ReCodEx, or KSP for unique instance for KSP course)
+    from: "ReCodEx <noreply@your.sis-ext.domain>"  # sending email address
+    subjectPrefix: "ReCodEx SIS Adapter - "
     debugMode: false  # in debug mode, no messages are sent via SMTP
     archivingDir: ""  # a directory where copies of all emails sent are stored (in text files)
-    defaultAdminTo: "Administrator <admin@your.recodex.domain>"  # admin mail address
+    defaultAdminTo: "Administrator <admin@your.sis-ext.domain>"  # admin mail address
 
   linkTemplates:
     assignmentUrl: "%webapp.address%/app/assignment/{id}"
@@ -52,7 +51,7 @@ parameters:
     solutionSourceFilesUrl: "%webapp.address%/app/assignment/{assignmentId}/solution/{solutionId}/sources"
 
 application:
-  errorPresenter: V1:ApiError
+  errorPresenter: ApiError
   mapping:
     *: App\*Module\Presenters\*Presenter
 

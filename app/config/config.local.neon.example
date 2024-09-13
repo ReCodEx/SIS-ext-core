@@ -1,21 +1,20 @@
 parameters:
-  api:
-    address: "https://your.recodex.domain/api"
-
   webapp:
-    address: "https://your.recodex.domain"
+    address: "https://your.sis-ext.domain"
+
+  api:
+    address: "https://your.sis-ext.domain/api"
 
   accessManager:
     issuer: "%webapp.address%"
     audience: "%webapp.address%"
     expiration: 604800  # 7 days in seconds
     invitationExpiration: 604800  # of an invitation token (7 days in seconds)
-    verificationKey: "recodex-123"	# this should be a really secret string
+    verificationKey: "sis-ext-123"	# this should be a really secret string
 
-  emails:
-    footerUrl: "%webapp.address%"
-    from: "ReCodEx <noreply@your.recodex.domain>"
-    defaultAdminTo: "Administrator <admin@example.com>"
+  emails:  # common configuration for sending email (addresses and template variables)
+    from: "ReCodEx <noreply@your.sis-ext.domain>"  # sending email address
+    defaultAdminTo: "Administrator <admin@your.sis-ext.domain>"  # admin mail address
     #debugMode: true  # in debug mode, no messages are sent via SMPT (you should also active archiving)
     #archivingDir: "%appDir%/../log/email-debug"  # a directory where copies of all emails sent are stored (in text files)
     
@@ -23,14 +22,14 @@ parameters:
 nettrine.dbal:
   connection:
     host: "localhost"
-    user: "recodex"
+    user: "recodex-sis-ext"
     password: "someSecretPasswordYouNeedToSetYourself"
-    dbname: "recodex"
+    dbname: "recodex-sis-ext"
 
 # configure mailing module
 mail:
   host: "your.smtp.forwarding.server"
-  clientHost: "your.recodex.domain"
+  clientHost: "your.sis-ext.domain"
   port: 587
   username: "user"
   password: "pass"
