@@ -1,0 +1,42 @@
+parameters:
+  api:
+    address: "https://your.recodex.domain/api"
+
+  webapp:
+    address: "https://your.recodex.domain"
+
+  accessManager:
+    issuer: "%webapp.address%"
+    audience: "%webapp.address%"
+    expiration: 604800  # 7 days in seconds
+    invitationExpiration: 604800  # of an invitation token (7 days in seconds)
+    verificationKey: "recodex-123"	# this should be a really secret string
+
+  emails:
+    footerUrl: "%webapp.address%"
+    from: "ReCodEx <noreply@your.recodex.domain>"
+    defaultAdminTo: "Administrator <admin@example.com>"
+    #debugMode: true  # in debug mode, no messages are sent via SMPT (you should also active archiving)
+    #archivingDir: "%appDir%/../log/email-debug"  # a directory where copies of all emails sent are stored (in text files)
+    
+# The most important part - a database system connection
+nettrine.dbal:
+  connection:
+    host: "localhost"
+    user: "recodex"
+    password: "someSecretPasswordYouNeedToSetYourself"
+    dbname: "recodex"
+
+# configure mailing module
+mail:
+  host: "your.smtp.forwarding.server"
+  clientHost: "your.recodex.domain"
+  port: 587
+  username: "user"
+  password: "pass"
+  secure: "tls"
+  context:
+    ssl:
+      verify_peer: false
+      verify_peer_name: false
+      allow_self_signed: true

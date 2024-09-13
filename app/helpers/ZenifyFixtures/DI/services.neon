@@ -1,0 +1,11 @@
+services:
+	# Zenify
+	- Zenify\DoctrineFixtures\Alice\AliceLoader
+	- Zenify\DoctrineFixtures\Alice\Parser\NeonParser
+
+	# Alice
+	- App\Helpers\ZenifyFixtures\Alice\CustomNativeLoader
+
+	# Faker
+	- type: Faker\Generator
+	  factory: Faker\Factory::create

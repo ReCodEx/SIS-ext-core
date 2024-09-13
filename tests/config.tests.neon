@@ -1,0 +1,8 @@
+nettrine.dbal:
+  connection:
+    url: 'sqlite://:memory:'
+    charset: UTF-8
+    driver: pdo_sqlite
+services:
+    cacheStorage:
+        factory: Nette\Caching\Storages\MemoryStorage

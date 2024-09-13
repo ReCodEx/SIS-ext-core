@@ -1,0 +1,185 @@
+#
+# WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+# https://nette.org/security-warning
+#
+parameters:
+  php:
+    mbstring.substitute_character: ?
+
+  webapp:
+    address: "https://your.recodex.domain"
+
+  api:
+    address: "https://your.recodex.domain/api"
+    name: "ReCodEx API"
+    description: "ReCodEx Code Examiner - API Server"
+    versionFormat: "{tag}"
+
+  accessManager:  # configuration of access token in JWT standard. Do not modify unless you really know what are you doing.
+    leeway: 60
+    issuer: "%webapp.address%"
+    audience: "%webapp.address%"
+    expiration: 86400  # of regular auth tokens (seconds)
+    invitationExpiration: 86400  # of an invitation token (seconds)
+    usedAlgorithm: HS256
+    verificationKey: "recodex-123"
+
+  sis:
+    apiBase: https://sis.university.tld/is/
+    faculty: FACULTY
+    secret: SECRET_TOKEN
+
+  emails:  # common configuration for sending email (addresses and template variables)
+    apiUrl: %api.address%  # base URL of API server including port (for referencing pictures in messages)
+    footerUrl: %webapp.address%  # link in the message footer
+    siteName: "ReCodEx"  # name of frontend (ReCodEx, or KSP for unique instance for KSP course)
+    githubUrl: https://github.com/ReCodEx  # URL to GitHub repository of this project
+    from: "ReCodEx <noreply@your.recodex.domain>"  # sending email address
+    subjectPrefix: "ReCodEx - "
+    debugMode: false  # in debug mode, no messages are sent via SMTP
+    archivingDir: ""  # a directory where copies of all emails sent are stored (in text files)
+    defaultAdminTo: "Administrator <admin@your.recodex.domain>"  # admin mail address
+
+  linkTemplates:
+    assignmentUrl: "%webapp.address%/app/assignment/{id}"
+    exerciseUrl: "%webapp.address%/app/exercises/{id}"
+    shadowAssignmentUrl: "%webapp.address%/app/shadow-assignment/{id}"
+    solutionUrl: "%webapp.address%/app/assignment/{assignmentId}/solution/{solutionId}"
+    referenceSolutiontUrl: "%webapp.address%/app/exercises/{exerciseId}/reference-solution/{solutionId}"
+    forgottenPasswordUrl: "%webapp.address%/forgotten-password/change?{token}"  # URL of web application where the password can be changed
+    emailVerificationUrl: "%webapp.address%/email-verification?{token}"
+    invitationUrl: "%webapp.address%/accept-invitation?{token}"
+    solutionSourceFilesUrl: "%webapp.address%/app/assignment/{assignmentId}/solution/{solutionId}/sources"
+
+application:
+  errorPresenter: V1:ApiError
+  mapping:
+    *: App\*Module\Presenters\*Presenter
+
+session:
+  autoStart: false
+  useCookies: 0
+
+mail:  # configuration of sending mails
+  smtp: true  # using SMTP server, have to be "true"
+  host: "your.smtp.domain"  # address of the server
+  port: 587  # sending port (common values are 25, 465, 587)
+  username: ""  # login to the server
+  password: ""  # password to the server
+  secure: "tls"  # security, values are empty for no security, "ssl" or "tls"
+  context:  # additional parameters, depending on used mail engine
+    ssl:  # examle self-signed certificates can be allowed as verify_peer and verify_peer_name to false and allow_self_signed to true under ssl key (see example)
+      verify_peer: false
+      verify_peer_name: false
+      allow_self_signed: true
+
+acl:
+  config: %appDir%/config/permissions.neon
+  acl:
+    user: App\Security\ACL\IUserPermissions
+  policies:
+    _: App\Security\Policies\BasePermissionPolicy
+    user: App\Security\Policies\UserPermissionPolicy
+
+extensions:
+  console: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
+  nettrine.annotations: Nettrine\Annotations\DI\AnnotationsExtension
+  nettrine.cache: Nettrine\Cache\DI\CacheExtension
+  nettrine.dbal: Nettrine\DBAL\DI\DbalExtension
+  nettrine.dbal.console: Nettrine\DBAL\DI\DbalConsoleExtension
+  nettrine.orm: Nettrine\ORM\DI\OrmExtension
+  nettrine.orm.cache: Nettrine\ORM\DI\OrmCacheExtension
+  nettrine.orm.console: Nettrine\ORM\DI\OrmConsoleExtension(%consoleMode%)
+  nettrine.orm.annotations: Nettrine\ORM\DI\OrmAnnotationsExtension
+  nettrine.migrations: Nettrine\Migrations\DI\MigrationsExtension
+  nettrine.extensions.atlantic18: Nettrine\Extensions\Atlantic18\DI\Atlantic18BehaviorExtension
+  fixtures: Zenify\DoctrineFixtures\DI\FixturesExtension
+  acl: App\Security\SecurityExtension(%tempDir%)
+
+services:
+  http.requestFactory: App\RequestFactory
+  router: App\RouterFactory::createRouter
+  security.passwords: Nette\Security\Passwords(::PASSWORD_BCRYPT, [cost: 12])
+  
+  # commands
+  - App\Console\DoctrineFixtures
+  
+  # security
+  - App\Security\AccessManager(%accessManager%)
+  security.userStorage: App\Security\UserStorage
+  - App\Security\CredentialsAuthenticator
+
+  # config objects
+  - App\Helpers\ApiConfig(%api%)
+  - App\Helpers\EmailsConfig(%emails%)
+
+  # helpers
+  - App\Helpers\SisHelper(%sis.apiBase%, %sis.faculty%, %sis.secret%)
+  - App\Helpers\UserActions
+  - App\Helpers\WebappLinks(%webapp.address%, %linkTemplates%)
+
+  # emails
+  - App\Helpers\Emails\EmailLocalizationHelper
+  - App\Helpers\EmailHelper(%emails%)
+
+  # models - repositories
+  - App\Model\Repository\Logins
+  - App\Model\Repository\Users
+  - App\Model\Repository\SisValidTerms
+
+  # views factories
+  - App\Model\View\UserViewFactory
+
+nettrine.dbal:
+  debug:
+    panel: false
+    sourcePaths: [%appDir%]
+  connection:
+    driver: pdo_mysql
+    host: localhost
+    dbname: 'recodex-sis-ext'
+    user: 'root'
+    password: ''
+    charset: utf8mb4
+    types:
+      bit: Doctrine\DBAL\Types\BooleanType
+      datetime: DoctrineExtensions\DBAL\Types\UTCDateTimeType
+      uuid: Ramsey\Uuid\Doctrine\UuidType
+    defaultTableOptions:
+      charset: utf8mb4
+      collate: utf8mb4_unicode_ci
+
+nettrine.orm:
+  configuration:
+    autoGenerateProxyClasses: true
+    customStringFunctions:
+      coalesce_sub: DoctrineExtensions\Query\Functions\CoalesceSubselectsFunction
+      type: DoctrineExtensions\Query\Functions\TypeFunction
+
+nettrine.orm.annotations:
+  mapping:
+   App\Model\Entity: %appDir%/model/entity
+
+nettrine.annotations:
+  ignore:
+    - LoggedIn
+    - POST
+    - GET
+    - PUT
+    - DELETE
+
+nettrine.extensions.atlantic18:
+    softDeleteable: true
+
+nettrine.migrations:
+  table: doctrine_migrations # database table for applied migrations
+  column: version # database column for applied migrations
+  directory: %appDir%/../migrations # directory, where all migrations are stored
+  namespace: Migrations # namespace of migration classes
+
+fixtures:
+  locale: "en_US"
+  seed: 1
+
+console:
+  name: ReCodEx SIS Adapter
