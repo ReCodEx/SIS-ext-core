@@ -2,25 +2,25 @@
 
 namespace App\Model\Repository;
 
-use App\Model\Entity\SisValidTerm;
+use App\Model\Entity\SisTerm;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * @extends BaseRepository<SisValidTerm>
+ * @extends BaseRepository<SisTerm>
  */
-class SisValidTerms extends BaseRepository
+class SisTerms extends BaseRepository
 {
     public function __construct(EntityManagerInterface $em)
     {
-        parent::__construct($em, SisValidTerm::class);
+        parent::__construct($em, SisTerm::class);
     }
 
     /**
      * @param int $year
      * @param int $term
-     * @return SisValidTerm|null
+     * @return SisTerm|null
      */
-    public function isValid($year, $term): ?SisValidTerm
+    public function isValid($year, $term): ?SisTerm
     {
         return $this->findOneBy(
             [
@@ -31,7 +31,7 @@ class SisValidTerms extends BaseRepository
     }
 
     /**
-     * @return SisValidTerm[]
+     * @return SisTerm[]
      */
     public function findAll(): array
     {

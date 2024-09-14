@@ -122,7 +122,7 @@ services:
 
   # models - repositories
   - App\Model\Repository\Users
-  - App\Model\Repository\SisValidTerms
+  - App\Model\Repository\SisTerms
 
   # views factories
 
