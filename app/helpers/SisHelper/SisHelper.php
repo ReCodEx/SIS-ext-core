@@ -33,7 +33,7 @@ class SisHelper
         $this->faculty = $faculty;
         $this->secret = $secret;
 
-        if (!Strings::endsWith($this->apiBase, '/')) {
+        if (!str_ends_with($this->apiBase, '/')) {
             $this->apiBase .= '/';
         }
 
