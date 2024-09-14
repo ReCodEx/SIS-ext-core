@@ -110,6 +110,7 @@ class SisScheduleEvent implements JsonSerializable
         $this->room = $room;
         $this->fortnight = $fortnight;
         $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
     }
 
     /*
@@ -213,6 +214,8 @@ class SisScheduleEvent implements JsonSerializable
             'length' => $this->getLength(),
             'room' => $this->getRoom(),
             'fortnight' => $this->getFortnight(),
+            'createdAt' => $this->getCreatedAt()->getTimestamp(),
+            'updatedAt' => $this->getUpdatedAt()->getTimestamp(),
         ];
     }
 }

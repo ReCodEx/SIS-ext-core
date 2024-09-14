@@ -89,6 +89,7 @@ class SisTerm implements JsonSerializable
         $this->setStudentsAdvertisement($studentsFrom, $studentsUntil);
         $this->setTeachersAdvertisement($teachersFrom, $teachersUntil);
         $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
     }
 
     /**
@@ -217,6 +218,8 @@ class SisTerm implements JsonSerializable
             'teachersFrom' => $this->getTeachersFrom()->getTimestamp(),
             'teachersUntil' => $this->getTeachersUntil()->getTimestamp(),
             'archiveAfter' => $this->getArchiveAfter()?->getTimestamp(),
+            'createdAt' => $this->getCreatedAt()->getTimestamp(),
+            'updatedAt' => $this->getUpdatedAt()->getTimestamp(),
         ];
     }
 }

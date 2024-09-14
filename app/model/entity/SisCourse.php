@@ -56,6 +56,7 @@ class SisCourse implements JsonSerializable
         $this->captionCs = $captionCs;
         $this->captionEn = $captionEn;
         $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
         $this->events = new ArrayCollection();
     }
 
@@ -105,6 +106,10 @@ class SisCourse implements JsonSerializable
         return [
             'id' => $this->getId(),
             'code' => $this->getCode(),
+            'caption_cs' => $this->getCaptionCs(),
+            'caption_en' => $this->getCaptionEn(),
+            'createdAt' => $this->getCreatedAt()->getTimestamp(),
+            'updatedAt' => $this->getUpdatedAt()->getTimestamp(),
         ];
     }
 }

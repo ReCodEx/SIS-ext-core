@@ -3,9 +3,7 @@
 namespace App\Helpers\Emails;
 
 use App\Exceptions\InvalidStateException;
-use App\Model\Entity\LocalizedEntity;
 use App\Model\Entity\User;
-use Doctrine\Common\Collections\Collection;
 use Nette;
 use DateInterval;
 
@@ -18,35 +16,6 @@ class EmailLocalizationHelper
     public const CZECH_LOCALE = "cs";
     public const DEFAULT_LOCALE = "en";
     public const LOCALE_PLACEHOLDER_PATTERN = '/{locale}/';
-
-
-    /**
-     * Based on given collection try to find localized text conforming given
-     * locale or conforming to the default locale.
-     * @param string $locale
-     * @param Collection $collection
-     * @return mixed|null
-     */
-    public static function getLocalization(string $locale, Collection $collection)
-    {
-        $defaultText = null;
-        /** @var LocalizedEntity $text */
-        foreach ($collection as $text) {
-            if ($text->getLocale() === $locale) {
-                return $text;
-            }
-
-            if ($text->getLocale() === self::DEFAULT_LOCALE) {
-                $defaultText = $text;
-            }
-        }
-
-        if ($defaultText !== null) {
-            return $defaultText;
-        }
-
-        return !$collection->isEmpty() ? $collection->first() : null;
-    }
 
     /**
      * Based on given template path and filename with '{locale}' substring find

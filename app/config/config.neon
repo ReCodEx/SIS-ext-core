@@ -124,6 +124,7 @@ services:
   - App\Model\Repository\SisCourses
   - App\Model\Repository\SisScheduleEvents
   - App\Model\Repository\SisTerms
+  - App\Model\Repository\SisUsers
   - App\Model\Repository\Users
 
   # views factories

@@ -16,34 +16,6 @@ class User implements JsonSerializable
     use CreateableEntity;
     use UpdateableEntity;
 
-    public function __construct(
-        string $id,
-        string $instanceId,
-        string $email,
-        string $firstName,
-        string $lastName,
-        string $titlesBeforeName,
-        string $titlesAfterName,
-        ?string $role,
-    ) {
-        $this->id = $id;
-        $this->instanceId = $instanceId;
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->titlesBeforeName = $titlesBeforeName;
-        $this->titlesAfterName = $titlesAfterName;
-        $this->email = $email;
-        $this->avatarUrl = null;
-
-        if (empty($role)) {
-            $this->role = Roles::STUDENT_ROLE;
-        } else {
-            $this->role = $role;
-        }
-
-        $this->createdAt = new DateTime();
-    }
-
     /**
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
@@ -130,6 +102,35 @@ class User implements JsonSerializable
      * no affiliations may have beeen loaded the last time.
      */
     protected $sisEventsLoaded = null;
+
+    public function __construct(
+        string $id,
+        string $instanceId,
+        string $email,
+        string $firstName,
+        string $lastName,
+        string $titlesBeforeName,
+        string $titlesAfterName,
+        ?string $role,
+    ) {
+        $this->id = $id;
+        $this->instanceId = $instanceId;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->titlesBeforeName = $titlesBeforeName;
+        $this->titlesAfterName = $titlesAfterName;
+        $this->email = $email;
+        $this->avatarUrl = null;
+
+        if (empty($role)) {
+            $this->role = Roles::STUDENT_ROLE;
+        } else {
+            $this->role = $role;
+        }
+
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
+    }
 
     /*
      * Accessors
@@ -302,6 +303,8 @@ class User implements JsonSerializable
             'defaultLanguage' => $this->getDefaultLanguage(),
             'sisUserLoaded' => $this->getSisUserLoaded()?->getTimestamp(),
             'sisEventsLoaded' => $this->getSisEventsLoaded()?->getTimestamp(),
+            'createdAt' => $this->getCreatedAt()->getTimestamp(),
+            'updatedAt' => $this->getUpdatedAt()->getTimestamp(),
         ];
     }
 }
