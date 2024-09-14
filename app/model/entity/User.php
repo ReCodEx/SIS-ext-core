@@ -116,6 +116,21 @@ class User implements JsonSerializable
      */
     protected $tokenValidityThreshold;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * When the user data (corresponding SisUser entity) were last loaded from SIS.
+     * This needs to be kept here as well since no SisUser entity may have been loaded (yet).
+     */
+    protected $sisUserLoaded = null;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * When the SIS events were loaded for the last time (events, affiliations...).
+     * This needs to be kept here since the events and courses may be shared and (also)
+     * no affiliations may have beeen loaded the last time.
+     */
+    protected $sisEventsLoaded = null;
+
     /*
      * Accessors
      */
@@ -252,6 +267,26 @@ class User implements JsonSerializable
         $this->tokenValidityThreshold = $tokenValidityThreshold;
     }
 
+    public function getSisUserLoaded(): ?DateTime
+    {
+        return $this->sisUserLoaded;
+    }
+
+    public function setSisUserLoaded(?DateTime $when = new DateTime()): void
+    {
+        $this->sisUserLoaded = $when;
+    }
+
+    public function getSisEventsLoaded(): ?DateTime
+    {
+        return $this->sisEventsLoaded;
+    }
+
+    public function setSisEventsLoaded(?DateTime $when = new DateTime()): void
+    {
+        $this->sisEventsLoaded = $when;
+    }
+
     // JSON interface
 
     public function jsonSerialize(): mixed
@@ -265,6 +300,8 @@ class User implements JsonSerializable
             'avatarUrl' => $this->getAvatarUrl(),
             'role' => $this->getRole(),
             'defaultLanguage' => $this->getDefaultLanguage(),
+            'sisUserLoaded' => $this->getSisUserLoaded()?->getTimestamp(),
+            'sisEventsLoaded' => $this->getSisEventsLoaded()?->getTimestamp(),
         ];
     }
 }

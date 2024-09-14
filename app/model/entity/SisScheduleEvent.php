@@ -8,7 +8,9 @@ use JsonSerializable;
 
 /**
  * @ORM\Entity
- * A record represening one
+ * A record represening one scheduling event (ticket) from SIS. One event corresponds to one part of a course
+ * (usually a lecture or labs) visited by a group of students. This event usually corresponds to one group in ReCodEx.
+ * This is merely a cache for SIS data.
  */
 class SisScheduleEvent implements JsonSerializable
 {
@@ -50,25 +52,25 @@ class SisScheduleEvent implements JsonSerializable
     protected $type;
 
     /**
-     * @ORM\Column(type="int")
+     * @ORM\Column(type="integer")
      * Day of the week (0=Sunday, 1=Monday...6=Saturday)
      */
     protected $dayOfWeek;
 
     /**
-     * @ORM\Column(type="int")
+     * @ORM\Column(type="integer")
      * When the lecture starts (logical weeks of the semester).
      */
     protected $firstWeek;
 
     /**
-     * @ORM\Column(type="int")
+     * @ORM\Column(type="integer")
      * Time of the day when the event starts as minutes from midnight.
      */
     protected $time;
 
     /**
-     * @ORM\Column(type="int")
+     * @ORM\Column(type="integer")
      * Length of the event in minutes.
      */
     protected $length;

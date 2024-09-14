@@ -9,6 +9,8 @@ use JsonSerializable;
 
 /**
  * @ORM\Entity
+ * Record holding information about one course from SIS.
+ * This is merely a cache for SIS data.
  */
 class SisCourse implements JsonSerializable
 {
