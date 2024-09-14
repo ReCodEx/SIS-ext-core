@@ -14,10 +14,6 @@ if (!empty($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD'])
     exit;
 }
 
-
-// Uncomment this line if you must temporarily take down your site for maintenance.
-// require __DIR__ . '/.maintenance.php';
-
 require __DIR__ . '/../vendor/autoload.php';
 
 $configurator = App\Bootstrap::boot();

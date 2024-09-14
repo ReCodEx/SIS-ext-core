@@ -3,28 +3,22 @@
 namespace App\Model\Entity;
 
 use App\Security\Roles;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
-use Gravatar\Gravatar;
-use App\Exceptions\ApiException;
-use InvalidArgumentException;
 use DateTime;
-use DateTimeInterface;
-use DateTimeImmutable;
+use JsonSerializable;
 
 /**
  * @ORM\Entity
- * @Gedmo\SoftDeleteable(fieldName="deletedAt", timeAware=false)
+ * This holds a copy of user-related data from ReCodEx.
  */
-class User
+class User implements JsonSerializable
 {
     use CreateableEntity;
-    use DeleteableEntity;
+    use UpdateableEntity;
 
     public function __construct(
+        string $id,
+        string $instanceId,
         string $email,
         string $firstName,
         string $lastName,
@@ -32,15 +26,13 @@ class User
         string $titlesAfterName,
         ?string $role,
     ) {
+        $this->id = $id;
+        $this->instanceId = $instanceId;
         $this->firstName = $firstName;
         $this->lastName = $lastName;
         $this->titlesBeforeName = $titlesBeforeName;
         $this->titlesAfterName = $titlesAfterName;
         $this->email = $email;
-        $this->isVerified = false;
-        $this->isAllowed = true;
-        $this->createdAt = new DateTime();
-        $this->login = null;
         $this->avatarUrl = null;
 
         if (empty($role)) {
@@ -48,16 +40,34 @@ class User
         } else {
             $this->role = $role;
         }
+
+        $this->createdAt = new DateTime();
     }
 
     /**
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=\Ramsey\Uuid\Doctrine\UuidGenerator::class)
-     * @var \Ramsey\Uuid\UuidInterface
+     * A copy of ID from ReCodEx
      */
     protected $id;
+
+    /**
+     * @ORM\Column(type="uuid")
+     * ID of ReCodEx instance where the user belongs to.
+     */
+    protected $instanceId;
+
+    /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     * Also known as UKCO.
+     */
+    protected $sisId = null;
+
+    /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     * Alhpanumerical login generated from name (which is used as alternative login to SIS).
+     */
+    protected $sisLogin = null;
 
     /**
      * @ORM\Column(type="string")
@@ -73,11 +83,6 @@ class User
      * @ORM\Column(type="string")
      */
     protected $lastName;
-
-    public function getName()
-    {
-        return trim("{$this->titlesBeforeName} {$this->firstName} {$this->lastName} {$this->titlesAfterName}");
-    }
 
     /**
      * @ORM\Column(type="string")
@@ -95,123 +100,57 @@ class User
     protected $avatarUrl;
 
     /**
-     * If true, then set gravatar image based on user email.
-     * @param bool $useGravatar
-     */
-    public function setGravatar(bool $useGravatar = true)
-    {
-        $this->avatarUrl = !$useGravatar ? null :
-            Gravatar::image($this->email, 200, "retro", "g", "png", false)->url();
-    }
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $isVerified;
-
-    public function isVerified()
-    {
-        return $this->isVerified;
-    }
-
-    public function setVerified($verified = true)
-    {
-        $this->isVerified = $verified;
-    }
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $isAllowed;
-
-    public function isAllowed()
-    {
-        return $this->isAllowed;
-    }
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    protected $tokenValidityThreshold;
-
-    /**
      * @ORM\Column(type="string")
      */
     protected $role;
 
     /**
-     * @ORM\OneToOne(targetEntity="Login", mappedBy="user", cascade={"all"})
+     * @ORM\Column(type="string", length=32)
+     * Copied from UserSettings
      */
-    protected $login;
-
-
-    /**
-     * @return array
-     */
-    public function getNameParts(): array
-    {
-        return [
-            "titlesBeforeName" => $this->titlesBeforeName,
-            "firstName" => $this->firstName,
-            "lastName" => $this->lastName,
-            "titlesAfterName" => $this->titlesAfterName,
-        ];
-    }
-
-    /**
-     * Returns true if the user entity is associated with a local login entity.
-     * @return bool
-     */
-    public function hasLocalAccount(): bool
-    {
-        return $this->login !== null;
-    }
+    protected $defaultLanguage;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @var DateTime
-     * When the last authentication or token renewal occurred.
+     * This is not a copy of ReCodEx field, it is used to manage validity of SIS-ext tokens.
      */
-    protected $lastAuthenticationAt = null;
-
-    /**
-     * Update the last authentication time to present.
-     * @param DateTime|null $time the authentication time (if null, current time is set)
-     */
-    public function updateLastAuthenticationAt(DateTime $time = null)
-    {
-        $this->lastAuthenticationAt = $time ?? new DateTime();
-    }
-
+    protected $tokenValidityThreshold;
 
     /*
      * Accessors
      */
 
-    public function getId(): ?string
+    public function getId(): string
     {
-        return $this->id === null ? null : (string)$this->id;
+        return $this->id;
     }
 
-    public function getEmail(): string
+    public function getInstanceId(): string
     {
-        return $this->email;
+        return $this->instanceId;
     }
 
-    public function setEmail(string $email): void
+    public function getSisId(): ?string
     {
-        $this->email = $email;
+        return $this->sisId;
     }
 
-    public function getRole(): string
+    public function setSisId(?string $sisId): void
     {
-        return $this->role;
+        $this->sisId = $sisId;
     }
 
-    public function getAvatarUrl(): ?string
+    public function getSisLogin(): ?string
     {
-        return $this->avatarUrl;
+        return $this->sisLogin;
     }
+
+    public function setSisLogin(?string $sisLogin): void
+    {
+        $this->sisLogin = $sisLogin;
+    }
+
+    // name
 
     public function getFirstName(): string
     {
@@ -243,25 +182,65 @@ class User
         $this->titlesAfterName = $titlesAfterName;
     }
 
+
+    public function getNameParts(): array
+    {
+        return [
+            "titlesBeforeName" => $this->titlesBeforeName,
+            "firstName" => $this->firstName,
+            "lastName" => $this->lastName,
+            "titlesAfterName" => $this->titlesAfterName,
+        ];
+    }
+
+    public function getName()
+    {
+        return trim("{$this->titlesBeforeName} {$this->firstName} {$this->lastName} {$this->titlesAfterName}");
+    }
+
+    // other ReCodEx data
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
+    public function getAvatarUrl(): ?string
+    {
+        return $this->avatarUrl;
+    }
+
+    public function setAvatarUrl(?string $avatarUrl): void
+    {
+        $this->avatarUrl = $avatarUrl;
+    }
+
+    public function getRole(): string
+    {
+        return $this->role;
+    }
+
     public function setRole(string $role): void
     {
         $this->role = $role;
     }
 
-    public function setIsAllowed(bool $isAllowed): void
+    public function getDefaultLanguage(): string
     {
-        $this->isAllowed = $isAllowed;
+        return $this->defaultLanguage;
     }
 
-    public function getLogin(): ?Login
+    public function setDefaultLanguage(string $lang): void
     {
-        return $this->login;
+        $this->defaultLanguage = $lang;
     }
 
-    public function setLogin(?Login $login): void
-    {
-        $this->login = $login;
-    }
+    // security (access control)
 
     public function getTokenValidityThreshold(): ?DateTime
     {
@@ -273,8 +252,19 @@ class User
         $this->tokenValidityThreshold = $tokenValidityThreshold;
     }
 
-    public function getLastAuthenticationAt(): ?DateTime
+    // JSON interface
+
+    public function jsonSerialize(): mixed
     {
-        return $this->lastAuthenticationAt;
+        return [
+            'id' => $this->getId(),
+            'sisId' => $this->getSisId(),
+            'sisLogin' => $this->getSisLogin(),
+            'name' => $this->getNameParts(),
+            'email' => $this->getEmail(),
+            'avatarUrl' => $this->getAvatarUrl(),
+            'role' => $this->getRole(),
+            'defaultLanguage' => $this->getDefaultLanguage(),
+        ];
     }
 }

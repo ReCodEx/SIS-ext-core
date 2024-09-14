@@ -55,7 +55,6 @@
         "guzzlehttp/guzzle": "~7.4",
         "symfony/process": "^7.1",
         "firebase/php-jwt": "^6.3",
-        "forxer/gravatar": "^5.0",
         "mrdm-nl/ldap": "^1.1",
         "bjeavons/zxcvbn-php": "^1.2",
         "limenet/git-version": "v0.1.6",

@@ -120,14 +120,6 @@ class AccessManager
             );
         }
 
-        if (!$user->isAllowed()) {
-            throw new ForbiddenRequestException(
-                "Forbidden Request - User account was disabled",
-                IResponse::S403_FORBIDDEN,
-                FrontendErrorMappings::E403_002__USER_NOT_ALLOWED
-            );
-        }
-
         return $user;
     }
 
@@ -148,14 +140,6 @@ class AccessManager
         int $exp = null,
         array $payload = []
     ) {
-        if (!$user->isAllowed()) {
-            throw new ForbiddenRequestException(
-                "Forbidden Request - User account was disabled",
-                IResponse::S403_FORBIDDEN,
-                FrontendErrorMappings::E403_002__USER_NOT_ALLOWED
-            );
-        }
-
         if ($exp === null) {
             $exp = $this->expiration;
         }

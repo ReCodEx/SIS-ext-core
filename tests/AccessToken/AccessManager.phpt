@@ -131,32 +131,6 @@ class TestAccessManager extends Tester\TestCase
         Assert::equal([], $payload->scopes);
     }
 
-    public function testIssueTokenFailsForDisabledUser()
-    {
-        $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
-        $manager = new AccessManager(
-            [
-                "verificationKey" => $verificationKey,
-                "issuer" => "X",
-                "audience" => "Y",
-                "expiration" => 123
-            ],
-            $users
-        );
-
-        $user = Mockery::mock(App\Model\Entity\User::class);
-        $user->shouldReceive("getId")->andReturn("123456");
-        $user->shouldReceive("isAllowed")->andReturn(false);
-
-        Assert::exception(
-            function () use ($manager, $user) {
-                $manager->issueToken($user);
-            },
-            ForbiddenRequestException::class
-        );
-    }
-
     public function testIssueTokenWithScopes()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);

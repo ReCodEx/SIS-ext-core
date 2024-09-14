@@ -5,17 +5,3 @@ App\Model\Entity\User:
     "testUser{1..2}":
         __construct: ['user<current()>\@example.com', "<firstName()>", "<lastName()>", "", "", student]
         setVerified: true
-
-App\Model\Entity\Login:
-    testAdminLogin:
-        __construct:
-            createLogin:
-                - @admin
-                - "admin@admin.com"
-                - "admin"
-    "testUserLogin{1..2}":
-        __construct:
-            createLogin:
-                - "@testUser<current()>"
-                - 'user<current()>\@example.com'
-                - "password<current()>"

@@ -106,7 +106,6 @@ services:
   # security
   - App\Security\AccessManager(%accessManager%)
   security.userStorage: App\Security\UserStorage
-  - App\Security\CredentialsAuthenticator
 
   # config objects
   - App\Helpers\ApiConfig(%api%)
@@ -122,12 +121,10 @@ services:
   - App\Helpers\EmailHelper(%emails%)
 
   # models - repositories
-  - App\Model\Repository\Logins
   - App\Model\Repository\Users
   - App\Model\Repository\SisValidTerms
 
   # views factories
-  - App\Model\View\UserViewFactory
 
 nettrine.dbal:
   debug:
