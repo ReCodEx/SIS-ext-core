@@ -6,6 +6,7 @@ use App\Security\Roles;
 use Doctrine\ORM\Mapping as ORM;
 use DateTime;
 use JsonSerializable;
+use InvalidArgumentException;
 
 /**
  * @ORM\Entity
@@ -67,11 +68,6 @@ class User implements JsonSerializable
     protected $email;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
-     */
-    protected $avatarUrl;
-
-    /**
      * @ORM\Column(type="string")
      */
     protected $role;
@@ -103,6 +99,15 @@ class User implements JsonSerializable
      */
     protected $sisEventsLoaded = null;
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * Prefix of the recodex authentication token used to perform operations on ReCodEx API.
+     * The suffix is stored in our token used to authenticate agains this API as a payload.
+     * The divison of the token in two parts makes it more difficult to get the whole token and breach the security.
+     * This column SHOULD NEVER be sent over to the client side (or anywhere else).
+     */
+    protected $recodexToken = null;
+
     public function __construct(
         string $id,
         string $instanceId,
@@ -120,7 +125,6 @@ class User implements JsonSerializable
         $this->titlesBeforeName = $titlesBeforeName;
         $this->titlesAfterName = $titlesAfterName;
         $this->email = $email;
-        $this->avatarUrl = null;
 
         if (empty($role)) {
             $this->role = Roles::STUDENT_ROLE;
@@ -226,16 +230,6 @@ class User implements JsonSerializable
         $this->email = $email;
     }
 
-    public function getAvatarUrl(): ?string
-    {
-        return $this->avatarUrl;
-    }
-
-    public function setAvatarUrl(?string $avatarUrl): void
-    {
-        $this->avatarUrl = $avatarUrl;
-    }
-
     public function getRole(): string
     {
         return $this->role;
@@ -288,6 +282,40 @@ class User implements JsonSerializable
         $this->sisEventsLoaded = $when;
     }
 
+    public function getRecodexToken(): ?string
+    {
+        return $this->recodexToken;
+    }
+
+    /**
+     * Set the recodex token field by chopping off the right prefix of the whole token and returning the suffix.
+     * @param string|null $wholeToken a complete JWT in string form or null (if the token should be reset)
+     * @return string|null the remaining suffix which was not stored to this entity (or null, if the token is reset)
+     */
+    public function setRecodexToken(?string $wholeToken): ?string
+    {
+        if (!$wholeToken) {
+            $this->recodexToken = null;
+            return null;
+        }
+
+        if (strlen($wholeToken < 4)) { // sanity check
+            throw new InvalidArgumentException("ReCodEx security token is too short to be a valid JWT token.");
+        }
+
+        $len = strlen($wholeToken);
+        if ($len < 16) {
+            $len /= 2;  // token is quite short, let's split it in half
+        } elseif ($len > 250) {
+            $len = 250;  // token is too long, make sure it fits the DB field
+        } else {
+            $len -= 8; // in regular cases, the last 8 chars are chopped off
+        }
+
+        $this->recodexToken = substr($wholeToken, 0, $len); // prefix
+        return substr($wholeToken, $len); // suffix
+    }
+
     // JSON interface
 
     public function jsonSerialize(): mixed
@@ -298,7 +326,6 @@ class User implements JsonSerializable
             'sisLogin' => $this->getSisLogin(),
             'name' => $this->getNameParts(),
             'email' => $this->getEmail(),
-            'avatarUrl' => $this->getAvatarUrl(),
             'role' => $this->getRole(),
             'defaultLanguage' => $this->getDefaultLanguage(),
             'sisUserLoaded' => $this->getSisUserLoaded()?->getTimestamp(),

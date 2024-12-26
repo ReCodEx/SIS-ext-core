@@ -27,7 +27,7 @@ class SisCourse implements JsonSerializable
     protected $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * Identification (code) of the course in SIS.
      */
     protected $code;

@@ -10,7 +10,7 @@ use InvalidArgumentException;
 /**
  * @ORM\Entity
  * A record represening one semester with all important dates, especially the ranges from-until
- * it is advertised to students/teachers.
+ * it is advertised to students/teachers. This needs to be set by admin to correctly handle SIS operations.
  */
 class SisTerm implements JsonSerializable
 {
@@ -28,11 +28,13 @@ class SisTerm implements JsonSerializable
 
     /**
      * @ORM\Column(type="integer")
+     * Calendar year in which the academic year begins.
      */
     protected $year;
 
     /**
      * @ORM\Column(type="integer")
+     * 1 = winter term, 2 = summer term
      */
     protected $term;
 

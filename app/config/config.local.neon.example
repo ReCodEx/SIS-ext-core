@@ -13,9 +13,9 @@ parameters:
     verificationKey: "sis-ext-123"	# this should be a really secret string
 
   emails:  # common configuration for sending email (addresses and template variables)
-    from: "ReCodEx <noreply@your.sis-ext.domain>"  # sending email address
+    from: "SIS-CodEx <noreply@your.sis-ext.domain>"  # sending email address
     defaultAdminTo: "Administrator <admin@your.sis-ext.domain>"  # admin mail address
-    #debugMode: true  # in debug mode, no messages are sent via SMPT (you should also active archiving)
+    #debugMode: true  # in debug mode, no messages are sent via SMTP (you should also active archiving)
     #archivingDir: "%appDir%/../log/email-debug"  # a directory where copies of all emails sent are stored (in text files)
     
 # The most important part - a database system connection
