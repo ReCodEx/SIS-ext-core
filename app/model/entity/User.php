@@ -101,7 +101,7 @@ class User implements JsonSerializable
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * Prefix of the recodex authentication token used to perform operations on ReCodEx API.
+     * Prefix of the ReCodEx authentication token used to perform operations on ReCodEx API.
      * The suffix is stored in our token used to authenticate agains this API as a payload.
      * The divison of the token in two parts makes it more difficult to get the whole token and breach the security.
      * This column SHOULD NEVER be sent over to the client side (or anywhere else).
@@ -192,9 +192,19 @@ class User implements JsonSerializable
         $this->lastName = $lastName;
     }
 
+    public function getTitlesBeforeName(): string
+    {
+        return $this->titlesBeforeName;
+    }
+
     public function setTitlesBeforeName(string $titlesBeforeName): void
     {
         $this->titlesBeforeName = $titlesBeforeName;
+    }
+
+    public function getTitlesAfterName(): string
+    {
+        return $this->titlesAfterName;
     }
 
     public function setTitlesAfterName(string $titlesAfterName): void

@@ -6,10 +6,9 @@ use Nette\Http\IResponse;
 use Exception;
 
 /**
- * Occurs when everything goes south and application cannot perform
- * requested operation in a proper and expected way.
+ * Something is wrong in the configuration of the core module.
  */
-class InternalServerException extends ApiException
+class ConfigException extends ApiException
 {
     /**
      * Create instance with further details.

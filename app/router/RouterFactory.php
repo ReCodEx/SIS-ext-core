@@ -27,15 +27,16 @@ class RouterFactory
 
         $router[] = new Route('', "Default:default");
 
-        $router[] = self::createTODORoutes("todo");
+        $router[] = self::createLoginRoutes("login");
 
         return $router;
     }
 
-    private static function createTODORoutes(string $prefix): RouteList
+    private static function createLoginRoutes(string $prefix): RouteList
     {
         $router = new RouteList();
-        $router[] = new PostRoute("$prefix/check", "Security:check");
+        $router[] = new PostRoute("$prefix", "Login:default");
+        $router[] = new PostRoute("$prefix/refresh", "Login:refresh");
         return $router;
     }
 }

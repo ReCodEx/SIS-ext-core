@@ -24,6 +24,10 @@ parameters:
     usedAlgorithm: HS256
     verificationKey: "sis-ext-123"
 
+  recodex:  # just a placeholder, this needs to be overriden in local config
+    apiBase: null
+    extensionId: null
+
   sis:
     apiBase: https://sis.university.tld/is/
     faculty: FACULTY
@@ -102,6 +106,7 @@ services:
   
   # commands
   - App\Console\DoctrineFixtures
+  - App\Console\RecodexToken
   
   # security
   - App\Security\AccessManager(%accessManager%)
@@ -112,6 +117,7 @@ services:
   - App\Helpers\EmailsConfig(%emails%)
 
   # helpers
+  - App\Helpers\RecodexApiHelper(%recodex%)
   - App\Helpers\SisHelper(%sis.apiBase%, %sis.faculty%, %sis.secret%)
   - App\Helpers\UserActions
   - App\Helpers\WebappLinks(%webapp.address%, %linkTemplates%)

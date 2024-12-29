@@ -7,7 +7,6 @@ use Generator;
 use Nette;
 use GuzzleHttp;
 use Nette\Utils\Json;
-use Nette\Utils\Strings;
 
 class SisHelper
 {

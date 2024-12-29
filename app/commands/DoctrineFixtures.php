@@ -3,7 +3,6 @@
 namespace App\Console;
 
 use Doctrine\DBAL;
-use Doctrine\ORM\Id\AssignedGenerator;
 use Nette\Utils\Finder;
 use Nette\Utils\Strings;
 use SplFileInfo;

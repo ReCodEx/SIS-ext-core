@@ -12,6 +12,10 @@ parameters:
     invitationExpiration: 604800  # of an invitation token (7 days in seconds)
     verificationKey: "sis-ext-123"	# this should be a really secret string
 
+  recodex:
+    apiBase: https://your.recodex.domain/api  # URI of the ReCodEx API
+    extensionId: sis-cuni  # identifier under which is this extension registered in ReCodEx config
+
   emails:  # common configuration for sending email (addresses and template variables)
     from: "SIS-CodEx <noreply@your.sis-ext.domain>"  # sending email address
     defaultAdminTo: "Administrator <admin@your.sis-ext.domain>"  # admin mail address
