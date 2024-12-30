@@ -35,6 +35,7 @@ class RouterFactory
     private static function createLoginRoutes(string $prefix): RouteList
     {
         $router = new RouteList();
+        $router[] = new GetRoute("$prefix", "Login:test");
         $router[] = new PostRoute("$prefix", "Login:default");
         $router[] = new PostRoute("$prefix/refresh", "Login:refresh");
         return $router;

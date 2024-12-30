@@ -57,7 +57,7 @@ parameters:
 application:
   errorPresenter: ApiError
   mapping:
-    *: App\*Module\Presenters\*Presenter
+    *: App\Presenters\*Presenter
 
 session:
   autoStart: false

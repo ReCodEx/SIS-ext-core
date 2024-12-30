@@ -28,6 +28,11 @@ class RecodexUser
         $this->recodexApi = $recodexApi;
     }
 
+    public function getRawData(): array
+    {
+        return $this->data;
+    }
+
     /**
      * @return string ReCodEx user ID
      * @throws RecodexApiException if the ID is missing
@@ -98,7 +103,7 @@ class RecodexUser
      */
     public function createUser(string $instanceId): User
     {
-        if (!in_array($instanceId, $this->data['privateData']['instanceIds'] ?? [])) {
+        if (!in_array($instanceId, $this->data['privateData']['instancesIds'] ?? [])) {
             throw new RecodexApiException("The user does not belong into the given ReCodEx instance.");
         }
 
@@ -131,7 +136,7 @@ class RecodexUser
             throw new RecodexApiException("User ID mismatch.");
         }
 
-        if (!in_array($user->getInstanceId(), $this->data['privateData']['instanceIds'] ?? [])) {
+        if (!in_array($user->getInstanceId(), $this->data['privateData']['instancesIds'] ?? [])) {
             throw new RecodexApiException("User instance ID mismatch.");
         }
 

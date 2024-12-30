@@ -17,7 +17,7 @@ class NotImplementedException extends ApiException
     {
         parent::__construct(
             "This feature is not implemented. Contact the authors of the API for more information about the status of the API.",
-            IResponse::S501_NOT_IMPLEMENTED,
+            IResponse::S501_NotImplemented,
             FrontendErrorMappings::E501_000__NOT_IMPLEMENTED
         );
     }

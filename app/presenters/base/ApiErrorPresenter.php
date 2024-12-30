@@ -5,20 +5,20 @@ namespace App\Presenters;
 use App\Exceptions\ApiException;
 use App\Exceptions\FrontendErrorMappings;
 use App\Helpers\UserActions;
-use App\Presenters\BasePresenter;
 use App\Security\UserStorage;
 use Nette\Http\IResponse;
 use Nette\Application\BadRequestException;
 use Nette\Application\AbortException;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Tracy\ILogger;
+use Nette\Application\UI\Presenter;
 use Exception;
 use Throwable;
 
 /**
  * The error presenter for the API module - all responses are served as JSONs with a fixed format.
  */
-class ApiErrorPresenter extends BasePresenter
+class ApiErrorPresenter extends Presenter
 {
     /**
      * @var ILogger

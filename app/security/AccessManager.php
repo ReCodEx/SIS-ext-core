@@ -112,7 +112,7 @@ class AccessManager
         if (!$user) {
             throw new ForbiddenRequestException(
                 "Forbidden Request - User does not exist",
-                IResponse::S403_FORBIDDEN,
+                IResponse::S403_Forbidden,
                 FrontendErrorMappings::E403_001__USER_NOT_EXIST
             );
         }
@@ -228,7 +228,7 @@ class AccessManager
         $parts = Strings::split($authorizationHeader, "/ /");
         if (count($parts) === 2) {
             list($bearer, $accessToken) = $parts;
-            if ($bearer === "Bearer" && !Strings::contains($accessToken, " ") && Strings::length($accessToken) > 0) {
+            if ($bearer === "Bearer" && !str_contains($accessToken, " ") && Strings::length($accessToken) > 0) {
                 return $accessToken;
             }
         }

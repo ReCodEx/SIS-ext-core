@@ -170,6 +170,30 @@ class RecodexApiHelper
     }
 
     /**
+     * Parse temporary JWT, perform basic sanity check and return instance ID.
+     * @param string $token JWT
+     * @return string instance ID
+     */
+    public function getTempTokenInstance(string $token): string
+    {
+        $parts = explode('.', $token);
+        if (count($parts) !== 3 || !$parts[1]) {
+            throw new RecodexApiException("Invalid temporary JWT given.");
+        }
+
+        $payload = json_decode(base64_decode($parts[1]), true);
+        if (!$payload || !is_array($payload) || empty($payload['instance'])) {
+            throw new RecodexApiException("Invalid temporary JWT given.");
+        }
+
+        if (($payload['extension'] ?? '') !== $this->extensionId) {
+            throw new RecodexApiException("Temporary JWT is designated for a different extension.");
+        }
+
+        return $payload['instance'];
+    }
+
+    /**
      * Complete the authentication process. Use tmp token to fetch full-token and user info.
      * The tmp token is expected to be set as the auth token already.
      * @return array|null ['accessToken' => string, 'user' => RecodexUser] on success

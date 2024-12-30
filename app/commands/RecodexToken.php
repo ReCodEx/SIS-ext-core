@@ -56,7 +56,7 @@ class RecodexToken extends BaseCommand
         $this->recodexApi->setAuthToken($token);
         $data = $this->recodexApi->getTokenAndUser();
         $output->writeln('<info>Token:</info> ' . $data['accessToken']);
-        $output->writeln('<info>User:</info> ' . json_encode($data['user'], JSON_PRETTY_PRINT));
+        $output->writeln('<info>User:</info> ' . json_encode($data['user']->getRawData(), JSON_PRETTY_PRINT));
 
         return Command::SUCCESS;
     }

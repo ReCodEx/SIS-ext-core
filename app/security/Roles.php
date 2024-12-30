@@ -43,7 +43,7 @@ abstract class Roles
             return true;
         }
 
-        if ($actualTestedRole === self::SUPERADMIN_ROLE && !Strings::startsWith($minimalRequestedRole, 'scope-')) {
+        if ($actualTestedRole === self::SUPERADMIN_ROLE && !str_starts_with($minimalRequestedRole, 'scope-')) {
             return true;  // special case -- superadmin takes it all, except for the scopes
         }
 

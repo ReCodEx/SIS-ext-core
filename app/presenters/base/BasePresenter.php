@@ -6,14 +6,12 @@ use App\Security\AccessToken;
 use App\Security\Identity;
 use App\Security\AccessManager;
 use App\Security\Authorizator;
-use Nette\Utils\Strings;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
 use App\Exceptions\WrongHttpMethodException;
 use App\Exceptions\NotImplementedException;
 use App\Exceptions\InvalidArgumentException;
 use App\Exceptions\InternalServerException;
-use App\Exceptions\FrontendErrorMappings;
 use App\Model\Entity\User;
 use App\Model\Repository\Users;
 use App\Helpers\UserActions;
@@ -221,7 +219,7 @@ class BasePresenter extends Nette\Application\UI\Presenter
     private function validateValue($param, $value, $validationRule, $msg = null)
     {
         foreach (["int", "integer"] as $rule) {
-            if ($validationRule === $rule || Strings::startsWith($validationRule, $rule . ":")) {
+            if ($validationRule === $rule || str_starts_with($validationRule, $rule . ":")) {
                 throw new LogicException("Validation rule '$validationRule' will not work for request parameters");
             }
         }
@@ -243,7 +241,7 @@ class BasePresenter extends Nette\Application\UI\Presenter
         if ($this->getUser()->isLoggedIn()) {
             $remoteAddr = $this->getHttpRequest()->getRemoteAddress();
             $params = $this->getRequest()->getParameters();
-            unset($params[self::ACTION_KEY]);
+            unset($params[self::ActionKey]);
             $this->userActions->log($this->getAction(true), $remoteAddr, $params, $code);
         }
     }

@@ -27,7 +27,7 @@ class BadRequestException extends ApiException
     ) {
         parent::__construct(
             "Bad Request - $msg",
-            IResponse::S400_BAD_REQUEST,
+            IResponse::S400_BadRequest,
             $frontendErrorCode,
             $frontendErrorParams,
             $previous

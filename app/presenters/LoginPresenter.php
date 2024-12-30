@@ -7,8 +7,11 @@ use App\Exceptions\ForbiddenRequestException;
 use App\Exceptions\FrontendErrorMappings;
 use App\Exceptions\InvalidAccessTokenException;
 use App\Exceptions\InvalidArgumentException;
+use App\Exceptions\RecodexApiException;
 use App\Exceptions\WrongCredentialsException;
 use App\Model\Repository\Users;
+use App\Helpers\RecodexApiHelper;
+use App\Helpers\RecodexUser;
 use App\Security\AccessManager;
 use App\Security\Identity;
 use App\Security\Roles;
@@ -27,6 +30,12 @@ class LoginPresenter extends BasePresenter
     public $accessManager;
 
     /**
+     * @var RecodexApiHelper
+     * @inject
+     */
+    public $recodexApi;
+
+    /**
      * @var Users
      * @inject
      */
@@ -38,11 +47,22 @@ class LoginPresenter extends BasePresenter
      */
     public $roles;
 
+
     /**
-     * Log in using user credentials
+     * @GET
+     */
+    public function actionTest()
+    {
+        throw new RecodexApiException("kuk");
+        $this->sendSuccessResponse([
+            "test" => true,
+        ]);
+    }
+
+    /**
+     * Log in using temp token from ReCodEx.
      * @POST
-     * @Param(type="post", name="username", validation="email:1..", description="User's E-mail")
-     * @Param(type="post", name="password", validation="string:1..", description="Password")
+     * @Param(type="post", name="token", validation="string:1..", description="Tmp. token from ReCodEx")
      * @throws AuthenticationException
      * @throws ForbiddenRequestException
      * @throws InvalidAccessTokenException
@@ -51,22 +71,40 @@ class LoginPresenter extends BasePresenter
     public function actionDefault()
     {
         $req = $this->getRequest();
-        $username = $req->getPost("username");
+        $tempToken = $req->getPost("token");
+        $instanceId = $this->recodexApi->getTempTokenInstance($tempToken);
 
-        //$user = $this->credentialsAuthenticator->authenticate($username, $password);
-        //$this->verifyUserIpLock($user);
-        //$user->updateLastAuthenticationAt();
-        $this->users->flush();
+        // Call ReCodEx API and get full token + user info using the temporary token
+        $this->recodexApi->setAuthToken($tempToken);
+        $recodexResponse = $this->recodexApi->getTokenAndUser();
+        /** @var RecodexUser */
+        $recodexUser = $recodexResponse['user'];
 
-        //$token = $this->accessManager->issueToken($user, null, [TokenScope::MASTER, TokenScope::REFRESH]);
-        //$this->getUser()->login(new Identity($user, $this->accessManager->decodeToken($token)));
+        // Make sure corresponding user exists and is up to date.
+        $user = $this->users->get($recodexUser->getId());
+        if (!$user) {
+            $user = $recodexUser->createUser($instanceId);
+        } elseif ($recodexUser->updateUser($user)) {
+            $user->updatedNow();
+        }
 
-        $this->sendSuccessResponse([]
-        /*            [
-                "accessToken" => $token,
-                "user" => $user,
-            ]
-        */);
+        // part of the token is stored in the database, suffix goes into our token (payload)
+        $tokenSuffix = $user->setRecodexToken($recodexResponse['accessToken']);
+        $this->users->persist($user);
+
+        // generate our token for our frontend
+        $token = $this->accessManager->issueToken(
+            $user,
+            null, // no effective role overried
+            [TokenScope::MASTER, TokenScope::REFRESH],
+            null, // default expiration
+            ['suffix' => $tokenSuffix]
+        );
+
+        $this->sendSuccessResponse([
+            "accessToken" => $token,
+            "user" => $user,
+        ]);
     }
 
     /**

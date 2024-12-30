@@ -121,12 +121,12 @@ class DoctrineFixtures extends Command
             }
 
             if ($platform === 'mysql') {
-                if (!Strings::startsWith($tableName, '``')) {
+                if (!str_starts_with($tableName, '``')) {
                     $tableName = '`' . $tableName . '`';
                 }
             } else {
                 if ($platform === 'sqlite') {
-                    if (!Strings::startsWith($tableName, '``')) {
+                    if (!str_starts_with($tableName, '``')) {
                         $tableName = '"' . $tableName . '"';
                     }
                 }
