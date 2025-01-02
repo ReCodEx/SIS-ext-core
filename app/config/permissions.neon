@@ -19,30 +19,12 @@ permissions:
     - allow: true
       role: scope-master
 
-    #######################################
-    # Superadmin can do (almost) anything #
-    #######################################
+    - allow: true
+      role: superadmin
 
     - allow: false
       resource: user
       actions:
-        - forceChangePassword
+        - viewDetail
       conditions:
         - user.isSameUser
-
-    - allow: true
-      role: superadmin
-
-    #############################
-    # User takeover permissions #
-    #############################
-
-    - allow: true
-      role: superadmin
-      resource: user
-      actions:
-        - takeOver
-
-    - allow: false  # A safety mechanism that prevents us from accidentaly allowing account takeover to non-admins (e.g. by wildcard rules)
-      actions:
-        - takeOver

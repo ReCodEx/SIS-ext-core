@@ -28,6 +28,7 @@ class RouterFactory
         $router[] = new Route('', "Default:default");
 
         $router[] = self::createLoginRoutes("login");
+        $router[] = self::createUsersRoutes("users");
 
         return $router;
     }
@@ -35,9 +36,15 @@ class RouterFactory
     private static function createLoginRoutes(string $prefix): RouteList
     {
         $router = new RouteList();
-        $router[] = new GetRoute("$prefix", "Login:test");
         $router[] = new PostRoute("$prefix", "Login:default");
         $router[] = new PostRoute("$prefix/refresh", "Login:refresh");
+        return $router;
+    }
+
+    private static function createUsersRoutes(string $prefix): RouteList
+    {
+        $router = new RouteList();
+        $router[] = new GetRoute("$prefix/<id>", "Users:default");
         return $router;
     }
 }

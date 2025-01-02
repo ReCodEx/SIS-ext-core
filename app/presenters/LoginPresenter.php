@@ -2,18 +2,13 @@
 
 namespace App\Presenters;
 
-use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
-use App\Exceptions\FrontendErrorMappings;
 use App\Exceptions\InvalidAccessTokenException;
-use App\Exceptions\InvalidArgumentException;
-use App\Exceptions\RecodexApiException;
 use App\Exceptions\WrongCredentialsException;
 use App\Model\Repository\Users;
 use App\Helpers\RecodexApiHelper;
 use App\Helpers\RecodexUser;
 use App\Security\AccessManager;
-use App\Security\Identity;
 use App\Security\Roles;
 use App\Security\TokenScope;
 use Nette\Security\AuthenticationException;
@@ -46,18 +41,6 @@ class LoginPresenter extends BasePresenter
      * @inject
      */
     public $roles;
-
-
-    /**
-     * @GET
-     */
-    public function actionTest()
-    {
-        throw new RecodexApiException("kuk");
-        $this->sendSuccessResponse([
-            "test" => true,
-        ]);
-    }
 
     /**
      * Log in using temp token from ReCodEx.
