@@ -8,8 +8,6 @@ use Nette\Application\Routers\RouteList;
 use Nette\Application\Routers\Route;
 use App\Router\GetRoute;
 use App\Router\PostRoute;
-use App\Router\PutRoute;
-use App\Router\DeleteRoute;
 
 /**
  * Router factory for the whole application.
