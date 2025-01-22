@@ -16,6 +16,11 @@ parameters:
     apiBase: https://your.recodex.domain/api  # URI of the ReCodEx API
     extensionId: sis-cuni  # identifier under which is this extension registered in ReCodEx config
 
+  sis:
+    apiBase: https://sis.university.tld/is/  # URI of the SIS API (prefix)
+    faculty: FACULTY_ID
+    secret: SECRET_TOKEN
+
   emails:  # common configuration for sending email (addresses and template variables)
     from: "SIS-CodEx <noreply@your.sis-ext.domain>"  # sending email address
     defaultAdminTo: "Administrator <admin@your.sis-ext.domain>"  # admin mail address
