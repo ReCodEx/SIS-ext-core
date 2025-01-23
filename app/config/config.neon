@@ -29,9 +29,6 @@ parameters:
     extensionId: null
 
   sis:
-    apiBase: https://sis.university.tld/is/
-    faculty: FACULTY_ID
-    secret: SECRET_TOKEN
     verifySSL: true
 
   emails:  # common configuration for sending email (addresses and template variables)

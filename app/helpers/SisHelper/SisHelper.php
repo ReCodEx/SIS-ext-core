@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Exceptions\ConfigException;
 use App\Exceptions\InvalidArgumentException;
+use App\Exceptions\SisException;
 use Generator;
 use Nette;
 use GuzzleHttp;
@@ -22,8 +23,11 @@ class SisHelper
     /** @var string ID of the faculty */
     private string $faculty;
 
-    /** @var string secret token */
-    private string $secret;
+    /** @var string secret token for module 'rozvrhng' */
+    private string $secretRozvrhng;
+
+    /** @var string secret token for module 'kdojekdo' */
+    private string $secretKdojekdo;
 
     private GuzzleHttp\Client $client;
 
@@ -49,8 +53,13 @@ class SisHelper
             throw new ConfigException("SIS faculty identifier is missing.");
         }
 
-        $this->secret = Arrays::get($config, "secret", "");
-        if (!$this->secret) {
+        $this->secretRozvrhng = Arrays::get($config, "secretRozvrhng", "");
+        if (!$this->secretRozvrhng) {
+            throw new ConfigException("SIS secret token is missing.");
+        }
+
+        $this->secretKdojekdo = Arrays::get($config, "secretKdojekdo", "");
+        if (!$this->secretKdojekdo) {
             throw new ConfigException("SIS secret token is missing.");
         }
 
@@ -60,14 +69,10 @@ class SisHelper
             $this->apiBase .= '/';
         }
 
-        $options = [
-            'base_uri' => $this->apiBase . 'rozvrhng/rest.php'
-        ];
-
+        $options = ['base_uri' => $this->apiBase];
         if ($handler !== null) {
             $options['handler'] = $handler;
         }
-
         $this->client = new GuzzleHttp\Client($options);
     }
 
@@ -93,7 +98,43 @@ class SisHelper
     }
 
     /**
-     * @param string $sisUserId
+     * @param string $susUserId UKCO
+     * @return SisUserRecord
+     * @throws SisException
+     */
+    public function getPersonalData(string $sisUserId): SisUserRecord
+    {
+        $salt = time();
+        $params = [
+            'oidos' => [$sisUserId],
+            'response_fmt' => 'json',
+            'do' => 'osoba',
+            'token' => $salt . '$' . hash('sha256', "$salt,$this->secretKdojekdo"),
+        ];
+
+        try {
+            $response = $this->client->get('kdojekdo/rest.php', $this->prepareOptions($params));
+        } catch (GuzzleHttp\Exception\ClientException $e) {
+            throw new SisException("Kdojekdo module API call failed.", $e);
+        }
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        if (
+            !$data || !is_array($data) || $data['status'] ?? '' !== 'OK' || !is_array($data['data'])
+            || count($data['data']) !== 1
+        ) {
+            if (!empty($data['errors'])) {
+                throw new SisException("Kdojekdo module API call returned error: " . json_encode($data['errors']));
+            }
+            throw new SisException("Kdojekdo module API call returned malformed answer.");
+        }
+
+        return SisUserRecord::fromArray($sisUserId, $data);
+    }
+
+    /**
+     * @param string $sisUserId UKCO
      * @param int|null $year
      * @param int $term
      * @return SisCourseRecord[]|Generator
@@ -102,7 +143,7 @@ class SisHelper
     public function getCourses(string $sisUserId, ?int $year = null, int $term = 1)
     {
         $salt = join(',', [time(), $this->faculty, $sisUserId]);
-        $hash = hash('sha256', "$salt,$this->secret");
+        $hash = hash('sha256', "$salt,$this->secretRozvrhng");
 
         $params = [
             'endpoint' => 'muj_rozvrh',
@@ -117,7 +158,7 @@ class SisHelper
         }
 
         try {
-            $response = $this->client->get('', $this->prepareOptions($params));
+            $response = $this->client->get('rozvrhng/rest.php', $this->prepareOptions($params));
         } catch (GuzzleHttp\Exception\ClientException $e) {
             throw new InvalidArgumentException("Invalid year or semester number");
         }

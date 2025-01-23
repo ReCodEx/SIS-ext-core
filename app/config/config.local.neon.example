@@ -17,9 +17,10 @@ parameters:
     extensionId: sis-cuni  # identifier under which is this extension registered in ReCodEx config
 
   sis:
-    apiBase: https://sis.university.tld/is/  # URI of the SIS API (prefix)
+    apiBase: https://sis.university.tld/is/
     faculty: FACULTY_ID
-    secret: SECRET_TOKEN
+    secretRozvrhng: SECRET_TOKEN  # for module 'rozvrhng'
+    secretKdojekdo: SECRET_TOKEN  # for module 'kdojekdo'
 
   emails:  # common configuration for sending email (addresses and template variables)
     from: "SIS-CodEx <noreply@your.sis-ext.domain>"  # sending email address
