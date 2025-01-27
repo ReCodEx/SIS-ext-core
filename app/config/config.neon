@@ -106,6 +106,7 @@ services:
   - App\Console\DoctrineFixtures
   - App\Console\RecodexToken
   - App\Console\SisGetCourse
+  - App\Console\SisGetUser
   
   # security
   - App\Security\AccessManager(%accessManager%)

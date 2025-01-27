@@ -35,9 +35,7 @@ class SisHelper
     private bool $verify;
 
     /**
-     * @param string $apiBase
-     * @param string $faculty
-     * @param string $secret
+     * @param array $config
      * @param GuzzleHttp\HandlerStack|null $handler An optional HTTP handler (mainly for unit testing purposes)
      */
     public function __construct(array $config, GuzzleHttp\HandlerStack $handler = null)
@@ -79,7 +77,6 @@ class SisHelper
     /**
      * Helper function that assembles request options.
      * @param array $query parameters to be encoded in URL
-     * @param string|array|null $body (array is encoded as JSON)
      * @param array $headers initial HTTP headers
      * @return array options for GuzzleHttp request
      */
@@ -98,11 +95,11 @@ class SisHelper
     }
 
     /**
-     * @param string $susUserId UKCO
+     * @param string $sisUserId UKCO
      * @return SisUserRecord
      * @throws SisException
      */
-    public function getPersonalData(string $sisUserId): SisUserRecord
+    public function getUserRecord(string $sisUserId): SisUserRecord
     {
         $salt = time();
         $params = [
@@ -121,7 +118,7 @@ class SisHelper
         $data = json_decode($response->getBody()->getContents(), true);
 
         if (
-            !$data || !is_array($data) || $data['status'] ?? '' !== 'OK' || !is_array($data['data'])
+            !$data || !is_array($data) || ($data['status'] ?? '') !== 'OK' || !is_array($data['data'])
             || count($data['data']) !== 1
         ) {
             if (!empty($data['errors'])) {

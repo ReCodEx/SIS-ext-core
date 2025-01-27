@@ -209,4 +209,14 @@ class RecodexApiHelper
         $body['user'] = new RecodexUser($body['user'], $this);
         return $body;
     }
+
+    /**
+     * Get all non-archived groups the user can see.
+     */
+    public function getGroups(): array
+    {
+        // TODO: this is just a placeholder, needs finishing
+        $groups = $this->get('groups');
+        return $groups;
+    }
 }

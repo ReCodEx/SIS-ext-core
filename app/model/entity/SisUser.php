@@ -53,22 +53,36 @@ class SisUser implements JsonSerializable
      */
     protected $email;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $student = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $teacher = false;
+
     public function __construct(
         string $id,
         string $login,
         string $email,
         string $firstName,
         string $lastName,
-        string $titlesBeforeName,
-        string $titlesAfterName,
+        string $titlesBeforeName = '',
+        string $titlesAfterName = '',
+        bool $student = false,
+        bool $teacher = false,
     ) {
         $this->id = $id;
         $this->login = $login;
+        $this->email = $email;
         $this->firstName = $firstName;
         $this->lastName = $lastName;
         $this->titlesBeforeName = $titlesBeforeName;
         $this->titlesAfterName = $titlesAfterName;
-        $this->email = $email;
+        $this->student = $student;
+        $this->teacher = $teacher;
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
     }
@@ -141,6 +155,28 @@ class SisUser implements JsonSerializable
     {
         $this->email = $email;
     }
+
+    public function getStudent(): bool
+    {
+        return $this->student;
+    }
+
+    public function setStudent(bool $student): void
+    {
+        $this->student = $student;
+    }
+
+    public function getTeacher(): bool
+    {
+        return $this->teacher;
+    }
+
+    public function setTeacher(bool $teacher): void
+    {
+        $this->teacher = $teacher;
+    }
+
+
 
     // JSON interface
 

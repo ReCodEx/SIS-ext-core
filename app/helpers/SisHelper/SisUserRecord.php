@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Exceptions\SisException;
+use App\Model\Entity\SisUser;
 use JsonSerializable;
 
 /**
@@ -26,7 +27,7 @@ class SisUserRecord implements JsonSerializable
 
     private bool $student = false;
 
-    private bool $ucitel = false;
+    private bool $teacher = false;
 
     private static function getOrThrow(array $data, string $key, bool $notEmpty = false)
     {
@@ -40,6 +41,7 @@ class SisUserRecord implements JsonSerializable
     }
 
     /**
+     * Initialize the record using data returned from SIS API call.
      * @param string $ukco
      * @param array $data
      * @return SisUserRecord
@@ -62,12 +64,12 @@ class SisUserRecord implements JsonSerializable
 
         $studia = $data['studia'] ?? [];
         foreach ($studia as $studium) {
-            $result->student |= ($studium['sstav'] ?? '' === 'S');
+            $result->student = $result->student || ($studium['sstav'] ?? '') === 'S';
         }
 
         $ucitel = $data['ucitel'] ?? [];
         foreach ($ucitel as $ucit) {
-            $result->ucitel |= ($ucit['uaktivni'] ?? '' === 'T');
+            $result->teacher = $result->teacher || ($ucit['uaktivni'] ?? '') === 'T';
         }
 
         return $result;
@@ -89,7 +91,60 @@ class SisUserRecord implements JsonSerializable
             'titlesAfterName' => $this->titlesAfterName,
             'email' => $this->email,
             'student' => $this->student,
-            'ucitel' => $this->ucitel,
+            'teacher' => $this->teacher,
         ];
+    }
+
+    /**
+     * Create new SisUser entity and fill it with data.
+     * @return SisUser (not persisted)
+     */
+    public function createUser(): SisUser
+    {
+        return new SisUser(
+            $this->ukco,
+            $this->login,
+            $this->email,
+            $this->firstName,
+            $this->lastName,
+            $this->titlesBeforeName,
+            $this->titlesAfterName,
+            $this->student,
+            $this->teacher
+        );
+    }
+
+    /**
+     * Update properties of given user to match data in this record.
+     * @param SisUser $user to be updated
+     * @return bool true if at least one property was changed
+     */
+    public function updateUser(SisUser $user): bool
+    {
+        if ($user->getId() !== $this->ukco) {
+            throw new SisException("User ID mismatch.");
+        }
+
+        $props = [
+            'login',
+            'email',
+            'firstName',
+            'lastName',
+            'titlesBeforeName',
+            'titlesAfterName',
+            'student',
+            'teacher'
+        ];
+        $changed = false;
+        foreach ($props as $prop) {
+            $getter = 'get' . ucfirst($prop);
+            $setter = 'set' . ucfirst($prop);
+            if ($user->$getter() !== $this->$prop) {
+                $user->$setter($this->$prop);
+                $changed = true;
+            }
+        }
+
+        return $changed;
     }
 }
