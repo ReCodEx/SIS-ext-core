@@ -9,6 +9,7 @@ use Generator;
 use Nette;
 use GuzzleHttp;
 use Nette\Utils\Arrays;
+use Tracy\Debugger;
 
 /**
  * Helper for accessing REST API of the SIS.
@@ -109,13 +110,16 @@ class SisHelper
             'token' => $salt . '$' . hash('sha256', "$salt,$this->secretKdojekdo"),
         ];
 
+        Debugger::log("getUserRecord($sisUserId)", Debugger::DEBUG);
         try {
             $response = $this->client->get('kdojekdo/rest.php', $this->prepareOptions($params));
         } catch (GuzzleHttp\Exception\ClientException $e) {
             throw new SisException("Kdojekdo module API call failed.", $e);
         }
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $body = $response->getBody()->getContents();
+        Debugger::log($body, Debugger::DEBUG);
+        $data = json_decode($body, true);
 
         if (
             !$data || !is_array($data) || ($data['status'] ?? '') !== 'OK' || !is_array($data['data'])
@@ -154,13 +158,16 @@ class SisHelper
             $params['semesters'] = [sprintf("%s-%s", $year, $term)];
         }
 
+        Debugger::log("getCourses($sisUserId, $year, $term)", Debugger::DEBUG);
         try {
             $response = $this->client->get('rozvrhng/rest.php', $this->prepareOptions($params));
         } catch (GuzzleHttp\Exception\ClientException $e) {
             throw new InvalidArgumentException("Invalid year or semester number");
         }
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $body = $response->getBody()->getContents();
+        Debugger::log($body, Debugger::DEBUG);
+        $data = json_decode($body, true);
 
         foreach ($data["events"] as $course) {
             yield SisCourseRecord::fromArray($sisUserId, $course);

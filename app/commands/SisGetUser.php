@@ -8,6 +8,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Tracy\Debugger;
+use Exception;
 
 /**
  * Test SIS API by fetching personal data of a user.
@@ -50,7 +52,12 @@ class SisGetUser extends BaseCommand
         $this->output = $output;
 
         $ukco = $input->getArgument('ukco');
-        $record = $this->sis->getUserRecord($ukco);
+        try {
+            $record = $this->sis->getUserRecord($ukco);
+        } catch (Exception $e) {
+            Debugger::log($e);
+            throw $e;
+        }
         $output->writeln(json_encode($record, JSON_PRETTY_PRINT));
 
         return Command::SUCCESS;
