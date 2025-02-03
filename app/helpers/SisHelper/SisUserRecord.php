@@ -29,12 +29,12 @@ class SisUserRecord implements JsonSerializable
 
     private bool $teacher = false;
 
-    private static function getOrThrow(array $data, string $key, bool $notEmpty = false)
+    private static function getOrThrow(array $data, string $key)
     {
         if (!array_key_exists($key, $data)) {
             throw new SisException("Missing item '$key' in kdojekdo response.");
         }
-        if (!$notEmpty && !$data[$key]) {
+        if (!$data[$key]) {
             throw new SisException("Missing item '$key' in kdojekdo response has empty value.");
         }
         return $data[$key];
@@ -55,12 +55,12 @@ class SisUserRecord implements JsonSerializable
             throw new SisException("The response from kdojekdo was for user $result->ukco, but $ukco was requested.");
         }
 
-        $result->login = self::getOrThrow($data, 'login', true);
-        $result->titlesBeforeName = self::getOrThrow($data, 'titul');
-        $result->firstName = self::getOrThrow($data, 'jmeno', true);
-        $result->lastName = self::getOrThrow($data, 'prijmeni', true);
-        $result->titlesAfterName = self::getOrThrow($data, 'titulza');
-        $result->email = self::getOrThrow($data, 'osobni_mail', true);
+        $result->login = self::getOrThrow($data, 'login');
+        $result->titlesBeforeName = $data['titul'] ?? '';
+        $result->firstName = self::getOrThrow($data, 'jmeno');
+        $result->lastName = self::getOrThrow($data, 'prijmeni');
+        $result->titlesAfterName = $data['titulza'] ?? '';
+        $result->email = self::getOrThrow($data, 'osobni_mail');
 
         $studia = $data['studia'] ?? [];
         foreach ($studia as $studium) {
