@@ -64,7 +64,16 @@ class SisUserRecord implements JsonSerializable
 
         $studia = $data['studia'] ?? [];
         foreach ($studia as $studium) {
-            $result->student = $result->student || ($studium['sstav'] ?? '') === 'S';
+            $sstav = $studium['sstav'] ?? '';
+            $result->student = $result->student || $sstav === 'S' // is studying
+                || $sstav === 'R' // decomposed year
+                || $sstav === 'X' // accepted for study
+                || $sstav === 'O' // repeating
+                || $sstav === 'D'; // proceeding to termination (but still studying)
+
+            if ($result->student) {
+                break; // no need to continue (perf. optimization)
+            }
         }
 
         $ucitel = $data['ucitel'] ?? [];
