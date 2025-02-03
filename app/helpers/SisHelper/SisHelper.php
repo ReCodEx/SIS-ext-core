@@ -131,7 +131,7 @@ class SisHelper
             throw new SisException("Kdojekdo module API call returned malformed answer.");
         }
 
-        return SisUserRecord::fromArray($sisUserId, $data);
+        return SisUserRecord::fromArray($sisUserId, $data['data']);
     }
 
     /**
