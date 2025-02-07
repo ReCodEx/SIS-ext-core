@@ -50,7 +50,7 @@ class SisUserRecord implements JsonSerializable
     public static function fromArray($ukco, $data): SisUserRecord
     {
         $result = new SisUserRecord();
-        $result->ukco = self::getOrThrow($data, 'oidos', true);
+        $result->ukco = self::getOrThrow($data, 'oidos');
         if ($result->ukco !== $ukco) {
             throw new SisException("The response from kdojekdo was for user $result->ukco, but $ukco was requested.");
         }
