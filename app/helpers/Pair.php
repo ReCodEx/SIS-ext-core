@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+// @UNUSED and to be deleted
 class Pair
 {
     public $key;

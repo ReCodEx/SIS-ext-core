@@ -9,6 +9,8 @@ use Nette\Utils\Strings;
  * Wraps generators of webapp URLs.
  * Currently, the URL templates are in config and must be in sync with the webapp router.
  * This may change in the future...
+ *
+ * @UNUSED and to be deleted
  */
 class WebappLinks
 {
@@ -100,7 +102,7 @@ class WebappLinks
      */
     public function getAssignmentPageUrl(string $assignmentId): string
     {
-        return self::getLink($this->assignmentUrl, [ 'id' => $assignmentId ]);
+        return self::getLink($this->assignmentUrl, ['id' => $assignmentId]);
     }
 
     /**
@@ -109,7 +111,7 @@ class WebappLinks
      */
     public function getExercisePageUrl(string $exerciseId): string
     {
-        return self::getLink($this->exerciseUrl, [ 'id' => $exerciseId ]);
+        return self::getLink($this->exerciseUrl, ['id' => $exerciseId]);
     }
 
     /**
@@ -118,7 +120,7 @@ class WebappLinks
      */
     public function getShadowAssignmentPageUrl(string $assignmentId): string
     {
-        return self::getLink($this->shadowAssignmentUrl, [ 'id' => $assignmentId ]);
+        return self::getLink($this->shadowAssignmentUrl, ['id' => $assignmentId]);
     }
 
     /**
@@ -128,7 +130,7 @@ class WebappLinks
      */
     public function getSolutionPageUrl(string $assignmentId, string $solutionId): string
     {
-        return self::getLink($this->solutionUrl, [ 'assignmentId' => $assignmentId, 'solutionId' => $solutionId ]);
+        return self::getLink($this->solutionUrl, ['assignmentId' => $assignmentId, 'solutionId' => $solutionId]);
     }
 
     /**
@@ -140,7 +142,7 @@ class WebappLinks
     {
         return self::getLink(
             $this->referenceSolutiontUrl,
-            [ 'exerciseId' => $exerciseId, 'solutionId' => $solutionId ]
+            ['exerciseId' => $exerciseId, 'solutionId' => $solutionId]
         );
     }
 
@@ -150,7 +152,7 @@ class WebappLinks
      */
     public function getForgottenPasswordUrl(string $token): string
     {
-        return self::getLink($this->forgottenPasswordUrl, [ 'token' => $token ]);
+        return self::getLink($this->forgottenPasswordUrl, ['token' => $token]);
     }
 
     /**
@@ -159,7 +161,7 @@ class WebappLinks
      */
     public function getEmailVerificationUrl(string $token): string
     {
-        return self::getLink($this->emailVerificationUrl, [ 'token' => $token ]);
+        return self::getLink($this->emailVerificationUrl, ['token' => $token]);
     }
 
     /**
@@ -168,7 +170,7 @@ class WebappLinks
      */
     public function getInvitationUrl(string $token): string
     {
-        return self::getLink($this->invitationUrl, [ 'token' => $token ]);
+        return self::getLink($this->invitationUrl, ['token' => $token]);
     }
 
     /**
@@ -180,7 +182,7 @@ class WebappLinks
     {
         return self::getLink(
             $this->solutionSourceFilesUrl,
-            [ 'assignmentId' => $assignmentId, 'solutionId' => $solutionId ]
+            ['assignmentId' => $assignmentId, 'solutionId' => $solutionId]
         );
     }
 }

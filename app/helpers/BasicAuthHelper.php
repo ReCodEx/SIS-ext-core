@@ -8,13 +8,14 @@ use Nette\Utils\Strings;
 
 /**
  * Handle HTTP Basic Auth headers.
+ * @UNUSED and to be deleted
  */
 class BasicAuthHelper
 {
     /**
      * Extracts the username and password from the Authorization header of the HTTP request.
      * @param IRequest $req HTTP request
-     * @return array          Username and password
+     * @return array Username and password
      * @throws HttpBasicAuthException if Authorization header is not present or is corrupted
      */
     public static function getCredentials(IRequest $req)

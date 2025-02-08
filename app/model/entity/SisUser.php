@@ -126,9 +126,19 @@ class SisUser implements JsonSerializable
         $this->lastName = $lastName;
     }
 
+    public function getTitlesBeforeName(): string
+    {
+        return $this->titlesBeforeName;
+    }
+
     public function setTitlesBeforeName(string $titlesBeforeName): void
     {
         $this->titlesBeforeName = $titlesBeforeName;
+    }
+
+    public function getTitlesAfterName(): string
+    {
+        return $this->titlesAfterName;
     }
 
     public function setTitlesAfterName(string $titlesAfterName): void

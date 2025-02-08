@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use Nette\StaticClass;
-use Nette\Utils\Strings;
 use ReflectionNamedType;
 use ReflectionClass;
 use ReflectionMethod;

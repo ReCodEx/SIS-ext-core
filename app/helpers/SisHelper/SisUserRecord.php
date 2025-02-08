@@ -67,7 +67,7 @@ class SisUserRecord implements JsonSerializable
             $sstav = $studium['sstav'] ?? '';
             $result->student = $result->student || $sstav === 'S' // is studying
                 || $sstav === 'R' // decomposed year
-                || $sstav === 'X' // accepted for study
+                || $sstav === 'X' // accepted for studies
                 || $sstav === 'O' // repeating
                 || $sstav === 'D'; // proceeding to termination (but still studying)
 

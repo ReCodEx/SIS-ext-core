@@ -5,6 +5,9 @@ namespace App\Helpers;
 use Generator;
 use Nette\StaticClass;
 
+/**
+ * @UNUSED and to be deleted
+ */
 class Wildcards
 {
     use StaticClass;

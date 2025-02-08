@@ -6,9 +6,7 @@ use Symfony\Component\Yaml\Yaml as SymfonyYaml;
 use Symfony\Component\Yaml\Exception\RuntimeException as SymfonyYamlException;
 use RuntimeException;
 
-class YamlException extends RuntimeException
-{
-}
+class YamlException extends RuntimeException {}
 
 /**
  * A Yaml wrapper to simplify transition from Symfony/Yaml to PECL yaml package.
@@ -16,6 +14,7 @@ class YamlException extends RuntimeException
  * and performance become an issue when processing MiB-sized backend result yaml files.
  *
  * Fallback to Symfony/Yaml is provided when extra formatting options are required.
+ * @UNUSED and to be deleted
  */
 class Yaml
 {
