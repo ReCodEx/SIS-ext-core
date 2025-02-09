@@ -115,7 +115,7 @@ class UsersPresenter extends BasePresenter
             }
 
             try {
-                if ($sisUser && $sisUser->getUpdatedAt() < $threshold) {
+                if (!$sisUser || $sisUser->getUpdatedAt() < $threshold) {
                     $sisUserRecord = $this->sisApi->getUserRecord($sisUser->getId());
                     if (!$sisUser) {
                         $sisUser = $sisUserRecord->createUser();
