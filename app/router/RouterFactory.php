@@ -43,6 +43,8 @@ class RouterFactory
     {
         $router = new RouteList();
         $router[] = new GetRoute("$prefix/<id>", "Users:default");
+        $router[] = new PostRoute("$prefix/<id>/sisuser", "Users:sisuser");
+        $router[] = new PostRoute("$prefix/<id>/sync", "Users:syncSis");
         return $router;
     }
 }

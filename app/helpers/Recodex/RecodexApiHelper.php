@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Exceptions\ConfigException;
 use App\Exceptions\RecodexApiException;
+use App\Model\Entity\User;
 use Nette;
 use GuzzleHttp;
 use Nette\Utils\Arrays;
@@ -170,6 +171,19 @@ class RecodexApiHelper
     }
 
     /**
+     * Perform a DELETE request and return decoded JSON response.
+     * @param string $url suffix for the base URL
+     * @param array $params to be encoded in URL query
+     * @param array $headers initial HTTP headers
+     * @return array|string|int|bool|null decoded JSON response
+     */
+    private function delete(string $url, array $params = [], array $headers = [])
+    {
+        $response = $this->client->delete($url, $this->prepareOptions($params, null, $headers));
+        return $this->processJsonBody($response);
+    }
+
+    /**
      * Parse temporary JWT, perform basic sanity check and return instance ID.
      * @param string $token JWT
      * @return string instance ID
@@ -193,6 +207,10 @@ class RecodexApiHelper
         return $payload['instance'];
     }
 
+    /*
+     * REST API calls
+     */
+
     /**
      * Complete the authentication process. Use tmp token to fetch full-token and user info.
      * The tmp token is expected to be set as the auth token already.
@@ -208,6 +226,71 @@ class RecodexApiHelper
         // wrap the user into a structure
         $body['user'] = new RecodexUser($body['user'], $this);
         return $body;
+    }
+
+    /**
+     * Retrieve user data.
+     * @param string $id
+     * @return RecodexUser|null null if user does not exist
+     */
+    public function getUser(string $id): ?RecodexUser
+    {
+        $body = $this->get("users/$id");
+        return $body ? new RecodexUser($body['user'], $this) : null;
+    }
+
+    /**
+     * Update basic user data (name parts and email).
+     * @param User $user entity from which the data are posted for update.
+     * @return RecodexUser updated data of the user
+     */
+    public function updateUser(User $user): RecodexUser
+    {
+        $body = [
+            'titlesBeforeName' => $user->getTitlesBeforeName(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'titlesAfterName' => $user->getTitlesAfterName(),
+            'email' => $user->getEmail(),
+        ];
+        $id = $user->getSisId();
+        $res = $this->post("users/$id", [], $body);
+        if (!$res || !is_array($res) || empty($res['user']) || ($res['user']['id'] ?? '') !== $id) {
+            throw new RecodexApiException("Unexpected ReCodEx API response from update user's profile endpoint.");
+        }
+
+        return new RecodexUser($res['user'], $this);
+    }
+
+    /**
+     * Set or update external ID for given ext. auth. service.
+     * @param string $id of the user in the ReCodEx
+     * @param string $service auth. service identifier
+     * @param string $externalId the new ID to be set for $service
+     * @return RecodexUser updated data of the user
+     */
+    public function setExternalId(string $id, string $service, string $externalId): RecodexUser
+    {
+        $res = $this->post("users/$id/external-login/$service", [], ['externalId' => $externalId]);
+        if (!$res || !is_array($res) || ($res['id'] ?? '') !== $id) {
+            throw new RecodexApiException("Unexpected ReCodEx API response from update user's external ID endpoint.");
+        }
+        return new RecodexUser($res, $this);
+    }
+
+    /**
+     * Set or update external ID for given ext. auth. service.
+     * @param string $id of the user in the ReCodEx
+     * @param string $service auth. service identifier
+     * @return RecodexUser updated data of the user
+     */
+    public function removeExternalId(string $id, string $service): RecodexUser
+    {
+        $res = $this->delete("users/$id/external-login/$service");
+        if (!$res || !is_array($res) || ($res['id'] ?? '') !== $id) {
+            throw new RecodexApiException("Unexpected ReCodEx API response from remove user's external ID endpoint.");
+        }
+        return new RecodexUser($res, $this);
     }
 
     /**

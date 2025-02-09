@@ -33,11 +33,9 @@ class UserChangelog implements JsonSerializable
 
 
     public function __construct(
-        string $id,
         User $user,
         array $diff,
     ) {
-        $this->id = $id;
         $this->user = $user;
         $this->diff = json_encode($diff);
     }
