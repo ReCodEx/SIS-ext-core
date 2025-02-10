@@ -102,6 +102,10 @@ class UsersPresenter extends BasePresenter
     {
         $user = $this->users->findOrThrow($id);
         $sisUser = $this->sisUsers->get($user->getSisId());
+        if ($sisUser && $sisUser->getId() !== $user->getSisId()) {
+            // this is just an assert, it should never happen
+            throw new Exception("SIS user ID and user's SIS ID does not match!");
+        }
         $updated = false;
         $failed = false;
 
@@ -116,7 +120,7 @@ class UsersPresenter extends BasePresenter
 
             try {
                 if (!$sisUser || $sisUser->getUpdatedAt() < $threshold) {
-                    $sisUserRecord = $this->sisApi->getUserRecord($sisUser->getId());
+                    $sisUserRecord = $this->sisApi->getUserRecord($user->getSisId());
                     if (!$sisUser) {
                         $sisUser = $sisUserRecord->createUser();
                     } else {
