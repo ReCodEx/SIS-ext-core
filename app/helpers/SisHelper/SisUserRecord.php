@@ -55,7 +55,7 @@ class SisUserRecord implements JsonSerializable
             throw new SisException("The response from kdojekdo was for user $result->ukco, but $ukco was requested.");
         }
 
-        $result->login = self::getOrThrow($data, 'login');
+        $result->login = mb_strtolower(self::getOrThrow($data, 'login'));
         $result->titlesBeforeName = $data['titul'] ?? '';
         $result->firstName = self::getOrThrow($data, 'jmeno');
         $result->lastName = self::getOrThrow($data, 'prijmeni');
