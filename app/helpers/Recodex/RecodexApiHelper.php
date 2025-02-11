@@ -109,10 +109,11 @@ class RecodexApiHelper
             $options[GuzzleHttp\RequestOptions::QUERY] = $query;
         }
         if ($body) {
-            if (is_array($body)) {
-                $body = json_encode($body);
+            if (is_array($body)) { // array indicate JSON structure
+                $options[GuzzleHttp\RequestOptions::JSON] = $body;
+            } else {
+                $options[GuzzleHttp\RequestOptions::BODY] = $body;
             }
-            $options[GuzzleHttp\RequestOptions::BODY] = $body;
         }
         return $options;
     }
@@ -236,7 +237,7 @@ class RecodexApiHelper
     public function getUser(string $id): ?RecodexUser
     {
         $body = $this->get("users/$id");
-        return $body ? new RecodexUser($body['user'], $this) : null;
+        return $body ? new RecodexUser($body, $this) : null;
     }
 
     /**
@@ -253,7 +254,7 @@ class RecodexApiHelper
             'titlesAfterName' => $user->getTitlesAfterName(),
             'email' => $user->getEmail(),
         ];
-        $id = $user->getSisId();
+        $id = $user->getId();
         $res = $this->post("users/$id", [], $body);
         if (!$res || !is_array($res) || empty($res['user']) || ($res['user']['id'] ?? '') !== $id) {
             throw new RecodexApiException("Unexpected ReCodEx API response from update user's profile endpoint.");

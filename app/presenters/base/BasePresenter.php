@@ -4,8 +4,6 @@ namespace App\Presenters;
 
 use App\Security\AccessToken;
 use App\Security\Identity;
-use App\Security\AccessManager;
-use App\Security\Authorizator;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
 use App\Exceptions\WrongHttpMethodException;
@@ -13,7 +11,6 @@ use App\Exceptions\NotImplementedException;
 use App\Exceptions\InvalidArgumentException;
 use App\Exceptions\InternalServerException;
 use App\Model\Entity\User;
-use App\Model\Repository\Users;
 use App\Helpers\UserActions;
 use App\Helpers\Validators;
 use App\Helpers\AnnotationsParser;
@@ -30,22 +27,10 @@ use Nette;
 class BasePresenter extends Nette\Application\UI\Presenter
 {
     /**
-     * @var Users
-     * @inject
-     */
-    public $users;
-
-    /**
      * @var UserActions
      * @inject
      */
     public $userActions;
-
-    /**
-     * @var AccessManager
-     * @inject
-     */
-    public $accessManager;
 
     /**
      * @var Application
@@ -54,18 +39,14 @@ class BasePresenter extends Nette\Application\UI\Presenter
     public $application;
 
     /**
-     * @var Authorizator
-     * @inject
-     */
-    public $authorizator;
-
-    /**
      * @var ILogger
      * @inject
      */
     public $logger;
 
-    /** @var object Processed parameters from annotations */
+    /**
+     * @var object Processed parameters from annotations
+     */
     protected $parameters;
 
     protected function formatPermissionCheckMethod($action)

@@ -7,8 +7,6 @@ use App\Model\Entity\UserChangelog;
 use App\Model\Repository\Users;
 use App\Model\Repository\UserChangelogs;
 use App\Model\Repository\SisUsers;
-use App\Helpers\RecodexApiHelper;
-use App\Helpers\SisHelper;
 use App\Helpers\UserUpdater;
 use App\Security\ACL\IUserPermissions;
 use Tracy\ILogger;
@@ -18,20 +16,8 @@ use Exception;
 /**
  * User-related operations.
  */
-class UsersPresenter extends BasePresenter
+class UsersPresenter extends BasePresenterWithApi
 {
-    /**
-     * @var RecodexApiHelper
-     * @inject
-     */
-    public $recodexApi;
-
-    /**
-     * @var SisHelper
-     * @inject
-     */
-    public $sisApi;
-
     /**
      * @var Users
      * @inject
