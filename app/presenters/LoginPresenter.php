@@ -67,9 +67,10 @@ class LoginPresenter extends BasePresenter
         $user = $this->users->get($recodexUser->getId());
         if (!$user) {
             $user = $recodexUser->createUser($instanceId);
-        } elseif ($recodexUser->updateUser($user)) {
-            $user->updatedNow();
+        } else {
+            $recodexUser->updateUser($user);
         }
+        $user->updatedNow();
 
         // part of the token is stored in the database, suffix goes into our token (payload)
         $tokenSuffix = $user->setRecodexToken($recodexResponse['accessToken']);

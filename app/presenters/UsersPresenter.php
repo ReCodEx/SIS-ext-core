@@ -162,6 +162,7 @@ class UsersPresenter extends BasePresenter
         // refresh user data from ReCodEx and check we are up to date
         $recodexUser = $this->recodexApi->getUser($user->getId());
         if ($recodexUser->updateUser($user)) {
+            $user->updatedNow();
             $this->users->persist($user);
             $this->sendSuccessResponse(['user' => $user, 'sisUser' => $sisUser, 'canceled' => true]);
             return;
