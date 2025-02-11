@@ -4,6 +4,7 @@ namespace App\Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
+use DateTime;
 
 /**
  * @ORM\Entity
@@ -38,6 +39,7 @@ class UserChangelog implements JsonSerializable
     ) {
         $this->user = $user;
         $this->diff = json_encode($diff);
+        $this->createdAt = new DateTime();
     }
 
     /*
