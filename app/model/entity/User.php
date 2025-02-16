@@ -100,7 +100,7 @@ class User implements JsonSerializable
     protected $sisEventsLoaded = null;
 
     /**
-     * @ORM\Column(type="text", length=4096, nullable=true)
+     * @ORM\Column(type="text", length=1024, nullable=true)
      * Prefix of the ReCodEx authentication token used to perform operations on ReCodEx API.
      * The suffix is stored in our token used to authenticate agains this API as a payload.
      * The divison of the token in two parts makes it more difficult to get the whole token and breach the security.
@@ -314,12 +314,12 @@ class User implements JsonSerializable
         }
 
         $len = strlen($wholeToken);
-        if ($len < 16) {
+        if ($len < 32) {
             $len /= 2;  // token is quite short, let's split it in half
-        } elseif ($len > 250) {
-            $len = 250;  // token is too long, make sure it fits the DB field
+        } elseif ($len > 1024) {
+            $len = 1008;  // token is too long, make sure it fits the DB field
         } else {
-            $len -= 8; // in regular cases, the last 8 chars are chopped off
+            $len -= 16; // in regular cases, the last 8 chars are chopped off
         }
 
         $this->recodexToken = substr($wholeToken, 0, $len); // prefix
