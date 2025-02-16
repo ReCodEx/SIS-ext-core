@@ -100,7 +100,7 @@ class User implements JsonSerializable
     protected $sisEventsLoaded = null;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="text", length=4096, nullable=true)
      * Prefix of the ReCodEx authentication token used to perform operations on ReCodEx API.
      * The suffix is stored in our token used to authenticate agains this API as a payload.
      * The divison of the token in two parts makes it more difficult to get the whole token and breach the security.
