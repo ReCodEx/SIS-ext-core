@@ -22,9 +22,11 @@ permissions:
     - allow: true
       role: superadmin
 
-    - allow: false
+    - allow: true
       resource: user
       actions:
         - viewDetail
+        - fetchSis
+        - syncSis
       conditions:
         - user.isSameUser
