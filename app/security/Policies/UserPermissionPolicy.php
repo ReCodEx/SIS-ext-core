@@ -16,7 +16,7 @@ class UserPermissionPolicy implements IPermissionPolicy
     public function isSameUser(Identity $identity, User $user): bool
     {
         $currentUser = $identity->getUserData();
-        return $currentUser !== null && $currentUser === $user;
+        return $currentUser !== null && $currentUser->getId() === $user->getId();
     }
 
     public function isSupervisor(Identity $identity, User $user)
