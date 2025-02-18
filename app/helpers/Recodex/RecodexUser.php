@@ -90,9 +90,9 @@ class RecodexUser
         return $role;
     }
 
-    public function getDefaultLanguage(): string
+    public function getDefaultLanguage(): ?string
     {
-        return $this->data['privateData']['settings']['defaultLanguage'] ?? 'en';
+        return $this->data['privateData']['settings']['defaultLanguage'] ?? null;
     }
 
     /**
@@ -120,7 +120,7 @@ class RecodexUser
 
         $user->setSisId($this->getSisId());
         $user->setSisLogin($this->getSisLogin());
-        $user->setDefaultLanguage($this->getDefaultLanguage());
+        $user->setDefaultLanguage($this->getDefaultLanguage() ?? 'en');
         return $user;
     }
 
@@ -149,7 +149,6 @@ class RecodexUser
             'TitlesBeforeName' => $this->data['name']['titlesBeforeName'] ?? '',
             'TitlesAfterName' => $this->data['name']['titlesAfterName'] ?? '',
             'Role' => $this->getRole(),
-            'DefaultLanguage' => $this->getDefaultLanguage(),
         ];
 
         $changed = false;
@@ -160,6 +159,13 @@ class RecodexUser
                 $user->$setter($value);
                 $changed = true;
             }
+        }
+
+        // default language is changed only if specified
+        $lang = $this->getDefaultLanguage();
+        if ($lang && $lang !== $user->getDefaultLanguage()) {
+            $user->setDefaultLanguage($lang);
+            $changed = true;
         }
 
         return $changed;
