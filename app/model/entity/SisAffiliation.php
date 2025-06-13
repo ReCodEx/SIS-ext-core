@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(columns={"user_id", "event_id"})})
- * Holding affiliations between users and scheudling events (student/teacher/guarantor).
+ * Holding affiliations between users and scheduling events (student/teacher/guarantor).
  * This is merely a cache for SIS data.
  */
 class SisAffiliation

@@ -8,14 +8,14 @@ use JsonSerializable;
 
 /**
  * @ORM\Entity
- * A record represening one scheduling event (ticket) from SIS. One event corresponds to one part of a course
+ * A record representing one scheduling event (ticket) from SIS. One event corresponds to one part of a course
  * (usually a lecture or labs) visited by a group of students. This event usually corresponds to one group in ReCodEx.
  * This is merely a cache for SIS data.
  */
 class SisScheduleEvent implements JsonSerializable
 {
-    use CreateableEntity;
-    use UpdateableEntity;
+    use CreatableEntity;
+    use UpdatableEntity;
 
     /**
      * @ORM\Id

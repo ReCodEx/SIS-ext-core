@@ -14,8 +14,8 @@ use JsonSerializable;
  */
 class SisCourse implements JsonSerializable
 {
-    use CreateableEntity;
-    use UpdateableEntity;
+    use CreatableEntity;
+    use UpdatableEntity;
 
     /**
      * @ORM\Id

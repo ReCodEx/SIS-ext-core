@@ -9,13 +9,13 @@ use InvalidArgumentException;
 
 /**
  * @ORM\Entity
- * A record represening one semester with all important dates, especially the ranges from-until
+ * A record representing one semester with all important dates, especially the ranges from-until
  * it is advertised to students/teachers. This needs to be set by admin to correctly handle SIS operations.
  */
 class SisTerm implements JsonSerializable
 {
-    use CreateableEntity;
-    use UpdateableEntity;
+    use CreatableEntity;
+    use UpdatableEntity;
 
     /**
      * @ORM\Id

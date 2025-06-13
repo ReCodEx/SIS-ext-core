@@ -12,7 +12,7 @@ use DateTime;
  */
 class UserChangelog implements JsonSerializable
 {
-    use CreateableEntity;
+    use CreatableEntity;
 
     /**
      * @ORM\Id

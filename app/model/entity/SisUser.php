@@ -12,8 +12,8 @@ use JsonSerializable;
  */
 class SisUser implements JsonSerializable
 {
-    use CreateableEntity;
-    use UpdateableEntity;
+    use CreatableEntity;
+    use UpdatableEntity;
 
     /**
      * @ORM\Id
@@ -24,7 +24,7 @@ class SisUser implements JsonSerializable
 
     /**
      * @ORM\Column(type="string", unique=true, nullable=true)
-     * Alhpanumerical login generated from name (which is used as alternative login to SIS).
+     * Alphanumerical login generated from name (which is used as alternative login to SIS).
      */
     protected $login = null;
 

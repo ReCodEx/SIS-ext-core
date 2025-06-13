@@ -41,7 +41,7 @@ class RecodexApiHelper
      * @param array $config
      * @param GuzzleHttp\HandlerStack|null $handler An optional HTTP handler (mainly for unit testing purposes)
      */
-    public function __construct(array $config, GuzzleHttp\HandlerStack $handler = null)
+    public function __construct(array $config, ?GuzzleHttp\HandlerStack $handler = null)
     {
         $this->extensionId = Arrays::get($config, "extensionId", "");
         if (!$this->extensionId) {
@@ -79,7 +79,7 @@ class RecodexApiHelper
     }
 
     /**
-     * Set authentication token whih is send in headers of each request.
+     * Set authentication token which is send in headers of each request.
      * @param string|null $token
      */
     public function setAuthToken(?string $token): void

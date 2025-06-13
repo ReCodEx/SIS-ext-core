@@ -7,7 +7,7 @@ use App\Helpers\SisHelper;
 
 /**
  * Base presenter for presenters that need to access ReCodEx API.
- * Automatically intializes injected ReCodEx API helper with the auth token.
+ * Automatically initializes injected ReCodEx API helper with the auth token.
  */
 class BasePresenterWithApi extends BasePresenter
 {

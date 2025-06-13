@@ -79,7 +79,7 @@ class LoginPresenter extends BasePresenter
         // generate our token for our frontend
         $token = $this->accessManager->issueToken(
             $user,
-            null, // no effective role overried
+            null, // no effective role override
             [TokenScope::MASTER, TokenScope::REFRESH],
             null, // default expiration
             ['suffix' => $tokenSuffix]

@@ -14,8 +14,8 @@ use InvalidArgumentException;
  */
 class User implements JsonSerializable
 {
-    use CreateableEntity;
-    use UpdateableEntity;
+    use CreatableEntity;
+    use UpdatableEntity;
 
     /**
      * @ORM\Id
@@ -38,7 +38,7 @@ class User implements JsonSerializable
 
     /**
      * @ORM\Column(type="string", unique=true, nullable=true)
-     * Alhpanumerical login generated from name (which is used as alternative login to SIS).
+     * Alphanumerical login generated from name (which is used as alternative login to SIS).
      */
     protected $sisLogin = null;
 
@@ -95,15 +95,15 @@ class User implements JsonSerializable
      * @ORM\Column(type="datetime", nullable=true)
      * When the SIS events were loaded for the last time (events, affiliations...).
      * This needs to be kept here since the events and courses may be shared and (also)
-     * no affiliations may have beeen loaded the last time.
+     * no affiliations may have been loaded the last time.
      */
     protected $sisEventsLoaded = null;
 
     /**
      * @ORM\Column(type="text", length=1024, nullable=true)
      * Prefix of the ReCodEx authentication token used to perform operations on ReCodEx API.
-     * The suffix is stored in our token used to authenticate agains this API as a payload.
-     * The divison of the token in two parts makes it more difficult to get the whole token and breach the security.
+     * The suffix is stored in our token used to authenticate against this API as a payload.
+     * The division of the token in two parts makes it more difficult to get the whole token and breach the security.
      * This column SHOULD NEVER be sent over to the client side (or anywhere else).
      */
     protected $recodexToken = null;
