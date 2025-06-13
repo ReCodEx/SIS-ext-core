@@ -24,10 +24,7 @@ class PresenterTestHelper
     public const ADMIN_LOGIN = "admin@admin.com";
     public const ADMIN_PASSWORD = "admin";
 
-    public const STUDENT_GROUP_MEMBER_LOGIN = "demoGroupMember1@example.com";
-    public const GROUP_SUPERVISOR_LOGIN = "demoGroupSupervisor@example.com";
-    public const GROUP_SUPERVISOR2_LOGIN = "demoGroupSupervisor2@example.com";
-    public const ANOTHER_SUPERVISOR_LOGIN = "anotherSupervisor@example.com";
+    public const STUDENT_LOGIN = "student1@example.com";
 
     private static function createEntityManager(
         string $dbPath,
@@ -75,7 +72,7 @@ class PresenterTestHelper
         return $em;
     }
 
-    public static function fillDatabase(Container $container, string $group = "demo")
+    public static function fillDatabase(Container $container)
     {
         $tmpDir = $container->getParameters()["tempDir"] . DIRECTORY_SEPARATOR . "testDB";
         if (is_dir("/tmp")) { // Creating a sqlite db in tmpfs is much faster than on a regular file system
@@ -84,8 +81,8 @@ class PresenterTestHelper
 
         FileSystem::createDir($tmpDir);
 
-        $dbPath = $tmpDir . DIRECTORY_SEPARATOR . "database_" . $group . ".db";
-        $dumpPath = $tmpDir . DIRECTORY_SEPARATOR . "database_" . $group . ".sql";
+        $dbPath = $tmpDir . DIRECTORY_SEPARATOR . "database_test.db";
+        $dumpPath = $tmpDir . DIRECTORY_SEPARATOR . "database_test.sql";
         $originalEm = static::getEntityManager($container);
 
         $lockHandle = fopen($dbPath . ".lock", "c+");
@@ -106,7 +103,7 @@ class PresenterTestHelper
 
             $command = $container->getByType(App\Console\DoctrineFixtures::class);
 
-            $input = new Symfony\Component\Console\Input\ArgvInput(["index.php", "-test", "base", $group]);
+            $input = new Symfony\Component\Console\Input\ArgvInput(["index.php", "-test", "."]);
             $output = new Symfony\Component\Console\Output\NullOutput();
 
             $command->run($input, $output);

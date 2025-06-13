@@ -1,7 +1,19 @@
 App\Model\Entity\User:
     admin:
-        __construct: ["admin@admin.com", "Admin", "Admin", "", "", superadmin]
-        setVerified: true
-    "testUser{1..2}":
-        __construct: ['user<current()>\@example.com', "<firstName()>", "<lastName()>", "", "", student]
-        setVerified: true
+        __construct: ["2799360a-86e1-4cf9-ac3b-1172f5483932", "12345678-abcd-abcd-abcd-1234567890ab", "admin@admin.com", "Admin", "Admin", "", "", superadmin]
+        defaultLanguage: "en"
+    "testStudent1":
+        __construct: ["2381a8fe-d81b-4b57-a6b3-906cc0969712", "12345678-abcd-abcd-abcd-1234567890ab", 'student1@example.com', "<firstName()>", "<lastName()>", "", "", student]
+        defaultLanguage: "en"
+
+App\Model\Entity\SisTerm:
+    "term1":
+        __construct: [2024, 1]
+        __calls:
+            - setStudentsAdvertisement: [ 2024-10-01, 2025-01-31 ]
+            - setTeachersAdvertisement: [ 2024-09-01, 2025-02-28 ]
+    "term2":
+        __construct: [2024, 2]
+        __calls:
+            - setStudentsAdvertisement: [2025-02-01, 2025-08-31]
+            - setTeachersAdvertisement: [2025-01-01, 2025-09-30]
