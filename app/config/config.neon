@@ -21,7 +21,7 @@ parameters:
     usedAlgorithm: HS256
     verificationKey: "sis-ext-123"
 
-  recodex:  # just a placeholder, this needs to be overriden in local config
+  recodex:  # just a placeholder, this needs to be overridden in local config
     apiBase: null
     extensionId: null
 
@@ -66,7 +66,7 @@ mail:  # configuration of sending mails
   password: ""  # password to the server
   secure: "tls"  # security, values are empty for no security, "ssl" or "tls"
   context:  # additional parameters, depending on used mail engine
-    ssl:  # examle self-signed certificates can be allowed as verify_peer and verify_peer_name to false and allow_self_signed to true under ssl key (see example)
+    ssl:  # example self-signed certificates can be allowed as verify_peer and verify_peer_name to false and allow_self_signed to true under ssl key (see example)
       verify_peer: false
       verify_peer_name: false
       allow_self_signed: true
@@ -74,6 +74,7 @@ mail:  # configuration of sending mails
 acl:
   config: %appDir%/config/permissions.neon
   acl:
+    term: App\Security\ACL\ITermPermissions
     user: App\Security\ACL\IUserPermissions
   policies:
     _: App\Security\Policies\BasePermissionPolicy

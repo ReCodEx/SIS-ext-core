@@ -4,6 +4,7 @@ namespace App\Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use DateTime;
+use DateTimeInterface;
 use JsonSerializable;
 use InvalidArgumentException;
 
@@ -161,7 +162,7 @@ class SisTerm implements JsonSerializable
         return $this->studentsUntil;
     }
 
-    public function setStudentsAdvertisement(DateTime $from, DateTime $until): void
+    public function setStudentsAdvertisement(DateTimeInterface $from, DateTimeInterface $until): void
     {
         if ($from > $until) {
             throw new InvalidArgumentException(
@@ -182,7 +183,7 @@ class SisTerm implements JsonSerializable
         return $this->teachersUntil;
     }
 
-    public function setTeachersAdvertisement(DateTime $from, DateTime $until): void
+    public function setTeachersAdvertisement(DateTimeInterface $from, DateTimeInterface $until): void
     {
         if ($from > $until) {
             throw new InvalidArgumentException(
