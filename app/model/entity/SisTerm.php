@@ -81,15 +81,13 @@ class SisTerm implements JsonSerializable
     public function __construct(
         int $year,
         int $term,
-        DateTime $studentsFrom,
-        DateTime $studentsUntil,
-        DateTime $teachersFrom,
-        DateTime $teachersUntil
+        ?DateTime $beginning = null,
+        ?DateTime $end = null
     ) {
         $this->year = $year;
         $this->term = $term;
-        $this->setStudentsAdvertisement($studentsFrom, $studentsUntil);
-        $this->setTeachersAdvertisement($teachersFrom, $teachersUntil);
+        $this->beginning = $beginning;
+        $this->end = $end;
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
     }

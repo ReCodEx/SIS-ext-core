@@ -30,3 +30,10 @@ permissions:
         - syncSis
       conditions:
         - user.isSameUser
+
+
+    - allow: true
+      resource: term
+      actions:
+        - list
+        - viewDetail
