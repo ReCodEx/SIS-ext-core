@@ -82,8 +82,8 @@ class SisTerm implements JsonSerializable
     public function __construct(
         int $year,
         int $term,
-        ?DateTime $beginning = null,
-        ?DateTime $end = null
+        ?DateTimeInterface $beginning = null,
+        ?DateTimeInterface $end = null
     ) {
         $this->year = $year;
         $this->term = $term;
@@ -98,7 +98,7 @@ class SisTerm implements JsonSerializable
      * @param DateTime $now
      * @return bool
      */
-    public function isAdvertisedForStudents(DateTime $now = new DateTime()): bool
+    public function isAdvertisedForStudents(DateTimeInterface $now = new DateTime()): bool
     {
         return $now >= $this->studentsFrom && $now <= $this->studentsUntil;
     }
@@ -108,7 +108,7 @@ class SisTerm implements JsonSerializable
      * @param DateTime $now
      * @return bool
      */
-    public function isAdvertisedForTeachers(DateTime $now = new DateTime()): bool
+    public function isAdvertisedForTeachers(DateTimeInterface $now = new DateTime()): bool
     {
         return $now >= $this->teachersFrom && $now <= $this->teachersUntil;
     }
@@ -137,7 +137,7 @@ class SisTerm implements JsonSerializable
         return $this->beginning;
     }
 
-    public function setBeginning(?DateTime $beginning): void
+    public function setBeginning(?DateTimeInterface $beginning): void
     {
         $this->beginning = $beginning;
     }
@@ -147,7 +147,7 @@ class SisTerm implements JsonSerializable
         return $this->end;
     }
 
-    public function setEnd(?DateTime $end): void
+    public function setEnd(?DateTimeInterface $end): void
     {
         $this->end = $end;
     }
@@ -199,7 +199,7 @@ class SisTerm implements JsonSerializable
         return $this->archiveAfter;
     }
 
-    public function setArchiveAfter(?DateTime $archiveAfter): void
+    public function setArchiveAfter(?DateTimeInterface $archiveAfter): void
     {
         $this->archiveAfter = $archiveAfter;
     }

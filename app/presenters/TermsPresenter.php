@@ -27,18 +27,18 @@ class TermsPresenter extends BasePresenter
      */
     public $termAcl;
 
-    private function getDateTime(Request $req, string $name, DateTime $minTs, DateTime $maxTs): ?DateTime
+    private function getDateTime(Request $req, string $name, ?DateTime $minTs, ?DateTime $maxTs): ?DateTime
     {
         $timestamp = (int)$req->getPost($name);
         if ($timestamp <= 0) {
             return null;
         }
         $res = DateTime::createFromFormat('U', $timestamp);
-        if ($res < $minTs) {
-            throw new BadRequestException("DateTime '$name' is too far in the past.");
+        if ($minTs && $res < $minTs) {
+            throw new BadRequestException("DateTime '$name' must be older than " . $minTs->format('Y-m-d H:i:s'));
         }
-        if ($maxTs < $res) {
-            throw new BadRequestException("DateTime '$name' is too far in the future.");
+        if ($maxTs && $maxTs < $res) {
+            throw new BadRequestException("DateTime '$name' must not be older than " . $maxTs->format('Y-m-d H:i:s'));
         }
         return $res;
     }
@@ -56,7 +56,7 @@ class TermsPresenter extends BasePresenter
         ++$year;
         $maxTs = DateTime::createFromFormat('Y-m-d H:i:s', "$year-12-31 23:59:59");
 
-        $begin = $this->getDateTime($req, "begin", $minTs, $maxTs);
+        $begin = $this->getDateTime($req, "beginning", $minTs, $maxTs);
         $end = $this->getDateTime($req, "end", $minTs, $maxTs);
         if ($begin || $end) {
             if (!$begin || !$end) {
@@ -67,6 +67,9 @@ class TermsPresenter extends BasePresenter
             }
             $term->setBeginning($begin);
             $term->setEnd($end);
+        } else {
+            $term->setBeginning(null);
+            $term->setEnd(null);
         }
 
         $studentsFrom = $this->getDateTime($req, "studentsFrom", $minTs, $maxTs);
@@ -88,6 +91,18 @@ class TermsPresenter extends BasePresenter
             throw new BadRequestException("The 'teachersFrom' date cannot be after the 'teachersUntil' date.");
         }
         $term->setTeachersAdvertisement($teachersFrom, $teachersUntil);
+
+        $archiveAfter = $this->getDateTime($req, "archiveAfter", $minTs, null);
+        if ($archiveAfter) {
+            if ($archiveAfter < $studentsUntil || $archiveAfter < $teachersUntil) {
+                throw new BadRequestException(
+                    "The 'archiveAfter' date should be after the advertisement periods for students and teachers."
+                );
+            }
+            $term->setArchiveAfter($archiveAfter);
+        } else {
+            $term->setArchiveAfter(null);
+        }
     }
 
     public function checkDefault()
@@ -129,10 +144,12 @@ class TermsPresenter extends BasePresenter
      *        description="From when the term should allow teachers to create groups (unix ts).")
      * @Param(type="post", name="teachersUntil", validation="numericint", required=true,
      *        description="Till when the term should allow teachers to create groups (unix ts).")
-     * @Param(type="post", name="begin", validation="numericint", required=false,
+     * @Param(type="post", name="beginning", validation="numericint", required=false,
      *        description="When the term officially begins (unix ts).")
      * @Param(type="post", name="end", validation="numericint", required=false,
      *        description="When the term officially ends (unix ts).")
+     * @Param(type="post", name="archiveAfter", validation="numericint", required=false,
+     *        description="When the archiving of groups should be suggested (unix ts).")
      */
     public function actionCreate()
     {
@@ -148,7 +165,7 @@ class TermsPresenter extends BasePresenter
             throw new BadRequestException("Term must be either 1 (winter) or 2 (summer).");
         }
 
-        if ($this->sisTerms->isValid($year, $term)) {
+        if ($this->sisTerms->findTerm($year, $term)) {
             throw new BadRequestException("Term already exists.");
         }
 
@@ -172,7 +189,7 @@ class TermsPresenter extends BasePresenter
      * @GET
      * @param string $id of the SIS term
      */
-    public function actionDetails(string $id)
+    public function actionDetail(string $id)
     {
         $term = $this->sisTerms->findOrThrow($id);
         $this->sendSuccessResponse($term);
@@ -197,10 +214,12 @@ class TermsPresenter extends BasePresenter
      *        description="From when the term should allow teachers to create groups (unix ts).")
      * @Param(type="post", name="teachersUntil", validation="numericint", required=true,
      *        description="Till when the term should allow teachers to create groups (unix ts).")
-     * @Param(type="post", name="begin", validation="numericint", required=false,
+     * @Param(type="post", name="beginning", validation="numericint", required=false,
      *        description="When the term officially begins (unix ts).")
      * @Param(type="post", name="end", validation="numericint", required=false,
      *        description="When the term officially ends (unix ts).")
+     * @Param(type="post", name="archiveAfter", validation="numericint", required=false,
+     *        description="When the archiving of groups should be suggested (unix ts).")
      */
     public function actionUpdate(string $id)
     {

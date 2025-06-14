@@ -16,11 +16,12 @@ class SisTerms extends BaseRepository
     }
 
     /**
+     * Find a term by year and term number.
      * @param int $year
-     * @param int $term
-     * @return SisTerm|null
+     * @param int $term 1 for winter term, 2 for summer term
+     * @return SisTerm|null null if not found
      */
-    public function isValid($year, $term): ?SisTerm
+    public function findTerm($year, $term): ?SisTerm
     {
         return $this->findOneBy(
             [

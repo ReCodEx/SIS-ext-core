@@ -25,6 +25,7 @@ class PresenterTestHelper
     public const ADMIN_PASSWORD = "admin";
 
     public const STUDENT_LOGIN = "student1@example.com";
+    public const TEACHER_LOGIN = "teacher1@example.com";
 
     private static function createEntityManager(
         string $dbPath,
@@ -187,7 +188,7 @@ class PresenterTestHelper
      * @param array $params Parameters of the request.
      * @param array $post Body of the request (must be POST).
      * @param int $expectedCode Expected HTTP response code (200 by default).
-     * @return array|null Payload subtree of JSON request.
+     * @return array|object|null Payload subtree of JSON request.
      * @throws Exception
      */
     public static function performPresenterRequest(

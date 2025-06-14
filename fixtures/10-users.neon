@@ -5,15 +5,20 @@ App\Model\Entity\User:
     "testStudent1":
         __construct: ["2381a8fe-d81b-4b57-a6b3-906cc0969712", "12345678-abcd-abcd-abcd-1234567890ab", 'student1@example.com', "<firstName()>", "<lastName()>", "", "", student]
         defaultLanguage: "en"
+    "testTeacher1":
+        __construct: ["51b10287-62b4-4836-b3de-1933d40517b9", "12345678-abcd-abcd-abcd-1234567890ab", 'teacher1@example.com', "<firstName()>", "<lastName()>", "", "", supervisor]
+        defaultLanguage: "en"
 
 App\Model\Entity\SisTerm:
     "term1":
-        __construct: [2024, 1]
+        __construct: [2024, 1, 2024-10-01, 2025-01-31]
         __calls:
             - setStudentsAdvertisement: [ 2024-10-01, 2025-01-31 ]
             - setTeachersAdvertisement: [ 2024-09-01, 2025-02-28 ]
+            - setArchiveAfter: [ 2025-03-01 ]
+
     "term2":
-        __construct: [2024, 2]
+        __construct: [2024, 2, 2025-02-01, 2025-08-31]
         __calls:
             - setStudentsAdvertisement: [2025-02-01, 2025-08-31]
             - setTeachersAdvertisement: [2025-01-01, 2025-09-30]
