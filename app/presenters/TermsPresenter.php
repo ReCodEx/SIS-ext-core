@@ -226,6 +226,7 @@ class TermsPresenter extends BasePresenter
         $req = $this->getRequest();
         $sisTerm = $this->sisTerms->findOrThrow($id);
         $this->processTermDates($sisTerm, $req);
+        $sisTerm->updatedNow();
         $this->sisTerms->persist($sisTerm);
         $this->sendSuccessResponse($sisTerm);
     }
