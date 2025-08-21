@@ -15,13 +15,18 @@ class Users extends BaseRepository
         parent::__construct($em, User::class);
     }
 
+    public function getBySisId(string $sisId): ?User
+    {
+        return $this->findOneBy(["sisId" => $sisId]);
+    }
+
     public function getByEmail(string $email): ?User
     {
         return $this->findOneBy(["email" => $email]);
     }
 
     /**
-     * Search users firstnames and surnames based on given string.
+     * Search users first names and surnames based on given string.
      * @param string|null $search
      * @return User[]
      */

@@ -125,6 +125,7 @@ services:
   - App\Helpers\EmailHelper(%emails%)
 
   # models - repositories
+  - App\Model\Repository\SisAffiliations
   - App\Model\Repository\SisCourses
   - App\Model\Repository\SisScheduleEvents
   - App\Model\Repository\SisTerms

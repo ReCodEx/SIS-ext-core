@@ -7,7 +7,7 @@ use App\Model\Entity\SisUser;
 use JsonSerializable;
 
 /**
- * Wraper that parses and provides access to personal user data.
+ * Warper that parses and provides access to personal user data.
  */
 class SisUserRecord implements JsonSerializable
 {

@@ -14,4 +14,9 @@ class SisCourses extends BaseRepository
     {
         parent::__construct($em, SisCourse::class);
     }
+
+    public function findByCode(string $code): ?SisCourse
+    {
+        return $this->findOneBy(['code' => $code]);
+    }
 }

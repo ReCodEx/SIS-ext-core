@@ -2,12 +2,20 @@
 
 namespace App\Helpers;
 
+use App\Model\Entity\SisAffiliation;
+use App\Model\Entity\SisCourse;
+use App\Model\Entity\SisScheduleEvent;
+use App\Model\Entity\SisTerm;
+use App\Model\Repository\SisAffiliations;
+use App\Model\Repository\SisCourses;
+use App\Model\Repository\SisScheduleEvents;
+use App\Model\Repository\Users;
 use DateTime;
 use Exception;
 use JsonSerializable;
 
 /**
- * Wraper that parses and provides access to individual properties of the course record.
+ * Warper that parses and provides access to individual properties of the course record.
  */
 class SisCourseRecord implements JsonSerializable
 {
@@ -39,11 +47,11 @@ class SisCourseRecord implements JsonSerializable
 
     private $fortnightly;
 
-    private $oddWeeks;
+    private $firstWeek;
 
     private static $typeMap = [
-        "P" => "lecture",
-        "X" => "lab"
+        "P" => SisScheduleEvent::TYPE_LECTURE,
+        "X" => SisScheduleEvent::TYPE_LABS,
     ];
 
     /**
@@ -62,18 +70,12 @@ class SisCourseRecord implements JsonSerializable
         $result->year = $data["year"];
         $result->term = $data["semester"];
         $result->dayOfWeek = $data["day_of_week"] !== null ? intval($data["day_of_week"]) - 1 : null;
-        if ($data["time"] !== null) {
-            $minutes = intval($data["time"]);
-            $result->time = (new DateTime())
-                ->setTime(floor($minutes / 60), $minutes % 60)
-                ->format("H:i");
-        } else {
-            $result->time = null;
-        }
+        $result->time = ($data["time"] !== null) ? intval($data["time"]) : null;
         $result->room = $data["room"];
         $result->fortnightly = (bool)$data["fortnight"];
-        $result->oddWeeks = $data["firstweek"] == 1;
-        $result->type = array_key_exists($data["type"], self::$typeMap) ? self::$typeMap[$data["type"]] : "unknown";
+        $result->firstWeek = intval($data["firstweek"]);
+        $result->type = array_key_exists($data["type"], self::$typeMap) ? self::$typeMap[$data["type"]]
+            : SisScheduleEvent::TYPE_UNKNOWN;
 
         foreach (self::$languages as $language) {
             $result->captions[$language] = $data["caption_" . $language];
@@ -151,7 +153,7 @@ class SisCourseRecord implements JsonSerializable
     }
 
     /**
-     * @return string SIS course identificator
+     * @return string SIS course identification
      */
     public function getCourseId(): string
     {
@@ -191,12 +193,11 @@ class SisCourseRecord implements JsonSerializable
     }
 
     /**
-     * Only valid if the courses are held once every two weeks.
-     * @return bool true if the course run in the odd weeks (starting in week 1)
+     * @return int the first logical week when the lecture starts (usually 1 = the first week of the semester)
      */
-    public function getOddWeeks(): bool
+    public function getFirstWeek(): int
     {
-        return $this->oddWeeks;
+        return $this->firstWeek;
     }
 
     public function jsonSerialize(): mixed
@@ -210,8 +211,67 @@ class SisCourseRecord implements JsonSerializable
             'time' => $this->time,
             'room' => $this->room,
             'fortnightly' => $this->fortnightly,
-            'oddWeeks' => $this->oddWeeks,
+            'firstWeek' => $this->firstWeek,
             'type' => $this->type
         ];
+    }
+
+    public function updateLocalCourseAndAffiliations(
+        SisCourses $courses,
+        SisScheduleEvents $events,
+        SisAffiliations $affiliations,
+        Users $users,
+        SisTerm $term,
+    ): void {
+        // update/create the course itself
+        $course = $courses->findByCode($this->courseId);
+        if ($course) {
+            $course->setCaptionCs($this->getCaption('cs'));
+            $course->setCaptionEn($this->getCaption('en'));
+            $course->updatedNow();
+        } else {
+            $course = new SisCourse($this->courseId, $this->getCaption('cs'), $this->getCaption('en'));
+        }
+        $courses->persist($course);
+
+        // update/create the scheduling event
+        $event = $events->findBySisId($this->getCode());
+        if ($event) {
+            // sanity check
+            if ($event->getCourse()->getId() !== $course->getId()) {
+                throw new Exception("Event course ID does not match the course ID in the record.");
+            }
+            if ($event->getTerm()->getId() !== $term->getId()) {
+                throw new Exception("Event term does not match the term in the record.");
+            }
+            $event->setType($this->type);
+            $event->updatedNow();
+        } else {
+            $event = new SisScheduleEvent(
+                $this->getCode(),
+                $term,
+                $course,
+                $this->type,
+            );
+        }
+        $event->setSchedule($this->dayOfWeek, $this->firstWeek, $this->time, 90, $this->room, $this->fortnightly);
+        $events->persist($event);
+
+        // update event affiliations for the user (if exists)
+        $user = $users->getBySisId($this->sisUserId);
+        if ($user) {
+            $affiliation = $affiliations->getAffiliation($event, $user, $term);
+            if ($affiliation) {
+                // update existing affiliation
+                $affiliation->setType($this->affiliation);
+            } else {
+                // create new affiliation
+                $affiliation = new SisAffiliation($user, $event, $term, $this->affiliation);
+            }
+            $affiliations->persist($affiliation, false);
+
+            $user->setSisEventsLoaded();
+            $users->persist($user);
+        }
     }
 }
