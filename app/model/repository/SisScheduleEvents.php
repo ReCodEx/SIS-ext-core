@@ -14,4 +14,9 @@ class SisScheduleEvents extends BaseRepository
     {
         parent::__construct($em, SisScheduleEvent::class);
     }
+
+    public function findBySisId(string $sisId): ?SisScheduleEvent
+    {
+        return $this->findOneBy(['sisId' => $sisId]);
+    }
 }

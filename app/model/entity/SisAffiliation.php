@@ -79,4 +79,9 @@ class SisAffiliation
     {
         return $this->type;
     }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
 }

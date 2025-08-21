@@ -44,6 +44,7 @@ class SisScheduleEvent implements JsonSerializable
 
     public const TYPE_LECTURE = 'lecture';
     public const TYPE_LABS = 'labs';
+    public const TYPE_UNKNOWN = '?';
 
     /**
      * @ORM\Column(type="string")
@@ -92,23 +93,11 @@ class SisScheduleEvent implements JsonSerializable
         SisTerm $term,
         SisCourse $course,
         string $type,
-        int $dayOfWeek,
-        int $firstWeek,
-        int $time,
-        int $length,
-        string $room,
-        bool $fortnight = false
     ) {
         $this->sisId = $sisId;
         $this->term = $term;
         $this->course = $course;
         $this->type = $type;
-        $this->dayOfWeek = $dayOfWeek;
-        $this->firstWeek = $firstWeek;
-        $this->time = $time;
-        $this->length = $length;
-        $this->room = $room;
-        $this->fortnight = $fortnight;
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
     }

@@ -3,6 +3,11 @@
 namespace App\Console;
 
 use App\Helpers\SisHelper;
+use App\Model\Repository\SisAffiliations;
+use App\Model\Repository\SisCourses;
+use App\Model\Repository\SisScheduleEvents;
+use App\Model\Repository\SisTerms;
+use App\Model\Repository\Users;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,12 +27,48 @@ class SisGetCourse extends BaseCommand
     private $sis;
 
     /**
+     * @var SisCourses
+     */
+    private $courses;
+
+    /**
+     * @var SisScheduleEvents
+     */
+    private $events;
+
+    /**
+     * @var SisAffiliations
+     */
+    private $affiliations;
+
+    /**
+     * @var Users
+     */
+    private $users;
+
+    /**
+     * @var SisTerms
+     */
+    private $terms;
+
+    /**
      * @param SisHelper $sis
      */
-    public function __construct(SisHelper $sis)
-    {
+    public function __construct(
+        SisHelper $sis,
+        SisCourses $courses,
+        SisScheduleEvents $events,
+        SisAffiliations $affiliations,
+        Users $users,
+        SisTerms $terms,
+    ) {
         parent::__construct();
         $this->sis = $sis;
+        $this->courses = $courses;
+        $this->events = $events;
+        $this->affiliations = $affiliations;
+        $this->users = $users;
+        $this->terms = $terms;
     }
 
     /**
@@ -51,6 +92,7 @@ class SisGetCourse extends BaseCommand
             'Selected semester (1=winter term, 2=summer term)',
             1
         );
+        $this->addOption('cache', null, InputOption::VALUE_NONE, 'Cache data loaded from SIS in local database.');
     }
 
     /**
@@ -66,8 +108,21 @@ class SisGetCourse extends BaseCommand
         $ukco = $input->getArgument('ukco');
         $year = (int)$input->getOption('year');
         $term = (int)$input->getOption('term');
+        $output->writeln("$year-$term");
+
+        $termObj = $input->getOption('cache') ? $this->terms->findTerm($year, $term) : null;
+
         foreach ($this->sis->getCourses($ukco, $year, $term) as $course) {
             $output->writeln($course->getCode() . ': ' . $course->getCaption('en'));
+            if ($termObj) {
+                $course->updateLocalCourseAndAffiliations(
+                    $this->courses,
+                    $this->events,
+                    $this->affiliations,
+                    $this->users,
+                    $termObj,
+                );
+            }
         }
 
         return Command::SUCCESS;
