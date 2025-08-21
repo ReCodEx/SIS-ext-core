@@ -10,7 +10,6 @@ use App\Model\Repository\SisAffiliations;
 use App\Model\Repository\SisCourses;
 use App\Model\Repository\SisScheduleEvents;
 use App\Model\Repository\Users;
-use DateTime;
 use Exception;
 use JsonSerializable;
 
@@ -21,37 +20,109 @@ class SisCourseRecord implements JsonSerializable
 {
     private static $languages = ['cs', 'en'];
 
+    /**
+     * @var string
+     * Identifier of the scheduling event (known in SIS as `GL`)
+     */
     private $code;
 
+    /**
+     * @var string
+     * Identifier of the course (known in SIS as `povinn`)
+     */
     private $courseId;
 
+    /**
+     * @var string
+     * Type of the event (lecture, labs, ...) as SisScheduleEvent::TYPE_* constant.
+     */
     private $type;
 
+    /**
+     * @var string|null
+     * Affiliation of the selected user to the listed event (as SisAffiliation::TYPE_* constant).
+     */
     private $affiliation;
 
+    /**
+     * @var string[]
+     * Captions of the course in different languages, indexed by language code (cs, en).
+     */
     private $captions;
 
+    /**
+     * @var string[]
+     * Annotations of the course in different languages, indexed by language code (cs, en).
+     */
     private $annotations;
 
+    /**
+     * @var int
+     * Calendar year where the academic year (where the event is scheduled) begins.
+     */
     private $year;
 
+    /**
+     * @var int
+     * Semester of the course (1 for winter, 2 for summer).
+     */
     private $term;
 
+    /**
+     * @var string
+     * SIS user ID of the user associated with the course record.
+     */
     private $sisUserId;
 
+    /**
+     * @var int|null
+     * Day of the week when the event is scheduled (0=Sunday, 1=Monday...).
+     * Null if the event is not scheduled on a specific day.
+     */
     private $dayOfWeek;
 
+    /**
+     * @var int|null
+     * Time of the event in minutes since midnight (0-1439).
+     * Null if the event is not scheduled at a specific time.
+     */
     private $time;
 
+    /**
+     * @var string|null
+     * Room where the event is scheduled. Null if the event is not scheduled in a specific room.
+     */
     private $room;
 
+    /**
+     * @var bool
+     * Whether the event is scheduled bi-weekly (every two weeks).
+     */
     private $fortnightly;
 
+    /**
+     * @var int
+     * The first logical week of the semester when the event starts (usually 1).
+     */
     private $firstWeek;
 
+    /**
+     * @var string[]
+     * Mapping of SIS event types to internal constants.
+     */
     private static $typeMap = [
         "P" => SisScheduleEvent::TYPE_LECTURE,
         "X" => SisScheduleEvent::TYPE_LABS,
+    ];
+
+    /**
+     * @var string[]
+     * Mapping of SIS affiliation types to internal constants.
+     */
+    private static $affiliationMap = [
+        "student" => SisAffiliation::TYPE_STUDENT,
+        "teacher" => SisAffiliation::TYPE_TEACHER,
+        "guarantor" => SisAffiliation::TYPE_GUARANTOR,
     ];
 
     /**
@@ -66,10 +137,11 @@ class SisCourseRecord implements JsonSerializable
 
         $result->code = $data["id"];
         $result->courseId = $data["course"];
-        $result->affiliation = $data["affiliation"];
-        $result->year = $data["year"];
-        $result->term = $data["semester"];
-        $result->dayOfWeek = $data["day_of_week"] !== null ? intval($data["day_of_week"]) - 1 : null;
+        $result->affiliation = array_key_exists($data["affiliation"], self::$affiliationMap)
+            ? self::$affiliationMap[$data["affiliation"]] : null;
+        $result->year = intval($data["year"]);
+        $result->term = intval($data["semester"]);
+        $result->dayOfWeek = $data["day_of_week"] !== null ? intval($data["day_of_week"]) : null;
         $result->time = ($data["time"] !== null) ? intval($data["time"]) : null;
         $result->room = $data["room"];
         $result->fortnightly = (bool)$data["fortnight"];
@@ -258,20 +330,26 @@ class SisCourseRecord implements JsonSerializable
         $events->persist($event);
 
         // update event affiliations for the user (if exists)
-        $user = $users->getBySisId($this->sisUserId);
-        if ($user) {
-            $affiliation = $affiliations->getAffiliation($event, $user, $term);
-            if ($affiliation) {
-                // update existing affiliation
-                $affiliation->setType($this->affiliation);
-            } else {
-                // create new affiliation
-                $affiliation = new SisAffiliation($user, $event, $term, $this->affiliation);
-            }
-            $affiliations->persist($affiliation, false);
-
-            $user->setSisEventsLoaded();
-            $users->persist($user);
+        if (!$this->affiliation) {
+            return;
         }
+
+        $user = $users->getBySisId($this->sisUserId);
+        if (!$user) {
+            return;
+        }
+
+        $affiliation = $affiliations->getAffiliation($event, $user, $term);
+        if ($affiliation) {
+            // update existing affiliation
+            $affiliation->setType($this->affiliation);
+        } else {
+            // create new affiliation
+            $affiliation = new SisAffiliation($user, $event, $term, $this->affiliation);
+        }
+        $affiliations->persist($affiliation, false);
+
+        $user->setSisEventsLoaded();
+        $users->persist($user);
     }
 }
