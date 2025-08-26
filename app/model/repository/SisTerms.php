@@ -4,6 +4,7 @@ namespace App\Model\Repository;
 
 use App\Model\Entity\SisTerm;
 use Doctrine\ORM\EntityManagerInterface;
+use DateTime;
 
 /**
  * @extends BaseRepository<SisTerm>
@@ -43,5 +44,13 @@ class SisTerms extends BaseRepository
                 "term" => "DESC",
             ]
         );
+    }
+
+    public function findAllActive(DateTime $now = new DateTime()): array
+    {
+        return array_filter($this->findAll(), function (SisTerm $term) use ($now) {
+            return ($term->getStudentsFrom() <= $now && $now <= $term->getStudentsUntil())
+                || ($term->getTeachersFrom() <= $now && $now <= $term->getTeachersUntil());
+        });
     }
 }

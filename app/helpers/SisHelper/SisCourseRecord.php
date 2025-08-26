@@ -345,7 +345,7 @@ class SisCourseRecord implements JsonSerializable
             $affiliation->setType($this->affiliation);
         } else {
             // create new affiliation
-            $affiliation = new SisAffiliation($user, $event, $term, $this->affiliation);
+            $affiliation = new SisAffiliation($user, $event, $this->affiliation);
         }
         $affiliations->persist($affiliation, false);
 

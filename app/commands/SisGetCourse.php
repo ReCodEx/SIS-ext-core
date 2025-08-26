@@ -108,11 +108,12 @@ class SisGetCourse extends BaseCommand
         $ukco = $input->getArgument('ukco');
         $year = (int)$input->getOption('year');
         $term = (int)$input->getOption('term');
-        $output->writeln("$year-$term");
+        $yearTerm = "$year-$term";
+        $output->writeln($yearTerm);
 
         $termObj = $input->getOption('cache') ? $this->terms->findTerm($year, $term) : null;
 
-        foreach ($this->sis->getCourses($ukco, $year, $term) as $course) {
+        foreach ($this->sis->getCourses($ukco, $yearTerm) as $course) {
             $output->writeln($course->getCode() . ': ' . $course->getCaption('en'));
             if ($termObj) {
                 $course->updateLocalCourseAndAffiliations(

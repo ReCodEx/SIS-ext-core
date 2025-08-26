@@ -29,6 +29,8 @@ class RouterFactory
         $router[] = self::createLoginRoutes("login");
         $router[] = self::createUsersRoutes("users");
         $router[] = self::createTermsRoutes("terms");
+        $router[] = self::createCoursesRoutes("courses");
+        $router[] = self::createGroupsRoutes("groups");
 
         return $router;
     }
@@ -58,6 +60,24 @@ class RouterFactory
         $router[] = new GetRoute("$prefix/<id>", "Terms:detail");
         $router[] = new PostRoute("$prefix/<id>", "Terms:update");
         $router[] = new DeleteRoute("$prefix/<id>", "Terms:remove");
+        return $router;
+    }
+
+    private static function createCoursesRoutes(string $prefix): RouteList
+    {
+        $router = new RouteList();
+        $router[] = new PostRoute("$prefix", "Courses:default");
+        return $router;
+    }
+
+    private static function createGroupsRoutes(string $prefix): RouteList
+    {
+        $router = new RouteList();
+        $router[] = new GetRoute("$prefix", "Groups:default");
+        $router[] = new PostRoute("$prefix", "Groups:create");
+        $router[] = new PostRoute("$prefix/<id>/bind/<eventId>", "Groups:bind");
+        $router[] = new DeleteRoute("$prefix/<id>/bind/<eventId>", "Groups:unbind");
+        $router[] = new PostRoute("$prefix/<id>/join", "Groups:join");
         return $router;
     }
 }

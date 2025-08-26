@@ -193,7 +193,8 @@ class SisScheduleEvent implements JsonSerializable
     {
         return [
             'id' => $this->getId(),
-            'term' => $this->getTerm()->jsonSerialize(),
+            'year' => $this->getTerm()->getYear(),
+            'term' => $this->getTerm()->getTerm(),
             'course' => $this->getCourse()->jsonSerialize(),
             'sisId' => $this->getSisId(),
             'type' => $this->getType(),

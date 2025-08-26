@@ -29,11 +29,6 @@ class SisAffiliation
      */
     protected $event;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="SisTerm")
-     */
-    protected $term;
-
     public const TYPE_STUDENT = 'student';
     public const TYPE_TEACHER = 'teacher';
     public const TYPE_GUARANTOR = 'guarantor';
@@ -47,12 +42,10 @@ class SisAffiliation
     public function __construct(
         User $user,
         SisScheduleEvent $event,
-        SisTerm $term,
         string $type,
     ) {
         $this->user = $user;
         $this->event = $event;
-        $this->term = $term;
         $this->type = $type;
     }
 
@@ -68,11 +61,6 @@ class SisAffiliation
     public function getEvent(): SisScheduleEvent
     {
         return $this->event;
-    }
-
-    public function getTerm(): SisTerm
-    {
-        return $this->term;
     }
 
     public function getType(): string
