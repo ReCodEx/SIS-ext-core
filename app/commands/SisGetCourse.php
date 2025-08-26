@@ -112,6 +112,12 @@ class SisGetCourse extends BaseCommand
         $output->writeln($yearTerm);
 
         $termObj = $input->getOption('cache') ? $this->terms->findTerm($year, $term) : null;
+        if ($termObj) {
+            $user = $this->users->findOneBy(['sisId' => $ukco]);
+            if ($user) {
+                $this->affiliations->clearAffiliations($user, $termObj);
+            }
+        }
 
         foreach ($this->sis->getCourses($ukco, $yearTerm) as $course) {
             $output->writeln($course->getCode() . ': ' . $course->getCaption('en'));
