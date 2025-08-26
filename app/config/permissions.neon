@@ -37,3 +37,19 @@ permissions:
       actions:
         - list
         - viewDetail
+
+    - allow: true
+      resource: term
+      role: student
+      actions:
+        - viewStudentCourses
+      conditions:
+        - term.isVisibleToStudents
+
+    - allow: true
+      resource: term
+      role: supervisor-student
+      actions:
+        - viewTeacherCourses
+      conditions:
+        - term.isVisibleToTeachers

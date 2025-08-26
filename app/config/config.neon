@@ -78,6 +78,7 @@ acl:
     user: App\Security\ACL\IUserPermissions
   policies:
     _: App\Security\Policies\BasePermissionPolicy
+    term: App\Security\Policies\TermPermissionPolicy
     user: App\Security\Policies\UserPermissionPolicy
 
 extensions:

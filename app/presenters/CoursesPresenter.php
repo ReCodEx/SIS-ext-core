@@ -3,6 +3,7 @@
 namespace App\Presenters;
 
 use App\Exceptions\BadRequestException;
+use App\Exceptions\ForbiddenRequestException;
 use App\Model\Entity\SisAffiliation;
 use App\Model\Entity\SisTerm;
 use App\Model\Entity\User;
@@ -57,6 +58,12 @@ class CoursesPresenter extends BasePresenter
     public $users;
 
     /**
+     * @var ITermPermissions
+     * @inject
+     */
+    public $termAcl;
+
+    /**
      * Get the current SIS term from the request parameters.
      */
     private function getTerm(): SisTerm
@@ -77,15 +84,15 @@ class CoursesPresenter extends BasePresenter
         $affiliation = $req->getPost('affiliation');
         $now = new DateTime();
         $res = [];
-        if (
-            $term->getStudentsFrom() <= $now && $now <= $term->getStudentsUntil()
-            && (!$affiliation || $affiliation === 'student')
-        ) {
+        if (!$affiliation || $affiliation === 'student') {
+            if (!$this->termAcl->canViewStudentCourses($term)) {
+                throw new ForbiddenRequestException("You are not allowed to view student courses.");
+            }
             $res[] = SisAffiliation::TYPE_STUDENT;
-        } elseif (
-            $term->getTeachersFrom() <= $now && $now <= $term->getTeachersUntil()
-            && (!$affiliation || $affiliation === 'teacher')
-        ) {
+        } elseif (!$affiliation || $affiliation === 'teacher') {
+            if (!$this->termAcl->canViewTeacherCourses($term)) {
+                throw new ForbiddenRequestException("You are not allowed to view teacher courses.");
+            }
             // at the moment, the UI does not make a distinction between teachers and guarantors
             $res[] = SisAffiliation::TYPE_TEACHER;
             $res[] = SisAffiliation::TYPE_GUARANTOR;
