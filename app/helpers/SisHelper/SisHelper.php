@@ -137,12 +137,12 @@ class SisHelper
 
     /**
      * @param string $sisUserId UKCO
-     * @param int|null $year
-     * @param int $term
+     * @param string|array|null $terms a term or a list of terms in the format 'year-term';
+     *                                 null = return all available terms
      * @return SisCourseRecord[]|Generator
      * @throws InvalidArgumentException
      */
-    public function getCourses(string $sisUserId, ?int $year = null, int $term = 1)
+    public function getCourses(string $sisUserId, mixed $terms = null)
     {
         $salt = join(',', [time(), $this->faculty, $sisUserId]);
         $hash = hash('sha256', "$salt,$this->secretRozvrhng");
@@ -155,11 +155,17 @@ class SisHelper
             'extras' => ['annotations']
         ];
 
-        if ($year !== null) {
-            $params['semesters'] = [sprintf("%s-%s", $year, $term)];
+        if ($terms !== null) {
+            if (!is_array($terms)) {
+                $terms = [$terms];
+            }
+            $params['semesters'] = $terms;
+            $termsStr = join(', ', $terms);
+        } else {
+            $termsStr = 'null';
         }
 
-        Debugger::log("getCourses($sisUserId, $year, $term)", Debugger::DEBUG);
+        Debugger::log("getCourses($sisUserId, $termsStr)", Debugger::DEBUG);
         try {
             $response = $this->client->get('rozvrhng/rest.php', $this->prepareOptions($params));
         } catch (GuzzleHttp\Exception\ClientException $e) {
