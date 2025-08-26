@@ -123,6 +123,9 @@ class CoursesPresenter extends BasePresenter
         foreach ($this->sisTerms->findAllActive() as $term) {
             $key = sprintf("%s-%s", $term->getYear(), $term->getTerm());
             $terms[$key] = $term;
+
+            // we need to clear current affiliations to reflect when students' get unenrolled from courses
+            $this->sisAffiliations->clearAffiliations($user, $term);
         }
 
         foreach ($this->sis->getCourses($user->getSisId(), array_keys($terms)) as $course) {

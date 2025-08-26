@@ -26,4 +26,24 @@ class SisAffiliations extends BaseRepository
             'term' => $term,
         ]);
     }
+
+    /**
+     * Clear all affiliations for a user in a specific term.
+     * This is necessary before an update, to avoid lingering affiliations when user changes
+     * course/event enrollment in SIS.
+     * @param User $user whose affiliations are removed
+     * @param SisTerm $term only affiliations to sis events in this term are cleared
+     */
+    public function clearAffiliations(User $user, SisTerm $term): void
+    {
+        $this->createQueryBuilder('a')
+            ->delete()
+            ->join('a.event', 'e')
+            ->where('a.user = :user')
+            ->andWhere('e.term = :term')
+            ->setParameter('user', $user->getId())
+            ->setParameter('term', $term->getId())
+            ->getQuery()
+            ->execute();
+    }
 }
