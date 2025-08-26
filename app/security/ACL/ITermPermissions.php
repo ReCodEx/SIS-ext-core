@@ -15,4 +15,8 @@ interface ITermPermissions
     public function canUpdate(SisTerm $term): bool;
 
     public function canRemove(SisTerm $term): bool;
+
+    public function canViewStudentCourses(SisTerm $term): bool;
+
+    public function canViewTeacherCourses(SisTerm $term): bool;
 }
