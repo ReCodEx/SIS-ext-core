@@ -82,17 +82,20 @@ class CoursesPresenter extends BasePresenter
     {
         $req = $this->getRequest();
         $affiliation = $req->getPost('affiliation');
-        $now = new DateTime();
+        $canStudent = $this->termAcl->canViewStudentCourses($term);
+        if ($affiliation === 'student' && !$canStudent) {
+            throw new ForbiddenRequestException("You are not allowed to view student courses.");
+        }
+        $canTeacher = $this->termAcl->canViewTeacherCourses($term);
+        if ($affiliation === 'teacher' && !$canTeacher) {
+            throw new ForbiddenRequestException("You are not allowed to view teacher courses.");
+        }
+
         $res = [];
-        if (!$affiliation || $affiliation === 'student') {
-            if (!$this->termAcl->canViewStudentCourses($term)) {
-                throw new ForbiddenRequestException("You are not allowed to view student courses.");
-            }
+        if ($canStudent && (!$affiliation || $affiliation === 'student')) {
             $res[] = SisAffiliation::TYPE_STUDENT;
-        } elseif (!$affiliation || $affiliation === 'teacher') {
-            if (!$this->termAcl->canViewTeacherCourses($term)) {
-                throw new ForbiddenRequestException("You are not allowed to view teacher courses.");
-            }
+        }
+        if ($canTeacher && (!$affiliation || $affiliation === 'teacher')) {
             // at the moment, the UI does not make a distinction between teachers and guarantors
             $res[] = SisAffiliation::TYPE_TEACHER;
             $res[] = SisAffiliation::TYPE_GUARANTOR;

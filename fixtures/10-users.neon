@@ -5,20 +5,15 @@ App\Model\Entity\User:
     "testStudent1":
         __construct: ["2381a8fe-d81b-4b57-a6b3-906cc0969712", "12345678-abcd-abcd-abcd-1234567890ab", 'student1@example.com', "<firstName()>", "<lastName()>", "", "", student]
         defaultLanguage: "en"
+    "testStudent2":
+        __construct: ["45eb9ff9-ce43-4fa3-8321-ce5e9d9e5129", "12345678-abcd-abcd-abcd-1234567890ab", 'student2@example.com', "<firstName()>", "<lastName()>", "", "", student]
+        defaultLanguage: "en"
     "testTeacher1":
         __construct: ["51b10287-62b4-4836-b3de-1933d40517b9", "12345678-abcd-abcd-abcd-1234567890ab", 'teacher1@example.com', "<firstName()>", "<lastName()>", "", "", supervisor]
         defaultLanguage: "en"
-
-App\Model\Entity\SisTerm:
-    "term1":
-        __construct: [2024, 1, 2024-10-01, 2025-01-31]
-        __calls:
-            - setStudentsAdvertisement: [ 2024-10-01, 2025-01-31 ]
-            - setTeachersAdvertisement: [ 2024-09-01, 2025-02-28 ]
-            - setArchiveAfter: [ 2025-03-01 ]
-
-    "term2":
-        __construct: [2024, 2, 2025-02-01, 2025-08-31]
-        __calls:
-            - setStudentsAdvertisement: [2025-02-01, 2025-08-31]
-            - setTeachersAdvertisement: [2025-01-01, 2025-09-30]
+    "testTeacher2":
+        __construct: ["11fce222-d3be-494c-b367-3c2516ff6c58", "12345678-abcd-abcd-abcd-1234567890ab", 'teacher2@example.com', "<firstName()>", "<lastName()>", "", "", supervisor]
+        defaultLanguage: "en"
+    "testStudentTeacher":
+        __construct: ["245514c7-3ad5-4c38-8c3e-83c026c83c8c", "12345678-abcd-abcd-abcd-1234567890ab", 'student-teacher@example.com', "<firstName()>", "<lastName()>", "", "", "supervisor-student"]
+        defaultLanguage: "en"

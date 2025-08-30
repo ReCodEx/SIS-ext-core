@@ -25,7 +25,7 @@ class SisAffiliation
     protected $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="SisScheduleEvent")
+     * @ORM\ManyToOne(targetEntity="SisScheduleEvent", inversedBy="affiliations")
      */
     protected $event;
 
