@@ -3,6 +3,7 @@
 namespace App\Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 use DateTime;
 use JsonSerializable;
 
@@ -88,6 +89,11 @@ class SisScheduleEvent implements JsonSerializable
      */
     protected $fortnight = false;
 
+    /**
+     * @ORM\OneToMany(targetEntity="SisAffiliation", mappedBy="event")
+     */
+    protected $affiliations;
+
     public function __construct(
         string $sisId,
         SisTerm $term,
@@ -100,6 +106,7 @@ class SisScheduleEvent implements JsonSerializable
         $this->type = $type;
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
+        $this->affiliations = new ArrayCollection();
     }
 
     /*

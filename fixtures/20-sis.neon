@@ -1,0 +1,76 @@
+App\Model\Entity\SisTerm:
+    "term1":
+        __construct: [2024, 1, 2024-10-01, 2025-01-31]
+        __calls:
+            - setStudentsAdvertisement: [ 2024-10-01, 2025-01-31 ]
+            - setTeachersAdvertisement: [ 2024-09-01, 2025-02-28 ]
+            - setArchiveAfter: [ 2025-03-01 ]
+
+    "term2":
+        __construct: [2024, 2, 2025-02-01, 2025-08-31]
+        __calls:
+            - setStudentsAdvertisement: [2025-02-01, 2025-08-31]
+            - setTeachersAdvertisement: [2025-01-01, 2025-09-30]
+
+    "term3":
+        __construct: [2025, 1, 2025-10-01, 2026-01-31]
+        __calls:
+            - setStudentsAdvertisement: [ "<dateTimeBetween('-2 month', '-1 month')>", "<dateTimeBetween('+1 month', '+2 month')>" ]
+            - setTeachersAdvertisement: [ "<dateTimeBetween('-2 month', '-1 month')>", "<dateTimeBetween('+1 month', '+2 month')>" ]
+            - setArchiveAfter: [ "<dateTimeBetween('+2 month', '+3 month')>" ]
+
+    "term4":
+        __construct: [2025, 2, 2026-02-01, 2026-08-31]
+        __calls:
+            - setStudentsAdvertisement: [ "<dateTimeBetween('+1 month', '+2 month')>", "<dateTimeBetween('+3 month', '+4 month')>" ]
+            - setTeachersAdvertisement: [ "<dateTimeBetween('+1 month', '+2 month')>", "<dateTimeBetween('+3 month', '+4 month')>" ]
+
+App\Model\Entity\SisCourse:
+    "course{1..3}":
+        __construct: ["prg<current()>", "Programovani #<current()>", "Programming #<current()>"]
+
+App\Model\Entity\SisScheduleEvent:
+    "lecture1":
+        __construct: ["gl1p", @term3, @course1, "lecture"]
+        __calls:
+            - setSchedule: [ 1, 1, 720, 90, "R1" ]
+    "labs1":
+        __construct: ["gl1x", @term3, @course1, "lab"]
+        __calls:
+            - setSchedule: [ 2, 1, 1440, 90, "R2" ]
+    "labs2":
+        __construct: ["gl3x", @term3, @course3, "lab"]
+        __calls:
+            - setSchedule: [ 5, 1, 1320, 90, "R2" ]
+    "lecture2":
+        __construct: ["gl2p", @term4, @course2, "lecture"]
+        __calls:
+            - setSchedule: [ 3, 1, 900, 90, "R3" ]
+    "lecture3":
+        __construct: ["gl3p", @term3, @course3, "lecture"]
+        __calls:
+            - setSchedule: [ 4, 1, 990, 90, "R1" ]
+
+App\Model\Entity\SisAffiliation:
+    "s1-p1":
+        __construct: [@testStudent1, @lecture1, "student"]
+    "s1-x1":
+        __construct: [@testStudent1, @labs1, "student"]
+    "s1-p2":
+        __construct: [@testStudent1, @lecture2, "student"]
+    "s2-p2":
+        __construct: [@testStudent2, @lecture2, "student"]
+    "t1-p1":
+        __construct: [@testTeacher1, @lecture1, "teacher"]
+    "t1-x1":
+        __construct: [@testTeacher1, @labs1, "teacher"]
+    "t2-p2":
+        __construct: [@testTeacher2, @lecture2, "guarantor"]
+    "t2-p3":
+        __construct: [@testTeacher2, @lecture3, "guarantor"]
+    "st-p1":
+        __construct: [@testStudentTeacher, @lecture1, "student"]
+    "st-x1":
+        __construct: [@testStudentTeacher, @labs1, "student"]
+    "st-x2":
+        __construct: [@testStudentTeacher, @labs2, "teacher"]

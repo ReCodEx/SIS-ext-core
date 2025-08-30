@@ -24,8 +24,10 @@ class PresenterTestHelper
     public const ADMIN_LOGIN = "admin@admin.com";
     public const ADMIN_PASSWORD = "admin";
 
-    public const STUDENT_LOGIN = "student1@example.com";
-    public const TEACHER_LOGIN = "teacher1@example.com";
+    public const STUDENT1_LOGIN = "student1@example.com";
+    public const TEACHER1_LOGIN = "teacher1@example.com";
+    public const TEACHER2_LOGIN = "teacher2@example.com";
+    public const STUDENT_TEACHER_LOGIN = "student-teacher@example.com";
 
     private static function createEntityManager(
         string $dbPath,

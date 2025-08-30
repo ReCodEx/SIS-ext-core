@@ -54,7 +54,7 @@ class TestTermsPresenter extends Tester\TestCase
 
     public function testListTerms()
     {
-        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT_LOGIN);
+        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -63,19 +63,19 @@ class TestTermsPresenter extends Tester\TestCase
             ['action' => 'default']
         );
 
-        Assert::count(2, $payload);
-        foreach ($payload as $term) {
-            Assert::type(SisTerm::class, $term);
-            Assert::equal(2024, $term->getYear());
-        }
+        $terms = array_map(function ($term) {
+            return $term->getYear() . '-' . $term->getTerm();
+        }, $payload);
+        sort($terms);
+        Assert::equal(['2024-1', '2024-2', '2025-1', '2025-2'], $terms);
     }
 
     public function testCreateTerm()
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $beginning = (new DateTime('2025-10-01'))->getTimestamp();
-        $end = (new DateTime('2026-01-31'))->getTimestamp();
+        $beginning = (new DateTime('2026-10-01'))->getTimestamp();
+        $end = (new DateTime('2027-01-31'))->getTimestamp();
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -83,7 +83,7 @@ class TestTermsPresenter extends Tester\TestCase
             'POST',
             ['action' => 'create'],
             [
-                'year' => 2025,
+                'year' => 2026,
                 'term' => 1,
                 'beginning' => $beginning,
                 'end' => $end,
@@ -95,9 +95,9 @@ class TestTermsPresenter extends Tester\TestCase
             ]
         );
 
-        Assert::count(3, $this->presenter->sisTerms->findAll());
+        Assert::count(5, $this->presenter->sisTerms->findAll());
         Assert::type(SisTerm::class, $payload);
-        Assert::equal(2025, $payload->getYear());
+        Assert::equal(2026, $payload->getYear());
         Assert::equal(1, $payload->getTerm());
         Assert::equal($beginning, $payload->getBeginning()->getTimestamp());
         Assert::equal($end, $payload->getEnd()->getTimestamp());
@@ -112,8 +112,8 @@ class TestTermsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $beginning = (new DateTime('2025-10-01'))->getTimestamp();
-        $end = (new DateTime('2026-01-31'))->getTimestamp();
+        $beginning = (new DateTime('2026-10-01'))->getTimestamp();
+        $end = (new DateTime('2027-01-31'))->getTimestamp();
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -121,7 +121,7 @@ class TestTermsPresenter extends Tester\TestCase
             'POST',
             ['action' => 'create'],
             [
-                'year' => 2025,
+                'year' => 2026,
                 'term' => 1,
                 'studentsFrom' => $beginning,
                 'studentsUntil' => $end,
@@ -130,9 +130,9 @@ class TestTermsPresenter extends Tester\TestCase
             ]
         );
 
-        Assert::count(3, $this->presenter->sisTerms->findAll());
+        Assert::count(5, $this->presenter->sisTerms->findAll());
         Assert::type(SisTerm::class, $payload);
-        Assert::equal(2025, $payload->getYear());
+        Assert::equal(2026, $payload->getYear());
         Assert::equal(1, $payload->getTerm());
         Assert::null($payload->getBeginning());
         Assert::null($payload->getEnd());
@@ -186,7 +186,7 @@ class TestTermsPresenter extends Tester\TestCase
                     'POST',
                     ['action' => 'create'],
                     [
-                        'year' => 2025,
+                        'year' => 2026,
                         'term' => 1,
                         'studentsFrom' => $beginning,
                         'studentsUntil' => $end,
@@ -201,7 +201,7 @@ class TestTermsPresenter extends Tester\TestCase
 
     public function testCreateTermTeacherFails()
     {
-        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER_LOGIN);
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
 
         $beginning = (new DateTime('2025-10-01'))->getTimestamp();
         $end = (new DateTime('2026-01-31'))->getTimestamp();
@@ -214,7 +214,7 @@ class TestTermsPresenter extends Tester\TestCase
                     'POST',
                     ['action' => 'create'],
                     [
-                        'year' => 2025,
+                        'year' => 2026,
                         'term' => 1,
                         'studentsFrom' => $beginning,
                         'studentsUntil' => $end,
@@ -229,7 +229,7 @@ class TestTermsPresenter extends Tester\TestCase
 
     public function testDetailTerm()
     {
-        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT_LOGIN);
+        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
 
         $term = $this->presenter->sisTerms->findTerm(2024, 1);
         Assert::type(SisTerm::class, $term);
@@ -292,7 +292,7 @@ class TestTermsPresenter extends Tester\TestCase
 
     public function testUpdateTermTeacherFails()
     {
-        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER_LOGIN);
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
 
         $term = $this->presenter->sisTerms->findTerm(2024, 1);
         $beginning = $term->getBeginning()->getTimestamp() + 5;
@@ -334,15 +334,16 @@ class TestTermsPresenter extends Tester\TestCase
         );
 
         Assert::equal('OK', $payload);
-        Assert::count(1, $this->presenter->sisTerms->findAll());
-        $remain = $this->presenter->sisTerms->findAll()[0];
-        Assert::equal(2024, $remain->getYear());
-        Assert::equal(2, $remain->getTerm());
+        $terms = array_map(function ($term) {
+            return $term->getYear() . '-' . $term->getTerm();
+        }, $this->presenter->sisTerms->findAll());
+        sort($terms);
+        Assert::equal(['2024-2', '2025-1', '2025-2'], $terms);
     }
 
     public function testRemoveTermTeacherFails()
     {
-        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER_LOGIN);
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
 
         $term = $this->presenter->sisTerms->findTerm(2024, 1);
         Assert::type(SisTerm::class, $term);
