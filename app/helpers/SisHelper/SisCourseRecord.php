@@ -304,6 +304,8 @@ class SisCourseRecord implements JsonSerializable
         } else {
             $course = new SisCourse($this->courseId, $this->getCaption('cs'), $this->getCaption('en'));
         }
+        $course->setAnnotationCs($this->getAnnotation('cs'));
+        $course->setAnnotationEn($this->getAnnotation('en'));
         $courses->persist($course);
 
         // update/create the scheduling event
@@ -339,7 +341,7 @@ class SisCourseRecord implements JsonSerializable
             return;
         }
 
-        $affiliation = $affiliations->getAffiliation($event, $user, $term);
+        $affiliation = $affiliations->getAffiliation($event, $user);
         if ($affiliation) {
             // update existing affiliation
             $affiliation->setType($this->affiliation);

@@ -2,15 +2,15 @@ App\Model\Entity\SisTerm:
     "term1":
         __construct: [2024, 1, 2024-10-01, 2025-01-31]
         __calls:
-            - setStudentsAdvertisement: [ 2024-10-01, 2025-01-31 ]
-            - setTeachersAdvertisement: [ 2024-09-01, 2025-02-28 ]
-            - setArchiveAfter: [ 2025-03-01 ]
+            - setStudentsAdvertisement: [ "<dateTimeBetween('-4 month', '-3 month')>", "<dateTimeBetween('-2 month', '-1 month')>" ]
+            - setTeachersAdvertisement: [ "<dateTimeBetween('-4 month', '-3 month')>", "<dateTimeBetween('-2 month', '-1 month')>" ]
+            - setArchiveAfter: [ "<dateTimeBetween('-2 month', '-1 month')>" ]
 
     "term2":
         __construct: [2024, 2, 2025-02-01, 2025-08-31]
         __calls:
-            - setStudentsAdvertisement: [2025-02-01, 2025-08-31]
-            - setTeachersAdvertisement: [2025-01-01, 2025-09-30]
+            - setStudentsAdvertisement: [ "<dateTimeBetween('-4 month', '-3 month')>", "<dateTimeBetween('-2 month', '-1 month')>" ]
+            - setTeachersAdvertisement: [ "<dateTimeBetween('-4 month', '-3 month')>", "<dateTimeBetween('-2 month', '-1 month')>" ]
 
     "term3":
         __construct: [2025, 1, 2025-10-01, 2026-01-31]

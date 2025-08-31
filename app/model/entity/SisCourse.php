@@ -45,6 +45,18 @@ class SisCourse implements JsonSerializable
     protected $captionEn;
 
     /**
+     * @ORM\Column(type="text")
+     * Annotation of the course in Czech.
+     */
+    protected $annotationCs = '';
+
+    /**
+     * @ORM\Column(type="text")
+     * Annotation of the course in English.
+     */
+    protected $annotationEn = '';
+
+    /**
      * @ORM\OneToMany(targetEntity="SisScheduleEvent", mappedBy="course")
      */
     protected $events;
@@ -99,6 +111,31 @@ class SisCourse implements JsonSerializable
         return ($lang === 'cs') ? $this->captionCs : $this->captionEn;
     }
 
+    public function getAnnotationCs(): string
+    {
+        return $this->annotationCs;
+    }
+
+    public function setAnnotationCs(string $annotation): void
+    {
+        $this->annotationCs = $annotation;
+    }
+
+    public function getAnnotationEn(): string
+    {
+        return $this->annotationEn;
+    }
+
+    public function setAnnotationEn(string $annotation): void
+    {
+        $this->annotationEn = $annotation;
+    }
+
+    public function getAnnotation(string $lang): string
+    {
+        return ($lang === 'cs') ? $this->annotationCs : $this->annotationEn;
+    }
+
     // JSON interface
 
     public function jsonSerialize(): mixed
@@ -108,6 +145,8 @@ class SisCourse implements JsonSerializable
             'code' => $this->getCode(),
             'caption_cs' => $this->getCaptionCs(),
             'caption_en' => $this->getCaptionEn(),
+            'annotation_cs' => $this->getAnnotationCs(),
+            'annotation_en' => $this->getAnnotationEn(),
             'createdAt' => $this->getCreatedAt()->getTimestamp(),
             'updatedAt' => $this->getUpdatedAt()->getTimestamp(),
         ];
