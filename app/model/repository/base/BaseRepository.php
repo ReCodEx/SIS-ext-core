@@ -80,6 +80,10 @@ class BaseRepository
         return $this->repository->findOneBy($criteria);
     }
 
+    public function count(array $criteria = []): int
+    {
+        return $this->repository->count($criteria);
+    }
     /**
      * @param array $ids
      * @return T[]

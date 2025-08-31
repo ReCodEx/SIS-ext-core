@@ -39,7 +39,7 @@ class SisHelper
      * @param array $config
      * @param GuzzleHttp\HandlerStack|null $handler An optional HTTP handler (mainly for unit testing purposes)
      */
-    public function __construct(array $config, GuzzleHttp\HandlerStack $handler = null)
+    public function __construct(array $config, ?GuzzleHttp\HandlerStack $handler = null)
     {
         //$apiBase, $faculty, $secret,
         $this->apiBase = Arrays::get($config, "apiBase", "");

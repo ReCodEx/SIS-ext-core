@@ -18,12 +18,11 @@ class SisAffiliations extends BaseRepository
         parent::__construct($em, SisAffiliation::class);
     }
 
-    public function getAffiliation(SisScheduleEvent $event, User $user, SisTerm $term): ?SisAffiliation
+    public function getAffiliation(SisScheduleEvent $event, User $user): ?SisAffiliation
     {
         return $this->findOneBy([
             'event' => $event,
             'user' => $user,
-            'term' => $term,
         ]);
     }
 
@@ -36,14 +35,13 @@ class SisAffiliations extends BaseRepository
      */
     public function clearAffiliations(User $user, SisTerm $term): void
     {
-        $this->createQueryBuilder('a')
-            ->delete()
-            ->join('a.event', 'e')
-            ->where('a.user = :user')
-            ->andWhere('e.term = :term')
-            ->setParameter('user', $user->getId())
-            ->setParameter('term', $term->getId())
-            ->getQuery()
-            ->execute();
+        $sub = $this->em->createQueryBuilder()->select("e")->from(SisScheduleEvent::class, "e");
+        $sub->where("e.term = :term")->andWhere("e = a.event");
+
+        $qb = $this->createQueryBuilder('a')->delete()
+            ->where('a.user = :user')->setParameter('user', $user->getId());
+        $qb->andWhere($qb->expr()->exists($sub->getDQL()))->setParameter('term', $term->getId());
+
+        $qb->getQuery()->execute();
     }
 }
