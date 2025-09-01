@@ -295,12 +295,21 @@ class RecodexApiHelper
     }
 
     /**
-     * Get all non-archived groups the user can see.
+     * Get all non-archived groups with attributes and membership relation to given user.
+     * @param User $user whose membership relation is being injected
+     * @return RecodexGroup[] groups indexed by their IDs
      */
-    public function getGroups(): array
+    public function getGroups(User $user): array
     {
-        // TODO: this is just a placeholder, needs finishing
-        $groups = $this->get('groups');
+        $body = $this->get(
+            "group-attributes",
+            ['instance' => $user->getInstanceId(), 'service' => $this->extensionId, 'user' => $user->getId()]
+        );
+        $groups = [];
+        foreach ($body as $groupData) {
+            $group = new RecodexGroup($groupData, $this->extensionId);
+            $groups[$group->id] = $group;
+        }
         return $groups;
     }
 }
