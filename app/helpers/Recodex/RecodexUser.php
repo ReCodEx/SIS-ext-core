@@ -7,7 +7,7 @@ use App\Model\Entity\User;
 use Nette;
 
 /**
- * Wraper for User data sent from ReCodEx API.
+ * Wrapper for User data sent from ReCodEx API.
  */
 class RecodexUser
 {

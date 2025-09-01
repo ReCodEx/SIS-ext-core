@@ -24,6 +24,9 @@ parameters:
   recodex:  # just a placeholder, this needs to be overridden in local config
     apiBase: null
     extensionId: null
+    verifySSL: true
+    sisIdKey: "cas-uk"
+    sisLoginKey: "ldap-uk"
 
   sis:
     verifySSL: true
