@@ -54,31 +54,31 @@ class SisScheduleEvent implements JsonSerializable
     protected $type;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      * Day of the week (0=Sunday, 1=Monday...6=Saturday)
      */
     protected $dayOfWeek;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      * When the lecture starts (logical weeks of the semester).
      */
     protected $firstWeek;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      * Time of the day when the event starts as minutes from midnight.
      */
     protected $time;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      * Length of the event in minutes.
      */
     protected $length;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * Where the event is located.
      */
     protected $room;
@@ -143,32 +143,32 @@ class SisScheduleEvent implements JsonSerializable
         $this->type = $type;
     }
 
-    public function getDayOfWeek(): int
+    public function getDayOfWeek(): ?int
     {
         return $this->dayOfWeek;
     }
 
-    public function getFirstWeek(): int
+    public function getFirstWeek(): ?int
     {
         return $this->firstWeek;
     }
 
-    public function getTime(): int
+    public function getTime(): ?int
     {
         return $this->time;
     }
 
-    public function getLength(): int
+    public function getLength(): ?int
     {
         return $this->length;
     }
 
-    public function setLength(int $length): void
+    public function setLength(?int $length): void
     {
         $this->length = $length;
     }
 
-    public function getRoom(): string
+    public function getRoom(): ?string
     {
         return $this->room;
     }
@@ -179,11 +179,11 @@ class SisScheduleEvent implements JsonSerializable
     }
 
     public function setSchedule(
-        int $dayOfWeek,
-        int $firstWeek,
-        int $time,
-        int $length,
-        string $room,
+        ?int $dayOfWeek,
+        ?int $firstWeek,
+        ?int $time,
+        ?int $length,
+        ?string $room,
         bool $fortnight = false
     ): void {
         $this->dayOfWeek = $dayOfWeek;
