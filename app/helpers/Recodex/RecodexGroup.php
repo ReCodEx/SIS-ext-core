@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Exceptions\RecodexApiException;
 use JsonSerializable;
+use LogicException;
 use Nette;
 
 /**
@@ -21,9 +22,9 @@ class RecodexGroup implements JsonSerializable
     public const ATTR_COURSE_KEY = 'course';
 
     /**
-     * Year identifier used for 2nd-level (semester) ReCodEx groups
+     * Term identifier used for 2nd-level (semester) ReCodEx groups
      */
-    public const ATTR_YEAR_KEY = 'year';
+    public const ATTR_TERM_KEY = 'term';
 
     /**
      * Key used for bindings with SIS student groups (GL identifiers)
@@ -41,7 +42,7 @@ class RecodexGroup implements JsonSerializable
     public ?string $parentGroupId;
 
     /**
-     * List of group primary admins id => [ titlesBeforeName, firstName, lastName, titlesAfterName, email ]
+     * List of group primary admins id => obj { titlesBeforeName, firstName, lastName, titlesAfterName, email }
      */
     public array $admins;
 
@@ -81,6 +82,12 @@ class RecodexGroup implements JsonSerializable
     public array $attributes;
 
     /**
+     * List of child groups.
+     * This field is just a placeholder that needs to be populated (using static function populateChildren).
+     */
+    public array $children = [];
+
+    /**
      * Indicates the membership type of the logged in user to the group.
      * Possible values are: 'admin', 'supervisor', 'observer', and 'student'
      * (and null if there is no relation between the user and the group).
@@ -92,7 +99,7 @@ class RecodexGroup implements JsonSerializable
      * @param array $admins
      * @throws RecodexApiException if admins structure is invalid
      */
-    private function validateAdminsStructure(array $admins): void
+    private function processAdminsStructure(array $admins): array
     {
         $requiredAdminKeys = ['titlesBeforeName', 'firstName', 'lastName', 'titlesAfterName', 'email'];
 
@@ -110,7 +117,11 @@ class RecodexGroup implements JsonSerializable
                     );
                 }
             }
+
+            $admins[$adminId] = (object)$adminData;
         }
+
+        return $admins;
     }
 
     /**
@@ -176,16 +187,13 @@ class RecodexGroup implements JsonSerializable
             }
         }
 
-        // Validate admins array structure
-        $this->validateAdminsStructure($data['admins']);
-
         // Process and validate localizedTexts array structure
         $localizedData = $this->processLocalizedTexts($data['localizedTexts']);
 
         // Initialize public members from the associative array (values can be null)
         $this->id = $data['id'];
         $this->parentGroupId = $data['parentGroupId'];
-        $this->admins = $data['admins'];
+        $this->admins = $this->processAdminsStructure($data['admins']);
         $this->name = $localizedData['name'];
         $this->description = $localizedData['description'];
         $this->organizational = $data['organizational'];
@@ -216,6 +224,10 @@ class RecodexGroup implements JsonSerializable
             'membership' => $this->membership,
         ];
     }
+
+    /*
+     * Private static methods
+     */
 
     /**
      * Make sure all ancestor groups are included in the selection. The selected groups array is updated in place.
@@ -255,6 +267,56 @@ class RecodexGroup implements JsonSerializable
         return false;
     }
 
+    private static function belongsToCourses(RecodexGroup $group, array $coursesIndex): bool
+    {
+        foreach ($group->attributes[self::ATTR_COURSE_KEY] ?? [] as $courseId) {
+            if (array_key_exists($courseId, $coursesIndex)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+     * Public static methods -- array operations for groups
+     */
+
+    /**
+     * Sorts the groups by their name (by English name, Czech name is used as fallback).
+     * @param RecodexGroup[] $groups The list of groups to sort (in place)
+     */
+    public static function sortGroupsByName(array &$groups): void
+    {
+        usort($groups, fn($a, $b) => strcmp($a->name['en'] ?? $a->name['cs'], $b->name['en'] ?? $b->name['cs']));
+    }
+
+    /**
+     * Populates the children array for each group based on the parentGroupId.
+     * @param RecodexGroup[] $groups The list of groups to populate children for.
+     * @return RecodexGroup[] The list of root groups (those without a parent).
+     */
+    public static function populateChildren(array $groups): array
+    {
+        $rootGroups = [];
+        foreach ($groups as $group) {
+            if ($group->parentGroupId) {
+                if (!isset($groups[$group->parentGroupId])) {
+                    throw new LogicException('Parent group not found');
+                }
+                $groups[$group->parentGroupId]->children[] = $group;
+            } else {
+                $rootGroups[] = $group;
+            }
+        }
+
+        foreach ($groups as $group) {
+            self::sortGroupsByName($group->children);
+        }
+        self::sortGroupsByName($rootGroups);
+
+        return $rootGroups;
+    }
+
     /**
      * Prunes the group list for students, keeping only relevant groups.
      * Relevant are groups that belong to any SIS group or where the student already belongs to
@@ -272,6 +334,44 @@ class RecodexGroup implements JsonSerializable
                 $pruned[$id] = $group;
             }
         }
+
+        self::ancestralClosure($pruned, $groups);
+        return $pruned;
+    }
+
+    /**
+     * Prunes the group list for teachers, keeping only relevant groups.
+     * Relevant groups are those that belong to any of the specified courses,
+     * plus all their descendants (possible targets) and ancestors (for hierarchical naming).
+     * @param RecodexGroup[] $groups The list of groups to prune (indexed by group IDs).
+     * @param array $courses The list of course IDs.
+     * @return RecodexGroup[] The pruned list of groups (indexed by group IDs).
+     */
+    public static function pruneForTeacher(array $groups, array $courses): array
+    {
+        $coursesIndex = array_flip($courses);
+        $pruned = [];
+        foreach ($groups as $id => $group) {
+            if (self::belongsToCourses($group, $coursesIndex)) {
+                $pruned[$id] = $group;
+            }
+        }
+
+        // iteratively scan the groups, add children of pruned groups as long as the pruned array grows
+        // Note: the tree structure is very flat, this takes 3 or 4 iterations at the most
+        do {
+            $changed = false;
+            foreach ($groups as $id => $group) {
+                if (
+                    $group->parentGroupId && !array_key_exists($id, $pruned)
+                    && array_key_exists($group->parentGroupId, $pruned)
+                ) {
+                    // group is not in the result, but its parent is => we must add it as well
+                    $pruned[$id] = $group;
+                    $changed = true;  // another run will be required
+                }
+            }
+        } while ($changed);
 
         self::ancestralClosure($pruned, $groups);
         return $pruned;

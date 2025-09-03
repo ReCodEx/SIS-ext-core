@@ -28,7 +28,11 @@ parameters:
     sisIdKey: "cas-uk"
     sisLoginKey: "ldap-uk"
 
-  sis:
+  sis:  # just a placeholder, this needs to be overridden in local config
+    apiBase: null
+    faculty: 'here-goes-faculty-id'
+    secretRozvrhng: "here-goes-secret-api-token-for-rozvrhng-module"
+    secretKdojekdo: "here-goes-secret-api-token-for-kdojekdo-module"
     verifySSL: true
 
   emails:  # common configuration for sending email (addresses and template variables)
@@ -106,6 +110,7 @@ services:
   
   # commands
   - App\Console\DoctrineFixtures
+  - App\Console\RecodexGroups
   - App\Console\RecodexToken
   - App\Console\SisGetCourse
   - App\Console\SisGetUser

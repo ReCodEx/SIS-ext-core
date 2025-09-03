@@ -26,10 +26,10 @@ class SisScheduleEvents extends BaseRepository
      * Get all scheduling events for a specific user (optionally filter by term and affiliation).
      * @param User $user
      * @param SisTerm|null $term if given, only events of particular term are returned
-     * @param string|null $affiliation if given, only events with particular affiliation are returned
+     * @param string|string[]|null $affiliation if given, only events with particular affiliation(s) are returned
      * @return SisScheduleEvent[]
      */
-    public function allEventsOfUser(User $user, ?SisTerm $term = null, ?string $affiliation = null): array
+    public function allEventsOfUser(User $user, ?SisTerm $term = null, mixed $affiliation = null): array
     {
         $qb = $this->createQueryBuilder('e')
             ->innerJoin('e.affiliations', 'a')
@@ -42,8 +42,13 @@ class SisScheduleEvents extends BaseRepository
         }
 
         if ($affiliation) {
-            $qb->andWhere('a.type = :affiliation')
-                ->setParameter('affiliation', $affiliation);
+            if (is_string($affiliation)) {
+                $qb->andWhere('a.type = :affiliation')
+                    ->setParameter('affiliation', $affiliation);
+            } elseif (is_array($affiliation)) {
+                $qb->andWhere('a.type IN (:affiliation)')
+                    ->setParameter('affiliation', $affiliation);
+            }
         }
 
         return $qb->getQuery()->getResult();
