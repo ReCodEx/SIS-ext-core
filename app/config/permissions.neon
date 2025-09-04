@@ -31,7 +31,7 @@ permissions:
       conditions:
         - user.isSameUser
 
-
+  # Term permissions
     - allow: true
       resource: term
       actions:
@@ -53,3 +53,17 @@ permissions:
         - viewTeacherCourses
       conditions:
         - term.isVisibleToTeachers
+
+
+  # Group permissions
+    - allow: true
+      resource: group
+      role: student
+      actions:
+        - viewStudent
+
+    - allow: true
+      resource: group
+      role: supervisor-student
+      actions:
+        - viewTeacher

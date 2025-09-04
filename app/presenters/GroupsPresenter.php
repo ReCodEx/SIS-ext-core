@@ -3,12 +3,11 @@
 namespace App\Presenters;
 
 use App\Exceptions\ForbiddenRequestException;
-use App\Exceptions\BadRequestException;
-use App\Model\Entity\SisTerm;
+use App\Exceptions\NotImplementedException;
+use App\Helpers\RecodexApiHelper;
+use App\Helpers\RecodexGroup;
 use App\Model\Repository\SisTerms;
-use App\Security\ACL\ITermPermissions;
-use Nette\Application\Request;
-use DateTime;
+use App\Security\ACL\IGroupPermissions;
 
 /**
  * Group management (both for teachers and students).
@@ -21,18 +20,93 @@ class GroupsPresenter extends BasePresenter
      */
     public $sisTerms;
 
+    /**
+     * @var RecodexApiHelper
+     * @inject
+     */
+    public $recodexApi;
 
-    public function checkDefault()
+    /**
+     * @var IGroupPermissions
+     * @inject
+     */
+    public $groupAcl;
+
+    public function checkStudent()
     {
-        //    throw new ForbiddenRequestException("You do not have permissions to list terms.");
+        if (!$this->groupAcl->canViewStudent()) {
+            throw new ForbiddenRequestException("You do not have permissions to list student groups.");
+        }
     }
 
     /**
+     * Proxy to ReCodEx that retrieves all groups relevant for student (joining groups).
      * @GET
+     * @Param(type="query", name="eventIds", validation="array",
+     *        description="List of SIS group IDs that we search for.")
      */
-    public function actionDefault()
+    public function actionStudent(array $eventIds)
     {
-        $terms = $this->sisTerms->findAll();
-        $this->sendSuccessResponse($terms);
+        $groups = $this->recodexApi->getGroups($this->getCurrentUser());
+        $groups = RecodexGroup::pruneForStudent($groups, $eventIds);
+        $this->sendSuccessResponse($groups);
+    }
+
+    public function checkTeacher()
+    {
+        if (!$this->groupAcl->canViewTeacher()) {
+            throw new ForbiddenRequestException("You do not have permissions to list teacher groups.");
+        }
+    }
+
+    /**
+     * Proxy to ReCodEx that retrieves all groups relevant for teacher creating groups.
+     * @GET
+     * @Param(type="query", name="courseIds", validation="array",
+     *        description="List of SIS courses the teacher is involved in.")
+     */
+    public function actionTeacher(array $courseIds)
+    {
+        $groups = $this->recodexApi->getGroups($this->getCurrentUser());
+        $groups = RecodexGroup::pruneForTeacher($groups, $courseIds);
+        $this->sendSuccessResponse($groups);
+    }
+
+    /**
+     * Proxy to ReCodEx that creates a new group.
+     * @POST
+     */
+    public function actionCreate()
+    {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Proxy to ReCodEx that binds a group with schedule event (student group) in SIS.
+     * This basically sets the 'group' attribute to ReCodEx group entity.
+     * @POST
+     */
+    public function actionBind(string $id, string $eventId)
+    {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Proxy to ReCodEx that unbinds a group with schedule event (student group) in SIS.
+     * This basically removes the 'group' attribute from ReCodEx group entity.
+     * @POST
+     */
+    public function actionUnbind(string $id, string $eventId)
+    {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Proxy to ReCodEx that adds student to a group.
+     * @POST
+     */
+    public function actionJoin(string $id)
+    {
+        throw new NotImplementedException();
     }
 }
