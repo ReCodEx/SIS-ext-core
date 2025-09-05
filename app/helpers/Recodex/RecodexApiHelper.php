@@ -39,9 +39,9 @@ class RecodexApiHelper
 
     /**
      * @param array $config
-     * @param GuzzleHttp\HandlerStack|null $handler An optional HTTP handler (mainly for unit testing purposes)
+     * @param GuzzleHttp\Client|null $client optional injection of HTTP client for testing purposes
      */
-    public function __construct(array $config, ?GuzzleHttp\HandlerStack $handler = null)
+    public function __construct(array $config, ?GuzzleHttp\Client $client = null)
     {
         $this->extensionId = Arrays::get($config, "extensionId", "");
         if (!$this->extensionId) {
@@ -61,11 +61,10 @@ class RecodexApiHelper
         $this->sisIdKey = Arrays::get($config, "sisIdKey", "cas-uk");
         $this->sisLoginKey = Arrays::get($config, "sisLoginKey", "ldap-uk");
 
-        $options = ['base_uri' => $this->apiBase];
-        if ($handler !== null) {
-            $options['handler'] = $handler;
+        if (!$client) {
+            $client = new GuzzleHttp\Client(['base_uri' => $this->apiBase]);
         }
-        $this->client = new GuzzleHttp\Client($options);
+        $this->client = $client;
     }
 
     public function getSisIdKey(): string
