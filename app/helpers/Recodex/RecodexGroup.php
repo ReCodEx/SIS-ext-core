@@ -257,7 +257,7 @@ class RecodexGroup implements JsonSerializable
      * @param array $sisGroupsIndex The index of SIS groups [ sisGroupId => unused value ].
      * @return bool True if the group belongs to any SIS group, false otherwise.
      */
-    private static function belongsToSisGroup(RecodexGroup $group, array $sisGroupsIndex): bool
+    private static function belongsToSisGroups(RecodexGroup $group, array $sisGroupsIndex): bool
     {
         foreach ($group->attributes[self::ATTR_GROUP_KEY] ?? [] as $sisGrpId) {
             if (array_key_exists($sisGrpId, $sisGroupsIndex)) {
@@ -322,7 +322,7 @@ class RecodexGroup implements JsonSerializable
      * Relevant are groups that belong to any SIS group or where the student already belongs to
      * (the ancestral closure of relevant groups is returned so hierarchical names can be displayed).
      * @param RecodexGroup[] $groups The list of groups to prune (indexed by group IDs).
-     * @param array $sisGroups The list of SIS group IDs.
+     * @param string[] $sisGroups The list of SIS group IDs.
      * @return RecodexGroup[] The pruned list of groups (indexed by group IDs).
      */
     public static function pruneForStudent(array $groups, array $sisGroups): array
@@ -330,7 +330,7 @@ class RecodexGroup implements JsonSerializable
         $sisGroupsIndex = array_flip($sisGroups);
         $pruned = [];
         foreach ($groups as $id => $group) {
-            if (self::belongsToSisGroup($group, $sisGroupsIndex) || $group->membership === 'student') {
+            if (self::belongsToSisGroups($group, $sisGroupsIndex) || $group->membership === 'student') {
                 $pruned[$id] = $group;
             }
         }
@@ -344,16 +344,22 @@ class RecodexGroup implements JsonSerializable
      * Relevant groups are those that belong to any of the specified courses,
      * plus all their descendants (possible targets) and ancestors (for hierarchical naming).
      * @param RecodexGroup[] $groups The list of groups to prune (indexed by group IDs).
-     * @param array $courses The list of course IDs.
+     * @param string[] $courses The list of course IDs.
+     * @param string[] $sisGroups The list of SIS group IDs.
      * @return RecodexGroup[] The pruned list of groups (indexed by group IDs).
      */
-    public static function pruneForTeacher(array $groups, array $courses): array
+    public static function pruneForTeacher(array $groups, array $courses, array $sisGroups): array
     {
         $coursesIndex = array_flip($courses);
+        $sisGroupsIndex = array_flip($sisGroups);
         $pruned = [];
+        $boundGroups = [];
         foreach ($groups as $id => $group) {
             if (self::belongsToCourses($group, $coursesIndex)) {
                 $pruned[$id] = $group;
+            }
+            if (self::belongsToSisGroups($group, $sisGroupsIndex)) {
+                $boundGroups[$id] = $group;
             }
         }
 
@@ -372,6 +378,14 @@ class RecodexGroup implements JsonSerializable
                 }
             }
         } while ($changed);
+
+        // inject directly bound groups before ancestral closure
+        // this is a rare case, since bound groups should be normally already among course descendant groups
+        foreach ($boundGroups as $id => $group) {
+            if (!array_key_exists($id, $pruned)) {
+                $pruned[$id] = $group;
+            }
+        }
 
         self::ancestralClosure($pruned, $groups);
         return $pruned;

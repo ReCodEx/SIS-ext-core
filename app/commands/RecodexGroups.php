@@ -138,7 +138,7 @@ class RecodexGroups extends BaseCommand
                 [SisAffiliation::TYPE_TEACHER, SisAffiliation::TYPE_GUARANTOR]
             );
             $courseIds = array_map(fn($e) => $e->getCourse()->getCode(), $events);
-            $teachGroups = RecodexGroup::pruneForTeacher($groups, $courseIds);
+            $teachGroups = RecodexGroup::pruneForTeacher($groups, $courseIds, []);
             $output->writeln('<info>Teacher view:</info>');
             $output->writeln('-------------');
             self::printGroups($output, $teachGroups);

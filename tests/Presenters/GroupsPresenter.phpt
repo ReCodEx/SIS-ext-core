@@ -151,9 +151,11 @@ class TestGroupsPresenter extends Tester\TestCase
                 self::group('p1', 'r', 'Prg 1', true, ['course' => ['prg1']]),
                 self::group('p2', 'r', 'Prg 2', true, ['course' => ['prg2']], 'teacher'),
                 self::group('p3', 'r', 'Prg 1 & 3', true, ['course' => ['prg3', 'prg1']]),
+                self::group('p4', 'r', 'Prg 2 & 4', true, ['course' => ['prg2', 'prg4']]),
                 self::group('g1', 'p1', 'Group 1'),
-                self::group('g2', 'p2', 'Group 2', 'teacher'),
+                self::group('g2', 'p2', 'Group 2', false, ['group' => ['sis2']], 'teacher'),
                 self::group('g3', 'p3', 'Group 3'),
+                self::group('g4', 'p4', 'Group 4'),
             ]
         ])));
 
@@ -161,14 +163,14 @@ class TestGroupsPresenter extends Tester\TestCase
             $this->presenter,
             'Terms',
             'GET',
-            ['action' => 'teacher', 'courseIds' => ['prg1']]
+            ['action' => 'teacher', 'eventIds' => ['sis2'], 'courseIds' => ['prg1']]
         );
 
-        Assert::count(5, $payload);
+        Assert::count(7, $payload);
 
         $ids = array_map(fn($group) => $group->id, $payload);
         sort($ids);
-        Assert::equal(['g1', 'g3', 'p1', 'p3', 'r'], $ids);
+        Assert::equal(['g1', 'g2', 'g3', 'p1', 'p2', 'p3', 'r'], $ids);
     }
 }
 
