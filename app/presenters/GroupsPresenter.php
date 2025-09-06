@@ -62,13 +62,15 @@ class GroupsPresenter extends BasePresenter
     /**
      * Proxy to ReCodEx that retrieves all groups relevant for teacher creating groups.
      * @GET
+     * @Param(type="query", name="eventIds", validation="array",
+     *        description="List of SIS group IDs the teacher teaches.")
      * @Param(type="query", name="courseIds", validation="array",
      *        description="List of SIS courses the teacher is involved in.")
      */
-    public function actionTeacher(array $courseIds)
+    public function actionTeacher(array $eventIds, array $courseIds)
     {
         $groups = $this->recodexApi->getGroups($this->getCurrentUser());
-        $groups = RecodexGroup::pruneForTeacher($groups, $courseIds);
+        $groups = RecodexGroup::pruneForTeacher($groups, $courseIds, $eventIds);
         $this->sendSuccessResponse($groups);
     }
 
