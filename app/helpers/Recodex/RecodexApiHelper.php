@@ -8,6 +8,7 @@ use App\Model\Entity\User;
 use Nette;
 use GuzzleHttp;
 use Nette\Utils\Arrays;
+use Tracy\Debugger;
 
 /**
  * Wrapper for ReCodEx API calls.
@@ -126,15 +127,18 @@ class RecodexApiHelper
     {
         $code = $response->getStatusCode();
         if ($code !== 200) {
+            Debugger::log("HTTP request to ReCodEx API failed (response $code).", Debugger::DEBUG);
             throw new RecodexApiException("HTTP request failed (response $code).");
         }
 
         $type = $response->getHeaderLine("Content-Type") ?? '';
         if (!str_starts_with($type, 'application/json')) {
-            throw new RecodexApiException("JSON body was expected but '$type' returned instead.");
+            Debugger::log("JSON response expected from ReCodEx API but '$type' returned instead.", Debugger::DEBUG);
+            throw new RecodexApiException("JSON response was expected but '$type' returned instead.");
         }
 
         $body = json_decode($response->getBody()->getContents(), true);
+        Debugger::log($body, Debugger::DEBUG);
         if (($body['success'] ?? false) !== true) {
             $code = $body['code'];
             throw new RecodexApiException($body['error']['message'] ?? "API responded with error code $code.");
@@ -218,6 +222,7 @@ class RecodexApiHelper
      */
     public function getTokenAndUser(): ?array
     {
+        Debugger::log('ReCodEx::getTokenAndUser()', Debugger::DEBUG);
         $body = $this->post('extensions/' . $this->extensionId);
         if (!is_array($body) || empty($body['accessToken']) || empty($body['user'])) {
             throw new RecodexApiException("Unexpected ReCodEx API response from extension token endpoint.");
@@ -235,6 +240,7 @@ class RecodexApiHelper
      */
     public function getUser(string $id): ?RecodexUser
     {
+        Debugger::log('ReCodEx::getUser(' . $id . ')', Debugger::DEBUG);
         $body = $this->get("users/$id");
         return $body ? new RecodexUser($body, $this) : null;
     }
@@ -254,6 +260,8 @@ class RecodexApiHelper
             'email' => $user->getEmail(),
         ];
         $id = $user->getId();
+        Debugger::log('ReCodEx::updateUser(' . $id . ')', Debugger::INFO);
+        Debugger::log('New user data: ' . json_encode($body), Debugger::DEBUG);
         $res = $this->post("users/$id", [], $body);
         if (!$res || !is_array($res) || empty($res['user']) || ($res['user']['id'] ?? '') !== $id) {
             throw new RecodexApiException("Unexpected ReCodEx API response from update user's profile endpoint.");
@@ -271,6 +279,7 @@ class RecodexApiHelper
      */
     public function setExternalId(string $id, string $service, string $externalId): RecodexUser
     {
+        Debugger::log("ReCodEx::setExternalId('$id', '$service', '$externalId')", Debugger::INFO);
         $res = $this->post("users/$id/external-login/$service", [], ['externalId' => $externalId]);
         if (!$res || !is_array($res) || ($res['id'] ?? '') !== $id) {
             throw new RecodexApiException("Unexpected ReCodEx API response from update user's external ID endpoint.");
@@ -286,6 +295,7 @@ class RecodexApiHelper
      */
     public function removeExternalId(string $id, string $service): RecodexUser
     {
+        Debugger::log("ReCodEx::removeExternalId('$id', '$service')", Debugger::INFO);
         $res = $this->delete("users/$id/external-login/$service");
         if (!$res || !is_array($res) || ($res['id'] ?? '') !== $id) {
             throw new RecodexApiException("Unexpected ReCodEx API response from remove user's external ID endpoint.");
@@ -300,6 +310,7 @@ class RecodexApiHelper
      */
     public function getGroups(User $user): array
     {
+        Debugger::log('ReCodEx::getGroups(' . $user->getId() . ')', Debugger::DEBUG);
         $body = $this->get(
             "group-attributes",
             ['instance' => $user->getInstanceId(), 'service' => $this->extensionId, 'user' => $user->getId()]
@@ -310,5 +321,25 @@ class RecodexApiHelper
             $groups[$group->id] = $group;
         }
         return $groups;
+    }
+
+    public function addAttribute(string $groupId, string $key, string $value): void
+    {
+        Debugger::log("ReCodEx::addAttribute('$groupId', '$key', '$value')", Debugger::INFO);
+        $this->post("group-attributes/$groupId", [], [
+            'service' => $this->extensionId,
+            'key' => $key,
+            'value' => $value
+        ]);
+    }
+
+    public function removeAttribute(string $groupId, string $key, string $value): void
+    {
+        Debugger::log("ReCodEx::removeAttribute('$groupId', '$key', '$value')", Debugger::INFO);
+        $this->delete("group-attributes/$groupId", [
+            'service' => $this->extensionId,
+            'key' => $key,
+            'value' => $value
+        ]);
     }
 }
