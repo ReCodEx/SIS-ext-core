@@ -110,7 +110,7 @@ class SisHelper
             'token' => $salt . '$' . hash('sha256', "$salt,$this->secretKdojekdo"),
         ];
 
-        Debugger::log("getUserRecord($sisUserId)", Debugger::DEBUG);
+        Debugger::log("SIS::getUserRecord($sisUserId)", Debugger::DEBUG);
         try {
             $response = $this->client->get('kdojekdo/rest.php', $this->prepareOptions($params));
         } catch (GuzzleHttp\Exception\ClientException $e) {
@@ -165,7 +165,7 @@ class SisHelper
             $termsStr = 'null';
         }
 
-        Debugger::log("getCourses($sisUserId, $termsStr)", Debugger::DEBUG);
+        Debugger::log("SIS::getCourses($sisUserId, $termsStr)", Debugger::DEBUG);
         try {
             $response = $this->client->get('rozvrhng/rest.php', $this->prepareOptions($params));
         } catch (GuzzleHttp\Exception\ClientException $e) {

@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Tester\Assert;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use Tracy\Debugger;
 
 /**
  * @testCase
@@ -107,6 +108,8 @@ class TestGroupsPresenter extends Tester\TestCase
 
     public function testListGroupsStudent()
     {
+        Debugger::enable(false);
+
         PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
         $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
             'success' => true,
@@ -174,4 +177,5 @@ class TestGroupsPresenter extends Tester\TestCase
     }
 }
 
+Debugger::$logDirectory = __DIR__ . '/../../log';
 (new TestGroupsPresenter())->run();
