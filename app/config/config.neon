@@ -82,6 +82,7 @@ acl:
   config: %appDir%/config/permissions.neon
   acl:
     group: App\Security\ACL\IGroupPermissions
+    event: App\Security\ACL\IEventPermissions
     term: App\Security\ACL\ITermPermissions
     user: App\Security\ACL\IUserPermissions
   policies:

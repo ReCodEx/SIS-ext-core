@@ -75,7 +75,7 @@ class RouterFactory
         $router = new RouteList();
         $router[] = new GetRoute("$prefix/student", "Groups:student");
         $router[] = new GetRoute("$prefix/teacher", "Groups:teacher");
-        $router[] = new PostRoute("$prefix", "Groups:create");
+        $router[] = new PostRoute("$prefix/<parentId>/create/<eventId>", "Groups:create");
         $router[] = new PostRoute("$prefix/<id>/bind/<eventId>", "Groups:bind");
         $router[] = new DeleteRoute("$prefix/<id>/bind/<eventId>", "Groups:unbind");
         $router[] = new PostRoute("$prefix/<id>/join", "Groups:join");
