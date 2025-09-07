@@ -131,7 +131,7 @@ class CoursesPresenter extends BasePresenter
         // find active terms and create mapping termId => SisTerm
         $terms = [];
         foreach ($this->sisTerms->findAllActive() as $term) {
-            $key = sprintf("%s-%s", $term->getYear(), $term->getTerm());
+            $key = $term->getYearTermKey();
             $terms[$key] = $term;
 
             // we need to clear current affiliations to reflect when students' get unenrolled from courses

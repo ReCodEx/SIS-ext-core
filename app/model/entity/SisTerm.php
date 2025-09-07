@@ -132,6 +132,11 @@ class SisTerm implements JsonSerializable
         return $this->term;
     }
 
+    public function getYearTermKey(): string
+    {
+        return sprintf("%d-%d", $this->year, $this->term);
+    }
+
     public function getBeginning(): ?DateTime
     {
         return $this->beginning;

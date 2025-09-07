@@ -64,7 +64,7 @@ class TestTermsPresenter extends Tester\TestCase
         );
 
         $terms = array_map(function ($term) {
-            return $term->getYear() . '-' . $term->getTerm();
+            return $term->getYearTermKey();
         }, $payload);
         sort($terms);
         Assert::equal(['2024-1', '2024-2', '2025-1', '2025-2'], $terms);
@@ -335,7 +335,7 @@ class TestTermsPresenter extends Tester\TestCase
 
         Assert::equal('OK', $payload);
         $terms = array_map(function ($term) {
-            return $term->getYear() . '-' . $term->getTerm();
+            return $term->getYearTermKey();
         }, $this->presenter->sisTerms->findAll());
         sort($terms);
         Assert::equal(['2024-2', '2025-1', '2025-2'], $terms);

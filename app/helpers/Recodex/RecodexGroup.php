@@ -31,6 +31,14 @@ class RecodexGroup implements JsonSerializable
      */
     public const ATTR_GROUP_KEY = 'group';
 
+    /*
+     * Known membership constants from ReCodEx
+     */
+    public const MEMBERSHIP_ADMIN = 'admin';
+    public const MEMBERSHIP_SUPERVISOR = 'supervisor';
+    public const MEMBERSHIP_OBSERVER = 'observer';
+    public const MEMBERSHIP_STUDENT = 'student';
+
     /**
      * ReCodEx group ID
      */
@@ -223,6 +231,24 @@ class RecodexGroup implements JsonSerializable
             'attributes' => $this->attributes,
             'membership' => $this->membership,
         ];
+    }
+
+    /*
+     * Public helper methods (data getters)
+     */
+    public function hasGroupAttribute($groupId)
+    {
+        return in_array($groupId, $this->attributes[self::ATTR_GROUP_KEY] ?? [], true);
+    }
+
+    public function hasTermAttribute($term)
+    {
+        return in_array($term, $this->attributes[self::ATTR_TERM_KEY] ?? [], true);
+    }
+
+    public function hasCourseAttribute($courseId)
+    {
+        return in_array($courseId, $this->attributes[self::ATTR_COURSE_KEY] ?? [], true);
     }
 
     /*

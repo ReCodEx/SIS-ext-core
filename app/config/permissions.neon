@@ -67,3 +67,22 @@ permissions:
       role: supervisor-student
       actions:
         - viewTeacher
+
+  # Event permissions
+    - allow: true
+      resource: event
+      role: student
+      actions:
+        - joinGroup
+      conditions:
+        - event.isUserEnrolledFor
+
+    - allow: true
+      resource: event
+      role: supervisor-student
+      actions:
+        - bindGroup
+        - createGroup
+      conditions:
+        - event.isUserTeacherOf
+
