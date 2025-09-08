@@ -6,6 +6,8 @@ use App\Helpers\RecodexApiHelper;
 use App\Presenters\GroupsPresenter;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
+use App\Helpers\RecodexGroup;
+use App\Security\Roles;
 use Doctrine\ORM\EntityManagerInterface;
 use Tester\Assert;
 use GuzzleHttp\Client;
@@ -174,6 +176,323 @@ class TestGroupsPresenter extends Tester\TestCase
         $ids = array_map(fn($group) => $group->id, $payload);
         sort($ids);
         Assert::equal(['g1', 'g2', 'g3', 'p1', 'p2', 'p3', 'r'], $ids);
+    }
+
+    public function testBindGroup()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                self::group('g1', 't1', 'Group 1', false, []),
+            ]
+        ])));
+
+        $this->client->shouldReceive("post")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => "OK"
+        ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Terms',
+            'POST',
+            ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
+        );
+
+        Assert::equal('OK', $payload);
+    }
+
+    public function testBindTermGroup()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                self::group('t1', 'c1', 'Term group', false, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+            ]
+        ])));
+
+        $this->client->shouldReceive("post")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => "OK"
+        ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Terms',
+            'POST',
+            ['action' => 'bind', 'id' => 't1', 'eventId' => $event->getId()]
+        );
+
+        Assert::equal('OK', $payload);
+    }
+
+    public function testBundGroupFailWrong1()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
+    public function testBundGroupFailWrong2()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                self::group('t1', 'c1', 'Term group', true, []),
+                self::group('g1', 't1', 'Group 1', false, []),
+            ]
+        ])));
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
+    public function testBundGroupFailWrong3()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('c1', 'r', 'Course group', true, []),
+                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                self::group('g1', 't1', 'Group 1', false, []),
+            ]
+        ])));
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
+    public function testBundGroupFailAlreadyBound()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                self::group('g1', 't1', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]]),
+            ]
+        ])));
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, BadRequestException::class);
+    }
+
+    public function testBundGroupFailOrganizational()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+            ]
+        ])));
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'bind', 'id' => 't1', 'eventId' => $event->getId()]
+            );
+        }, BadRequestException::class);
+    }
+
+    public function testUnbindGroupAdmin()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('c1', 'r', 'Course group', true, [], 'admin'),
+                self::group('g1', 'c1', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]]),
+            ]
+        ])));
+
+        $this->client->shouldReceive("delete")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => "OK"
+        ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Terms',
+            'POST',
+            ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
+        );
+
+        Assert::equal('OK', $payload);
+    }
+
+    public function testUnbindGroupSupervisor()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('g1', 'r', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]], 'supervisor'),
+            ]
+        ])));
+
+        $this->client->shouldReceive("delete")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => "OK"
+        ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Terms',
+            'POST',
+            ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
+        );
+
+        Assert::equal('OK', $payload);
+    }
+
+    public function testUnbindGroupFailUnauthorized()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
+    public function testUnbindGroupFailUnauthorized2()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('g1', 'r', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]], 'student'),
+            ]
+        ])));
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
+    public function testUnbindGroupFailNotBound()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('g1', 'r', 'Group 1', false, [], 'admin'),
+            ]
+        ])));
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, BadRequestException::class);
     }
 }
 
