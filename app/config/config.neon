@@ -113,9 +113,11 @@ services:
   
   # commands
   - App\Console\DoctrineFixtures
+  - App\Console\RecodexAddAdmin
   - App\Console\RecodexAddAttribute
   - App\Console\RecodexAddStudent
   - App\Console\RecodexGroups
+  - App\Console\RecodexRemoveAdmin
   - App\Console\RecodexRemoveAttribute
   - App\Console\RecodexRemoveStudent
   - App\Console\RecodexToken
