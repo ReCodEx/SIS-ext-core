@@ -189,7 +189,7 @@ class TestGroupsPresenter extends Tester\TestCase
             'code' => 200,
             'payload' => [
                 self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'admin'),
                 self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
                 self::group('g1', 't1', 'Group 1', false, []),
             ]
@@ -223,7 +223,7 @@ class TestGroupsPresenter extends Tester\TestCase
             'payload' => [
                 self::group('r', null, 'Root', true, []),
                 self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
-                self::group('t1', 'c1', 'Term group', false, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                self::group('t1', 'c1', 'Term group', false, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]], 'supervisor'),
             ]
         ])));
 
@@ -313,6 +313,33 @@ class TestGroupsPresenter extends Tester\TestCase
         }, ForbiddenRequestException::class);
     }
 
+    public function testBundGroupFailUnauthorized()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => [
+                self::group('r', null, 'Root', true, []),
+                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'supervisor'),
+                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                self::group('g1', 't1', 'Group 1', false, []),
+            ]
+        ])));
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
     public function testBundGroupFailAlreadyBound()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
@@ -324,7 +351,7 @@ class TestGroupsPresenter extends Tester\TestCase
             'code' => 200,
             'payload' => [
                 self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'admin'),
                 self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
                 self::group('g1', 't1', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]]),
             ]
@@ -352,7 +379,7 @@ class TestGroupsPresenter extends Tester\TestCase
             'payload' => [
                 self::group('r', null, 'Root', true, []),
                 self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
-                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]], 'supervisor'),
             ]
         ])));
 
