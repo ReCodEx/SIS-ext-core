@@ -323,6 +323,12 @@ class RecodexApiHelper
         return $groups;
     }
 
+    /**
+     * Add external attribute to selected group (service ID is injected automatically).
+     * @param string $groupId ReCodEx ID of a group for which the attribute is being added
+     * @param string $key
+     * @param string $value
+     */
     public function addAttribute(string $groupId, string $key, string $value): void
     {
         Debugger::log("ReCodEx::addAttribute('$groupId', '$key', '$value')", Debugger::INFO);
@@ -333,6 +339,12 @@ class RecodexApiHelper
         ]);
     }
 
+    /**
+     * Remove external attribute from selected group (service ID is injected automatically).
+     * @param string $groupId ReCodEx ID of a group from which the attribute is being removed
+     * @param string $key
+     * @param string $value
+     */
     public function removeAttribute(string $groupId, string $key, string $value): void
     {
         Debugger::log("ReCodEx::removeAttribute('$groupId', '$key', '$value')", Debugger::INFO);
@@ -341,5 +353,29 @@ class RecodexApiHelper
             'key' => $key,
             'value' => $value
         ]);
+    }
+
+    /**
+     * Add student to group.
+     * @param string $groupId ReCodEx ID of a group to which the student is being added
+     * @param User $student
+     */
+    public function addStudentToGroup(string $groupId, User $student): void
+    {
+        Debugger::log("ReCodEx::addStudentToGroup('$groupId', '{$student->getId()}')", Debugger::INFO);
+        $studentId = $student->getId();
+        $this->post("groups/$groupId/students/$studentId");
+    }
+
+    /**
+     * Remove student from group.
+     * @param string $groupId ReCodEx ID of a group from which the student is being removed
+     * @param User $student
+     */
+    public function removeStudentFromGroup(string $groupId, User $student): void
+    {
+        Debugger::log("ReCodEx::removeStudentFromGroup('$groupId', '{$student->getId()}')", Debugger::INFO);
+        $studentId = $student->getId();
+        $this->delete("groups/$groupId/students/$studentId");
     }
 }
