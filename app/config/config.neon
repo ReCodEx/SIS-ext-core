@@ -116,6 +116,7 @@ services:
   - App\Console\RecodexAddAdmin
   - App\Console\RecodexAddAttribute
   - App\Console\RecodexAddStudent
+  - App\Console\RecodexCreateGroup
   - App\Console\RecodexGroups
   - App\Console\RecodexRemoveAdmin
   - App\Console\RecodexRemoveAttribute
@@ -132,6 +133,7 @@ services:
   - App\Helpers\EmailsConfig(%emails%)
 
   # helpers
+  - App\Helpers\NamingHelper
   - App\Helpers\RecodexApiHelper(%recodex%)
   - App\Helpers\SisHelper(%sis%)
   - App\Helpers\UserActions

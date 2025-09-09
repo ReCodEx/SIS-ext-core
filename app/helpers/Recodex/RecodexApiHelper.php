@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Exceptions\ConfigException;
 use App\Exceptions\RecodexApiException;
+use App\Model\Entity\SisScheduleEvent;
 use App\Model\Entity\User;
 use Nette;
 use GuzzleHttp;
@@ -35,6 +36,9 @@ class RecodexApiHelper
     /** @var string|null Authentication token that is added to headers */
     private ?string $authToken = null;
 
+    /** @var NamingHelper */
+    private NamingHelper $namingHelper;
+
     /** @var GuzzleHttp\Client */
     private $client;
 
@@ -42,7 +46,7 @@ class RecodexApiHelper
      * @param array $config
      * @param GuzzleHttp\Client|null $client optional injection of HTTP client for testing purposes
      */
-    public function __construct(array $config, ?GuzzleHttp\Client $client = null)
+    public function __construct(array $config, NamingHelper $namingHelper, ?GuzzleHttp\Client $client = null)
     {
         $this->extensionId = Arrays::get($config, "extensionId", "");
         if (!$this->extensionId) {
@@ -66,6 +70,8 @@ class RecodexApiHelper
             $client = new GuzzleHttp\Client(['base_uri' => $this->apiBase]);
         }
         $this->client = $client;
+
+        $this->namingHelper = $namingHelper;
     }
 
     public function getSisIdKey(): string
@@ -401,5 +407,50 @@ class RecodexApiHelper
         Debugger::log("ReCodEx::removeAdminFromGroup('$groupId', '{$admin->getId()}')", Debugger::INFO);
         $adminId = $admin->getId();
         $this->delete("groups/$groupId/members/$adminId");
+    }
+
+    /**
+     * Create a new group and make given user an admin.
+     * @param SisScheduleEvent $event event for which the group is being created
+     * @param string $parentGroupId ID of the parent group
+     * @param User $admin user to be added as admin
+     * @return string|null ID of the created group or null on failure
+     */
+    public function createGroup(SisScheduleEvent $event, string $parentGroupId, User $admin): ?string
+    {
+        Debugger::log("ReCodEx::createGroup('{$event->getSisId()}', '$parentGroupId')", Debugger::INFO);
+
+        $localizedTexts = [];
+        foreach (['en', 'cs'] as $locale) {
+            $name = $this->namingHelper->getGroupName($event, $locale);
+            $description = $this->namingHelper->getGroupDescription($event, $locale);
+            if ($name !== null) {
+                $localizedTexts[] = [
+                    'locale' => $locale,
+                    'name' => $name,
+                    'description' => $description ?? '',
+                ];
+            }
+        }
+
+        $group = $this->post("groups", [], [
+            'instanceId' => $admin->getInstanceId(),
+            'parentGroupId' => $parentGroupId,
+            'publicStats' => false,
+            'detaining' => true,
+            'isPublic' => false,
+            'isOrganizational' => false,
+            'isExam' => false,
+            'noAdmin' => true,
+            'localizedTexts' => $localizedTexts,
+        ]);
+
+        if ($group && !empty($group['id'])) {
+            $this->addAdminToGroup($group['id'], $admin);
+            $this->addAttribute($group['id'], RecodexGroup::ATTR_GROUP_KEY, $event->getSisId());
+            return $group['id'];
+        }
+
+        return null;
     }
 }

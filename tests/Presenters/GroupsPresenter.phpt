@@ -6,6 +6,7 @@ use App\Helpers\RecodexApiHelper;
 use App\Presenters\GroupsPresenter;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
+use App\Helpers\NamingHelper;
 use App\Helpers\RecodexGroup;
 use App\Model\Repository\Users;
 use Doctrine\ORM\EntityManagerInterface;
@@ -52,6 +53,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 'extensionId' => 'sis-cuni',
                 'apiBase' => 'https://recodex.example/',
             ],
+            new NamingHelper(),
             $this->client
         ));
     }
