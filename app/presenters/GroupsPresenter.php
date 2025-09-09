@@ -157,7 +157,8 @@ class GroupsPresenter extends BasePresenter
         }
 
         $groups = $this->recodexApi->getGroups($this->getCurrentUser());
-        $this->isGroupSuitableForEvent($groups, $id, $event); // throws exception if not suitable
+        $this->canUserAdministrateGroup($groups, $id); // throws exception if not
+        $this->isGroupSuitableForEvent($groups, $id, $event); // throws exception if not
         if ($groups[$id]->organizational) {
             throw new BadRequestException("Group $id is organizational, so it cannot be bound to a SIS event.");
         }
