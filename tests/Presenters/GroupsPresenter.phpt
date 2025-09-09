@@ -7,7 +7,7 @@ use App\Presenters\GroupsPresenter;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
 use App\Helpers\RecodexGroup;
-use App\Security\Roles;
+use App\Model\Repository\Users;
 use Doctrine\ORM\EntityManagerInterface;
 use Tester\Assert;
 use GuzzleHttp\Client;
@@ -31,6 +31,9 @@ class TestGroupsPresenter extends Tester\TestCase
     /** @var Nette\Security\User */
     private $user;
 
+    /** @var Users */
+    private $users;
+
     private $client;
 
     public function __construct()
@@ -39,6 +42,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $this->container = $container;
         $this->em = PresenterTestHelper::getEntityManager($container);
         $this->user = $container->getByType(\Nette\Security\User::class);
+        $this->users = $container->getByType(Users::class);
         $this->client = Mockery::mock(Client::class);
 
         $recodexHelperName = current($this->container->findByType(RecodexApiHelper::class));
@@ -113,17 +117,18 @@ class TestGroupsPresenter extends Tester\TestCase
         Debugger::enable(false);
 
         PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('p1', null, 'Parent', true, []),
-                self::group('p2', null, 'Parent 2', true, []),
-                self::group('g1', 'p1', 'Group 1', false, ['group' => ['sis1']]),
-                self::group('g2', 'p1', 'Group 2', false, ['group' => ['sis2']], 'student'),
-                self::group('g3', 'p1', 'Group 3', false, ['group' => ['sis3']]),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('p1', null, 'Parent', true, []),
+                    self::group('p2', null, 'Parent 2', true, []),
+                    self::group('g1', 'p1', 'Group 1', false, ['group' => ['sis1']]),
+                    self::group('g2', 'p1', 'Group 2', false, ['group' => ['sis2']], 'student'),
+                    self::group('g3', 'p1', 'Group 3', false, ['group' => ['sis3']]),
+                ]
+            ])));
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -148,21 +153,22 @@ class TestGroupsPresenter extends Tester\TestCase
     public function testListGroupsTeacher()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('p1', 'r', 'Prg 1', true, ['course' => ['prg1']]),
-                self::group('p2', 'r', 'Prg 2', true, ['course' => ['prg2']], 'teacher'),
-                self::group('p3', 'r', 'Prg 1 & 3', true, ['course' => ['prg3', 'prg1']]),
-                self::group('p4', 'r', 'Prg 2 & 4', true, ['course' => ['prg2', 'prg4']]),
-                self::group('g1', 'p1', 'Group 1'),
-                self::group('g2', 'p2', 'Group 2', false, ['group' => ['sis2']], 'teacher'),
-                self::group('g3', 'p3', 'Group 3'),
-                self::group('g4', 'p4', 'Group 4'),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('p1', 'r', 'Prg 1', true, ['course' => ['prg1']]),
+                    self::group('p2', 'r', 'Prg 2', true, ['course' => ['prg2']], 'teacher'),
+                    self::group('p3', 'r', 'Prg 1 & 3', true, ['course' => ['prg3', 'prg1']]),
+                    self::group('p4', 'r', 'Prg 2 & 4', true, ['course' => ['prg2', 'prg4']]),
+                    self::group('g1', 'p1', 'Group 1'),
+                    self::group('g2', 'p2', 'Group 2', false, ['group' => ['sis2']], 'teacher'),
+                    self::group('g3', 'p3', 'Group 3'),
+                    self::group('g4', 'p4', 'Group 4'),
+                ]
+            ])));
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -184,22 +190,24 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'admin'),
-                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
-                self::group('g1', 't1', 'Group 1', false, []),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'admin'),
+                    self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                    self::group('g1', 't1', 'Group 1', false, []),
+                ]
+            ])));
 
-        $this->client->shouldReceive("post")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => "OK"
-        ])));
+        $this->client->shouldReceive("post")->with('group-attributes/g1', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -217,21 +225,23 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
-                self::group('t1', 'c1', 'Term group', false, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]], 'supervisor'),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                    self::group('t1', 'c1', 'Term group', false, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]], 'supervisor'),
+                ]
+            ])));
 
-        $this->client->shouldReceive("post")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => "OK"
-        ])));
+        $this->client->shouldReceive("post")->with('group-attributes/t1', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -265,16 +275,17 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
-                self::group('t1', 'c1', 'Term group', true, []),
-                self::group('g1', 't1', 'Group 1', false, []),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                    self::group('t1', 'c1', 'Term group', true, []),
+                    self::group('g1', 't1', 'Group 1', false, []),
+                ]
+            ])));
 
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
@@ -292,16 +303,17 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, []),
-                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
-                self::group('g1', 't1', 'Group 1', false, []),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, []),
+                    self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                    self::group('g1', 't1', 'Group 1', false, []),
+                ]
+            ])));
 
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
@@ -319,16 +331,17 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'supervisor'),
-                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
-                self::group('g1', 't1', 'Group 1', false, []),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'supervisor'),
+                    self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                    self::group('g1', 't1', 'Group 1', false, []),
+                ]
+            ])));
 
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
@@ -346,16 +359,17 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'admin'),
-                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
-                self::group('g1', 't1', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]]),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]], 'admin'),
+                    self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                    self::group('g1', 't1', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]]),
+                ]
+            ])));
 
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
@@ -373,15 +387,16 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
-                self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]], 'supervisor'),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                    self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]], 'supervisor'),
+                ]
+            ])));
 
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
@@ -399,21 +414,23 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('c1', 'r', 'Course group', true, [], 'admin'),
-                self::group('g1', 'c1', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]]),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [], 'admin'),
+                    self::group('g1', 'c1', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]]),
+                ]
+            ])));
 
-        $this->client->shouldReceive("delete")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => "OK"
-        ])));
+        $this->client->shouldReceive("delete")->with('group-attributes/g1', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -431,20 +448,22 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('g1', 'r', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]], 'supervisor'),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('g1', 'r', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]], 'supervisor'),
+                ]
+            ])));
 
-        $this->client->shouldReceive("delete")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => "OK"
-        ])));
+        $this->client->shouldReceive("delete")->with('group-attributes/g1', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
@@ -478,14 +497,15 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('g1', 'r', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]], 'student'),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('g1', 'r', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]], 'student'),
+                ]
+            ])));
 
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
@@ -503,14 +523,15 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'success' => true,
-            'code' => 200,
-            'payload' => [
-                self::group('r', null, 'Root', true, []),
-                self::group('g1', 'r', 'Group 1', false, [], 'admin'),
-            ]
-        ])));
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('g1', 'r', 'Group 1', false, [], 'admin'),
+                ]
+            ])));
 
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
@@ -518,6 +539,90 @@ class TestGroupsPresenter extends Tester\TestCase
                 'Terms',
                 'POST',
                 ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
+            );
+        }, BadRequestException::class);
+    }
+
+    public function testJoinGroup()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
+        $studentId = $this->users->findOneBy(['email' => PresenterTestHelper::STUDENT1_LOGIN])?->getId();
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('g1', 'r', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]], null),
+                ]
+            ])));
+
+        $this->client->shouldReceive("post")->with("groups/g1/students/$studentId", Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Terms',
+            'POST',
+            ['action' => 'join', 'id' => 'g1']
+        );
+
+        Assert::equal('OK', $payload);
+    }
+
+    public function testJoinGroupFailNoEvent()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('g1', 'r', 'Group 1', false, [], null),
+                ]
+            ])));
+
+        Assert::exception(function () {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'join', 'id' => 'g1']
+            );
+        }, ForbiddenRequestException::class);
+    }
+
+    public function testJoinGroupFailAlreadyMemeber()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('g1', 'r', 'Group 1', false, [RecodexGroup::ATTR_GROUP_KEY => [$event->getSisId()]], 'student'),
+                ]
+            ])));
+
+        Assert::exception(function () {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Terms',
+                'POST',
+                ['action' => 'join', 'id' => 'g1']
             );
         }, BadRequestException::class);
     }
