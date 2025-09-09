@@ -378,4 +378,28 @@ class RecodexApiHelper
         $studentId = $student->getId();
         $this->delete("groups/$groupId/students/$studentId");
     }
+
+    /**
+     * Add admin to group.
+     * @param string $groupId ReCodEx ID of a group to which the admin is being added
+     * @param User $admin
+     */
+    public function addAdminToGroup(string $groupId, User $admin): void
+    {
+        Debugger::log("ReCodEx::addAdminToGroup('$groupId', '{$admin->getId()}')", Debugger::INFO);
+        $adminId = $admin->getId();
+        $this->post("groups/$groupId/members/$adminId", [], ['type' => 'admin']);
+    }
+
+    /**
+     * Remove admin from group.
+     * @param string $groupId ReCodEx ID of a group from which the admin is being removed
+     * @param User $admin
+     */
+    public function removeAdminFromGroup(string $groupId, User $admin): void
+    {
+        Debugger::log("ReCodEx::removeAdminFromGroup('$groupId', '{$admin->getId()}')", Debugger::INFO);
+        $adminId = $admin->getId();
+        $this->delete("groups/$groupId/members/$adminId");
+    }
 }
