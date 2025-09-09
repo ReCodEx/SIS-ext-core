@@ -114,8 +114,10 @@ services:
   # commands
   - App\Console\DoctrineFixtures
   - App\Console\RecodexAddAttribute
+  - App\Console\RecodexAddStudent
   - App\Console\RecodexGroups
   - App\Console\RecodexRemoveAttribute
+  - App\Console\RecodexRemoveStudent
   - App\Console\RecodexToken
   - App\Console\SisGetCourse
   - App\Console\SisGetUser
