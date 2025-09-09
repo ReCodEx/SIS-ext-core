@@ -141,8 +141,10 @@ class GroupsPresenter extends BasePresenter
     /**
      * Proxy to ReCodEx that creates a new group.
      * @POST
-     * @param string $parentId ID of the parent group under which the new group is created
-     * @param string $eventId ID of the SIS event the new group is created for
+     * @Param(type="query", name="parentId", validation="string:1..",
+     *        description="ReCodEx ID of a group that will be the parent group.")
+     * @Param(type="query", name="eventId", validation="string:1..",
+     *        description="SIS ID of the scheduling event the new group is created for")
      */
     public function actionCreate(string $parentId, string $eventId)
     {
@@ -172,6 +174,10 @@ class GroupsPresenter extends BasePresenter
      * Proxy to ReCodEx that binds a group with schedule event (student group) in SIS.
      * This basically sets the 'group' attribute to ReCodEx group entity.
      * @POST
+     * @Param(type="query", name="id", validation="string:1..",
+     *        description="ReCodEx ID of a group that will be bound with the event.")
+     * @Param(type="query", name="eventId", validation="string:1..",
+     *        description="SIS ID of the scheduling event that will be bound with the group.")
      */
     public function actionBind(string $id, string $eventId)
     {
@@ -198,6 +204,10 @@ class GroupsPresenter extends BasePresenter
      * Proxy to ReCodEx that unbinds a group with schedule event (student group) in SIS.
      * This basically removes the 'group' attribute from ReCodEx group entity.
      * @POST
+     * @Param(type="query", name="id", validation="string:1..",
+     *        description="ReCodEx ID of a group from which the event will be unbound.")
+     * @Param(type="query", name="eventId", validation="string:1..",
+     *        description="SIS ID of the scheduling event that will be unbound from the group.")
      */
     public function actionUnbind(string $id, string $eventId)
     {
@@ -218,7 +228,8 @@ class GroupsPresenter extends BasePresenter
         }
 
         foreach ($group->attributes[RecodexGroup::ATTR_GROUP_KEY] ?? [] as $eventId) {
-            if (!$this->eventAcl->canJoinGroup($this->sisEvents->findOrThrow($eventId))) {
+            $event = $this->sisEvents->findBySisId($eventId);
+            if ($event && $this->eventAcl->canJoinGroup($event)) {
                 return; // suitable event was found
             }
         }
@@ -230,11 +241,15 @@ class GroupsPresenter extends BasePresenter
     }
 
     /**
-     * Proxy to ReCodEx that adds student to a group.
+     * Proxy to ReCodEx that adds current user to selected group.
      * @POST
+     * @Param(type="query", name="id", validation="string:1..",
+     *        description="ReCodEx ID of a group the user wish to join.")
      */
     public function actionJoin(string $id)
     {
-        throw new NotImplementedException();
+        $user = $this->getCurrentUser();
+        $this->recodexApi->addStudentToGroup($id, $user);
+        $this->sendSuccessResponse("OK");
     }
 }
