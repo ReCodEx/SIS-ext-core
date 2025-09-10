@@ -136,6 +136,9 @@ class GroupsPresenter extends BasePresenter
 
         $groups = $this->recodexApi->getGroups($this->getCurrentUser());
         $this->isGroupSuitableForEvent($groups, $parentId, $event); // throws exception if not suitable
+
+        // We are not checking ReCodEx permissions since the T.A.s may have none.
+        // This is the reason we are creating the groups via this extension (to bypass/extend regular permissions).
     }
 
     /**
@@ -148,7 +151,9 @@ class GroupsPresenter extends BasePresenter
      */
     public function actionCreate(string $parentId, string $eventId)
     {
-        throw new NotImplementedException();
+        $event = $this->sisEvents->findOrThrow($eventId);
+        $this->recodexApi->createGroup($event, $parentId, $this->getCurrentUser());
+        $this->sendSuccessResponse("OK");
     }
 
     public function checkBind(string $id, string $eventId)

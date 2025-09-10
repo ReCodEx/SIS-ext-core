@@ -35,6 +35,9 @@ class TestGroupsPresenter extends Tester\TestCase
     /** @var Users */
     private $users;
 
+    /** @var NamingHelper */
+    private $namingHelper;
+
     private $client;
 
     public function __construct()
@@ -47,13 +50,14 @@ class TestGroupsPresenter extends Tester\TestCase
         $this->client = Mockery::mock(Client::class);
 
         $recodexHelperName = current($this->container->findByType(RecodexApiHelper::class));
+        $this->namingHelper = $this->container->getByType(NamingHelper::class);
         $this->container->removeService($recodexHelperName);
         $this->container->addService($recodexHelperName, new RecodexApiHelper(
             [
                 'extensionId' => 'sis-cuni',
                 'apiBase' => 'https://recodex.example/',
             ],
-            new NamingHelper(),
+            $this->namingHelper,
             $this->client
         ));
     }
@@ -134,7 +138,7 @@ class TestGroupsPresenter extends Tester\TestCase
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
-            'Terms',
+            'Groups',
             'GET',
             ['action' => 'student', 'eventIds' => ['sis1']]
         );
@@ -174,7 +178,7 @@ class TestGroupsPresenter extends Tester\TestCase
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
-            'Terms',
+            'Groups',
             'GET',
             ['action' => 'teacher', 'eventIds' => ['sis2'], 'courseIds' => ['prg1']]
         );
@@ -213,7 +217,7 @@ class TestGroupsPresenter extends Tester\TestCase
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
-            'Terms',
+            'Groups',
             'POST',
             ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
         );
@@ -247,7 +251,7 @@ class TestGroupsPresenter extends Tester\TestCase
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
-            'Terms',
+            'Groups',
             'POST',
             ['action' => 'bind', 'id' => 't1', 'eventId' => $event->getId()]
         );
@@ -255,7 +259,7 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::equal('OK', $payload);
     }
 
-    public function testBundGroupFailWrong1()
+    public function testBindGroupFailWrong1()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
@@ -264,14 +268,14 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
             );
         }, ForbiddenRequestException::class);
     }
 
-    public function testBundGroupFailWrong2()
+    public function testBindGroupFailWrong2()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
@@ -292,14 +296,14 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
             );
         }, ForbiddenRequestException::class);
     }
 
-    public function testBundGroupFailWrong3()
+    public function testBindGroupFailWrong3()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
@@ -320,14 +324,14 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
             );
         }, ForbiddenRequestException::class);
     }
 
-    public function testBundGroupFailUnauthorized()
+    public function testBindGroupFailUnauthorized()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
@@ -348,14 +352,14 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
             );
         }, ForbiddenRequestException::class);
     }
 
-    public function testBundGroupFailAlreadyBound()
+    public function testBindGroupFailAlreadyBound()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
@@ -376,14 +380,14 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'bind', 'id' => 'g1', 'eventId' => $event->getId()]
             );
         }, BadRequestException::class);
     }
 
-    public function testBundGroupFailOrganizational()
+    public function testBindGroupFailOrganizational()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
@@ -403,7 +407,7 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'bind', 'id' => 't1', 'eventId' => $event->getId()]
             );
@@ -436,7 +440,7 @@ class TestGroupsPresenter extends Tester\TestCase
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
-            'Terms',
+            'Groups',
             'POST',
             ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
         );
@@ -469,7 +473,7 @@ class TestGroupsPresenter extends Tester\TestCase
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
-            'Terms',
+            'Groups',
             'POST',
             ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
         );
@@ -486,7 +490,7 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
             );
@@ -512,7 +516,7 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
             );
@@ -538,7 +542,7 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () use ($event) {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'unbind', 'id' => 'g1', 'eventId' => $event->getId()]
             );
@@ -571,7 +575,7 @@ class TestGroupsPresenter extends Tester\TestCase
 
         $payload = PresenterTestHelper::performPresenterRequest(
             $this->presenter,
-            'Terms',
+            'Groups',
             'POST',
             ['action' => 'join', 'id' => 'g1']
         );
@@ -596,14 +600,14 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'join', 'id' => 'g1']
             );
         }, ForbiddenRequestException::class);
     }
 
-    public function testJoinGroupFailAlreadyMemeber()
+    public function testJoinGroupFailAlreadyMember()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
@@ -622,11 +626,138 @@ class TestGroupsPresenter extends Tester\TestCase
         Assert::exception(function () {
             PresenterTestHelper::performPresenterRequest(
                 $this->presenter,
-                'Terms',
+                'Groups',
                 'POST',
                 ['action' => 'join', 'id' => 'g1']
             );
         }, BadRequestException::class);
+    }
+
+    public function testCreateGroup()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $user = $this->users->findOneBy(['email' => PresenterTestHelper::TEACHER1_LOGIN]);
+        Assert::notNull($user);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                    self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                ]
+            ])));
+
+        $this->client->shouldReceive("post")->with('groups', Mockery::on(function ($arg) use ($user, $event) {
+            Assert::type('array', $arg);
+            Assert::type('array', $arg['json'] ?? null);
+            $body = $arg['json'];
+            Assert::equal($user->getInstanceId(), $body['instanceId']);
+            Assert::equal('t1', $body['parentGroupId']);
+            Assert::false($body['publicStats']);
+            Assert::true($body['detaining']);
+            Assert::false($body['isPublic']);
+            Assert::false($body['isOrganizational']);
+            Assert::false($body['isExam']);
+            Assert::true($body['noAdmin']);
+            Assert::count(2, $body['localizedTexts']);
+            foreach ($body['localizedTexts'] as $localizedText) {
+                Assert::type('array', $localizedText);
+                Assert::count(3, $localizedText);
+                $locale = $localizedText['locale'] ?? '';
+                Assert::contains($locale, ['en', 'cs']);
+                Assert::equal($this->namingHelper->getGroupName($event, $locale), $localizedText['name'] ?? null);
+                Assert::equal($this->namingHelper->getGroupDescription($event, $locale), $localizedText['description'] ?? null);
+            }
+            return true;
+        }))->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => ['id' => 'g1']
+        ])));
+
+        $this->client->shouldReceive("post")->with('groups/g1/members/' . $user->getId(), Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
+
+        $this->client->shouldReceive("post")->with('group-attributes/g1', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Groups',
+            'POST',
+            ['action' => 'create', 'parentId' => 't1', 'eventId' => $event->getId()]
+        );
+
+        Assert::equal("OK", $payload);
+    }
+
+    public function testCreateGroupFailWrongParent()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, []),
+                    self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                ]
+            ])));
+
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Groups',
+                'POST',
+                ['action' => 'create', 'parentId' => 't1', 'eventId' => $event->getId()]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
+    public function testCreateGroupFailWrongParent2()
+    {
+        PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                    self::group('t1', 'c1', 'Term group', true, []),
+                ]
+            ])));
+
+
+        Assert::exception(function () use ($event) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Groups',
+                'POST',
+                ['action' => 'create', 'parentId' => 't1', 'eventId' => $event->getId()]
+            );
+        }, ForbiddenRequestException::class);
     }
 }
 
