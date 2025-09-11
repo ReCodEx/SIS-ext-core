@@ -3,6 +3,7 @@
 $container = require_once __DIR__ . "/../bootstrap.php";
 
 use App\Helpers\RecodexApiHelper;
+use App\Helpers\SisHelper;
 use App\Presenters\GroupsPresenter;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
@@ -60,6 +61,10 @@ class TestGroupsPresenter extends Tester\TestCase
             $this->namingHelper,
             $this->client
         ));
+
+        $sisHelperName = current($this->container->findByType(SisHelper::class));
+        $this->container->removeService($sisHelperName);
+        $this->container->addService($sisHelperName, Mockery::mock(SisHelper::class));
     }
 
     protected function setUp()
