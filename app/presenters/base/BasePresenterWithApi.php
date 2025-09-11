@@ -25,15 +25,17 @@ class BasePresenterWithApi extends BasePresenter
 
     public function startup()
     {
-        parent::startup();
-
         // Initialize ReCodEx auth token (main part is in User entity, suffix is in our auth token's payload).
         $user = $this->getCurrentUser();
         $token = $this->getAccessToken();
-        $suffix = $token->getPayload('suffix');
+        $suffix = $token->getPayloadOrDefault('suffix', null);
 
         if ($user->getRecodexToken() && $suffix) {
             $this->recodexApi->setAuthToken($user->getRecodexToken() . $suffix);
         }
+
+        // the parent startup performs authorization checks, so it must be called after we set the token
+        // (some presenters check permissions via ReCodEx API)
+        parent::startup();
     }
 }

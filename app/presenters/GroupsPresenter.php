@@ -5,8 +5,6 @@ namespace App\Presenters;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
 use App\Exceptions\NotFoundException;
-use App\Exceptions\NotImplementedException;
-use App\Helpers\RecodexApiHelper;
 use App\Helpers\RecodexGroup;
 use App\Model\Entity\SisScheduleEvent;
 use App\Model\Repository\SisScheduleEvents;
@@ -16,19 +14,13 @@ use App\Security\ACL\IGroupPermissions;
 /**
  * Group management (both for teachers and students).
  */
-class GroupsPresenter extends BasePresenter
+class GroupsPresenter extends BasePresenterWithApi
 {
     /**
      * @var SisScheduleEvents
      * @inject
      */
     public $sisEvents;
-
-    /**
-     * @var RecodexApiHelper
-     * @inject
-     */
-    public $recodexApi;
 
     /**
      * @var IEventPermissions
