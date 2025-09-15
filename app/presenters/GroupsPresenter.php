@@ -139,7 +139,7 @@ class GroupsPresenter extends BasePresenterWithApi
      * @Param(type="query", name="parentId", validation="string:1..",
      *        description="ReCodEx ID of a group that will be the parent group.")
      * @Param(type="query", name="eventId", validation="string:1..",
-     *        description="SIS ID of the scheduling event the new group is created for")
+     *        description="Internal ID of the scheduling event the new group is created for")
      */
     public function actionCreate(string $parentId, string $eventId)
     {
@@ -174,11 +174,12 @@ class GroupsPresenter extends BasePresenterWithApi
      * @Param(type="query", name="id", validation="string:1..",
      *        description="ReCodEx ID of a group that will be bound with the event.")
      * @Param(type="query", name="eventId", validation="string:1..",
-     *        description="SIS ID of the scheduling event that will be bound with the group.")
+     *        description="Internal ID of the scheduling event that will be bound with the group.")
      */
     public function actionBind(string $id, string $eventId)
     {
-        $this->recodexApi->addAttribute($id, RecodexGroup::ATTR_GROUP_KEY, $eventId);
+        $event = $this->sisEvents->findOrThrow($eventId);
+        $this->recodexApi->addAttribute($id, RecodexGroup::ATTR_GROUP_KEY, $event->getSisId());
         $this->sendSuccessResponse("OK");
     }
 
@@ -204,11 +205,12 @@ class GroupsPresenter extends BasePresenterWithApi
      * @Param(type="query", name="id", validation="string:1..",
      *        description="ReCodEx ID of a group from which the event will be unbound.")
      * @Param(type="query", name="eventId", validation="string:1..",
-     *        description="SIS ID of the scheduling event that will be unbound from the group.")
+     *        description="Internal ID of the scheduling event that will be unbound from the group.")
      */
     public function actionUnbind(string $id, string $eventId)
     {
-        $this->recodexApi->removeAttribute($id, RecodexGroup::ATTR_GROUP_KEY, $eventId);
+        $event = $this->sisEvents->findOrThrow($eventId);
+        $this->recodexApi->removeAttribute($id, RecodexGroup::ATTR_GROUP_KEY, $event->getSisId());
         $this->sendSuccessResponse("OK");
     }
 
