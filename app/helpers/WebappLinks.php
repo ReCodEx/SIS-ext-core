@@ -27,7 +27,7 @@ class WebappLinks
     private $solutionUrl;
 
     /** @var string */
-    private $referenceSolutiontUrl;
+    private $referenceSolutionUrl;
 
     /** @var string */
     private $forgottenPasswordUrl;
@@ -69,9 +69,9 @@ class WebappLinks
             ["solutionUrl"],
             "$webappUrl/app/assignment/{assignmentId}/solution/{solutionId}"
         );
-        $this->referenceSolutiontUrl = Arrays::get(
+        $this->referenceSolutionUrl = Arrays::get(
             $linkTemplates,
-            ["referenceSolutiontUrl"],
+            ["referenceSolutionUrl"],
             "$webappUrl/app/exercises/{exerciseId}/reference-solution/{solutionId}"
         );
         $this->forgottenPasswordUrl = Arrays::get(
@@ -141,7 +141,7 @@ class WebappLinks
     public function getReferenceSolutionPageUrl(string $exerciseId, string $solutionId): string
     {
         return self::getLink(
-            $this->referenceSolutiontUrl,
+            $this->referenceSolutionUrl,
             ['exerciseId' => $exerciseId, 'solutionId' => $solutionId]
         );
     }
