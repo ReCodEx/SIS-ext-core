@@ -236,19 +236,24 @@ class RecodexGroup implements JsonSerializable
     /*
      * Public helper methods (data getters)
      */
+    public function hasAttribute(string $key, string $value): bool
+    {
+        return in_array($value, $this->attributes[$key] ?? [], true);
+    }
+
     public function hasGroupAttribute($groupId)
     {
-        return in_array($groupId, $this->attributes[self::ATTR_GROUP_KEY] ?? [], true);
+        return $this->hasAttribute(self::ATTR_GROUP_KEY, $groupId);
     }
 
     public function hasTermAttribute($term)
     {
-        return in_array($term, $this->attributes[self::ATTR_TERM_KEY] ?? [], true);
+        return $this->hasAttribute(self::ATTR_TERM_KEY, $term);
     }
 
     public function hasCourseAttribute($courseId)
     {
-        return in_array($courseId, $this->attributes[self::ATTR_COURSE_KEY] ?? [], true);
+        return $this->hasAttribute(self::ATTR_COURSE_KEY, $courseId);
     }
 
     /*
