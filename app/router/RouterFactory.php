@@ -79,6 +79,8 @@ class RouterFactory
         $router[] = new PostRoute("$prefix/<id>/bind/<eventId>", "Groups:bind");
         $router[] = new DeleteRoute("$prefix/<id>/bind/<eventId>", "Groups:unbind");
         $router[] = new PostRoute("$prefix/<id>/join", "Groups:join");
+        $router[] = new PostRoute("$prefix/<id>/add-attribute", "Groups:addAttribute");
+        $router[] = new PostRoute("$prefix/<id>/remove-attribute", "Groups:removeAttribute");
         return $router;
     }
 }
