@@ -764,6 +764,180 @@ class TestGroupsPresenter extends Tester\TestCase
             );
         }, ForbiddenRequestException::class);
     }
+
+    public function testAddAttribute()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('g1', null, 'Root', true, ['foo' => ['bar']]),
+                ]
+            ])));
+
+        $this->client->shouldReceive("post")->with('group-attributes/g1', Mockery::on(function ($arg) {
+            Assert::type('array', $arg);
+            Assert::type('array', $arg['json'] ?? null);
+            $body = $arg['json'];
+            Assert::equal('sis-cuni', $body['service'] ?? null);
+            Assert::equal('foo', $body['key'] ?? null);
+            Assert::equal('baz', $body['value'] ?? null);
+            return true;
+        }))
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Groups',
+            'POST',
+            ['action' => 'addAttribute'],
+            ['groupId' => 'g1', 'key' => 'foo', 'value' => 'baz']
+        );
+
+        Assert::equal("OK", $payload);
+    }
+
+    public function testAddAttributeWrongGroup()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('g1', null, 'Root', true, ['foo' => ['bar']]),
+                ]
+            ])));
+
+        Assert::exception(function () {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Groups',
+                'POST',
+                ['action' => 'addAttribute'],
+                ['groupId' => 'g2', 'key' => 'foo', 'value' => 'baz']
+            );
+        }, BadRequestException::class);
+    }
+
+    public function testAddAttributeAlreadyExists()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('g1', null, 'Root', true, ['foo' => ['bar']]),
+                ]
+            ])));
+
+        Assert::exception(function () {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Groups',
+                'POST',
+                ['action' => 'addAttribute'],
+                ['groupId' => 'g1', 'key' => 'foo', 'value' => 'bar']
+            );
+        }, BadRequestException::class);
+    }
+
+    public function testRemoveAttribute()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('g1', null, 'Root', true, ['foo' => ['bar', 'baz']]),
+                ]
+            ])));
+
+        $this->client->shouldReceive("delete")->with('group-attributes/g1', Mockery::on(function ($arg) {
+            Assert::type('array', $arg);
+            Assert::type('array', $arg['query'] ?? null);
+            $query = $arg['query'];
+            Assert::equal('sis-cuni', $query['service'] ?? null);
+            Assert::equal('foo', $query['key'] ?? null);
+            Assert::equal('bar', $query['value'] ?? null);
+            return true;
+        }))
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Groups',
+            'POST',
+            ['action' => 'removeAttribute'],
+            ['groupId' => 'g1', 'key' => 'foo', 'value' => 'bar']
+        );
+
+        Assert::equal("OK", $payload);
+    }
+
+    public function testRemoveAttributeWrongGroup()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('g1', null, 'Root', true, ['foo' => ['bar']]),
+                ]
+            ])));
+
+        Assert::exception(function () {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Groups',
+                'POST',
+                ['action' => 'removeAttribute'],
+                ['groupId' => 'g2', 'key' => 'foo', 'value' => 'bar']
+            );
+        }, BadRequestException::class);
+    }
+
+    public function testRemoveAttributeDoesNotExist()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('g1', null, 'Root', true, ['foo' => ['bar']]),
+                ]
+            ])));
+
+        Assert::exception(function () {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Groups',
+                'POST',
+                ['action' => 'removeAttribute'],
+                ['groupId' => 'g1', 'key' => 'foo', 'value' => 'baz']
+            );
+        }, BadRequestException::class);
+    }
 }
 
 Debugger::$logDirectory = __DIR__ . '/../../log';
