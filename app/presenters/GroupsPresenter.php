@@ -77,6 +77,23 @@ class GroupsPresenter extends BasePresenterWithApi
         throw new ForbiddenRequestException("You do not have permissions to administrate group $groupId.");
     }
 
+    public function checkDefault()
+    {
+        if (!$this->groupAcl->canViewAll()) {
+            throw new ForbiddenRequestException("You do not have permissions to list groups.");
+        }
+    }
+
+    /**
+     * Proxy to ReCodEx that retrieves all groups accessible by the user.
+     * @GET
+     */
+    public function actionDefault()
+    {
+        $groups = $this->recodexApi->getGroups($this->getCurrentUser());
+        $this->sendSuccessResponse($groups);
+    }
+
     public function checkStudent()
     {
         if (!$this->groupAcl->canViewStudent()) {

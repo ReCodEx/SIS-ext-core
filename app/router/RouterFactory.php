@@ -73,6 +73,7 @@ class RouterFactory
     private static function createGroupsRoutes(string $prefix): RouteList
     {
         $router = new RouteList();
+        $router[] = new GetRoute("$prefix", "Groups:default");
         $router[] = new GetRoute("$prefix/student", "Groups:student");
         $router[] = new GetRoute("$prefix/teacher", "Groups:teacher");
         $router[] = new PostRoute("$prefix/<parentId>/create/<eventId>", "Groups:create");
