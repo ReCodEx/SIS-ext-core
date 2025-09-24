@@ -280,30 +280,29 @@ class GroupsPresenter extends BasePresenterWithApi
      * Proxy to ReCodEx that adds an attribute to a group.
      * This is rather low-level operation for super-admins only (to edit top-level and term groups).
      * @POST
-     * @Param(type="post", name="groupId", validation="string:1..",
+     * @Param(type="query", name="id", validation="string:1..",
      *        description="ReCodEx ID of a group to which the attribute will be added.")
      * @Param(type="post", name="key", validation="string:1..",
      *        description="Key of the attribute to add.")
      * @Param(type="post", name="value", validation="string:1..",
      *        description="Value of the attribute to add.")
      */
-    public function actionAddAttribute()
+    public function actionAddAttribute(string $id)
     {
-        $groupId = $this->getRequest()->getPost('groupId');
         $key = $this->getRequest()->getPost('key');
         $value = $this->getRequest()->getPost('value');
 
         $groups = $this->recodexApi->getGroups($this->getCurrentUser());
-        $group = $groups[$groupId] ?? null;
+        $group = $groups[$id] ?? null;
         if ($group === null) {
-            throw new BadRequestException("Group $groupId does not exist or is not accessible by the user.");
+            throw new BadRequestException("Group $id does not exist or is not accessible by the user.");
         }
 
         if ($group->hasAttribute($key, $value)) {
-            throw new BadRequestException("Group $groupId already has attribute $key=$value.");
+            throw new BadRequestException("Group $id already has attribute $key=$value.");
         }
 
-        $this->recodexApi->addAttribute($groupId, $key, $value);
+        $this->recodexApi->addAttribute($id, $key, $value);
         $this->sendSuccessResponse("OK");
     }
 
@@ -318,30 +317,29 @@ class GroupsPresenter extends BasePresenterWithApi
      * Proxy to ReCodEx that removes an attribute from a group.
      * This is rather low-level operation for super-admins only (to edit top-level and term groups).
      * @POST
-     * @Param(type="post", name="groupId", validation="string:1..",
+     * @Param(type="query", name="id", validation="string:1..",
      *        description="ReCodex ID of a group from which the attribute will be removed.")
      * @Param(type="post", name="key", validation="string:1..",
      *        description="Key of the attribute to remove.")
      * @Param(type="post", name="value", validation="string:1..",
      *        description="Value of the attribute to remove.")
      */
-    public function actionRemoveAttribute()
+    public function actionRemoveAttribute(string $id)
     {
-        $groupId = $this->getRequest()->getPost('groupId');
         $key = $this->getRequest()->getPost('key');
         $value = $this->getRequest()->getPost('value');
 
         $groups = $this->recodexApi->getGroups($this->getCurrentUser());
-        $group = $groups[$groupId] ?? null;
+        $group = $groups[$id] ?? null;
         if ($group === null) {
-            throw new BadRequestException("Group $groupId does not exist or is not accessible by the user.");
+            throw new BadRequestException("Group $id does not exist or is not accessible by the user.");
         }
 
         if (!$group->hasAttribute($key, $value)) {
-            throw new BadRequestException("Group $groupId does not have attribute $key=$value.");
+            throw new BadRequestException("Group $id does not have attribute $key=$value.");
         }
 
-        $this->recodexApi->removeAttribute($groupId, $key, $value);
+        $this->recodexApi->removeAttribute($id, $key, $value);
         $this->sendSuccessResponse("OK");
     }
 }
