@@ -835,8 +835,8 @@ class TestGroupsPresenter extends Tester\TestCase
             $this->presenter,
             'Groups',
             'POST',
-            ['action' => 'addAttribute'],
-            ['groupId' => 'g1', 'key' => 'foo', 'value' => 'baz']
+            ['action' => 'addAttribute', 'id' => 'g1'],
+            ['key' => 'foo', 'value' => 'baz']
         );
 
         Assert::equal("OK", $payload);
@@ -860,8 +860,8 @@ class TestGroupsPresenter extends Tester\TestCase
                 $this->presenter,
                 'Groups',
                 'POST',
-                ['action' => 'addAttribute'],
-                ['groupId' => 'g2', 'key' => 'foo', 'value' => 'baz']
+                ['action' => 'addAttribute', 'id' => 'g2'],
+                ['key' => 'foo', 'value' => 'baz']
             );
         }, BadRequestException::class);
     }
@@ -884,8 +884,8 @@ class TestGroupsPresenter extends Tester\TestCase
                 $this->presenter,
                 'Groups',
                 'POST',
-                ['action' => 'addAttribute'],
-                ['groupId' => 'g1', 'key' => 'foo', 'value' => 'bar']
+                ['action' => 'addAttribute', 'id' => 'g1'],
+                ['key' => 'foo', 'value' => 'bar']
             );
         }, BadRequestException::class);
     }
@@ -922,8 +922,8 @@ class TestGroupsPresenter extends Tester\TestCase
             $this->presenter,
             'Groups',
             'POST',
-            ['action' => 'removeAttribute'],
-            ['groupId' => 'g1', 'key' => 'foo', 'value' => 'bar']
+            ['action' => 'removeAttribute', 'id' => 'g1'],
+            ['key' => 'foo', 'value' => 'bar']
         );
 
         Assert::equal("OK", $payload);
@@ -947,8 +947,8 @@ class TestGroupsPresenter extends Tester\TestCase
                 $this->presenter,
                 'Groups',
                 'POST',
-                ['action' => 'removeAttribute'],
-                ['groupId' => 'g2', 'key' => 'foo', 'value' => 'bar']
+                ['action' => 'removeAttribute', 'id' => 'g2'],
+                ['key' => 'foo', 'value' => 'bar']
             );
         }, BadRequestException::class);
     }
@@ -971,8 +971,8 @@ class TestGroupsPresenter extends Tester\TestCase
                 $this->presenter,
                 'Groups',
                 'POST',
-                ['action' => 'removeAttribute'],
-                ['groupId' => 'g1', 'key' => 'foo', 'value' => 'baz']
+                ['action' => 'removeAttribute', 'id' => 'g1'],
+                ['key' => 'foo', 'value' => 'baz']
             );
         }, BadRequestException::class);
     }
