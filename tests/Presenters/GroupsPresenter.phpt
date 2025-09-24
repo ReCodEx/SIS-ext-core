@@ -123,10 +123,48 @@ class TestGroupsPresenter extends Tester\TestCase
         ];
     }
 
+    public function testListGroupsAll()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('p1', null, 'Parent', true, []),
+                    self::group('p2', null, 'Parent 2', true, []),
+                    self::group('g1', 'p1', 'Group 1', false, ['group' => ['sis1']]),
+                    self::group('g2', 'p1', 'Group 2', false, ['group' => ['sis2']], 'student'),
+                    self::group('g3', 'p1', 'Group 3', false, ['group' => ['sis3']]),
+                ]
+            ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Groups',
+            'GET',
+            ['action' => 'default']
+        );
+
+        Assert::count(5, $payload);
+
+        $ids = array_map(fn($group) => $group->id, $payload);
+        sort($ids);
+        Assert::equal(['g1', 'g2', 'g3', 'p1', 'p2'], $ids);
+        Assert::null($payload['p1']->parentGroupId);
+        Assert::null($payload['p2']->parentGroupId);
+        Assert::equal('p1', $payload['g1']->parentGroupId);
+        Assert::equal('p1', $payload['g2']->parentGroupId);
+        Assert::equal('p1', $payload['g3']->parentGroupId);
+        Assert::true($payload['p1']->organizational);
+        Assert::true($payload['p2']->organizational);
+        Assert::false($payload['g1']->organizational);
+        Assert::false($payload['g2']->organizational);
+        Assert::false($payload['g3']->organizational);
+    }
+
     public function testListGroupsStudent()
     {
-        Debugger::enable(false);
-
         PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
         $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
