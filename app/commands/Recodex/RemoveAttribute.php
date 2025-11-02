@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Helpers\RecodexApiHelper;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,10 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Remove external attribute from ReCodEx group.
  * This command is mainly designed for debugging ReCodEx API integration.
  */
+#[AsCommand(name: 'recodex:remove-attribute', description: 'Remove external attribute from ReCodEx group.')]
 class RecodexRemoveAttribute extends BaseCommand
 {
-    protected static $defaultName = 'recodex:remove-attribute';
-
     /**
      * @var RecodexApiHelper
      */
@@ -35,7 +35,6 @@ class RecodexRemoveAttribute extends BaseCommand
      */
     protected function configure()
     {
-        $this->setName(self::$defaultName)->setDescription('Remove external attribute from ReCodEx group.');
         $this->addArgument(
             'groupId',
             InputArgument::REQUIRED,
@@ -50,7 +49,7 @@ class RecodexRemoveAttribute extends BaseCommand
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;

@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Helpers\RecodexApiHelper;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,10 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Test the ReCodEx API by manually translating temp token into full token.
  * This command is mainly for debugging purposes.
  */
+#[AsCommand(name: 'recodex:token', description: 'Translate tmp token into full token and get user info.')]
 class RecodexToken extends BaseCommand
 {
-    protected static $defaultName = 'recodex:token';
-
     /**
      * @var RecodexApiHelper
      */
@@ -30,19 +30,11 @@ class RecodexToken extends BaseCommand
     }
 
     /**
-     * Register the command.
-     */
-    protected function configure()
-    {
-        $this->setName(self::$defaultName)->setDescription('Translate tmp token into full token and get user info.');
-    }
-
-    /**
      * @param InputInterface $input Console input, not used
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;

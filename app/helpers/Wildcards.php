@@ -5,9 +5,6 @@ namespace App\Helpers;
 use Generator;
 use Nette\StaticClass;
 
-/**
- * @UNUSED and to be deleted
- */
 class Wildcards
 {
     use StaticClass;
@@ -47,6 +44,7 @@ class Wildcards
             $start = strpos($pattern, "{", $offset);
 
             if ($start === false) {
+                // @phpstan-ignore identical.alwaysTrue
                 if ($offset === 0) {
                     yield $pattern;
                 }
@@ -62,7 +60,8 @@ class Wildcards
                         $counter -= 1;
 
                         if ($counter === 0) {
-                            $end = $offset = $i;
+                            $end = $i;
+                            $offset = $i;
                             $head = substr($pattern, 0, $start);
                             $tail = substr($pattern, $end + 1);
                             $subPatterns = static::splitPattern(substr($pattern, $start + 1, $end - $start - 1));
@@ -84,7 +83,8 @@ class Wildcards
     }
 
     /**
-     * Split a comma-separated pattern into top-level parts (i.e. split only on commas that are not inside curly brackets)
+     * Split a comma-separated pattern into top-level parts
+     * (i.e. split only on commas that are not inside curly brackets)
      * @param string $pattern the pattern to split (not enclosed in curly braces)
      * @return Generator
      */

@@ -7,6 +7,7 @@ use App\Helpers\RecodexGroup;
 use App\Model\Entity\SisAffiliation;
 use App\Model\Repository\SisScheduleEvents;
 use App\Model\Repository\Users;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,10 +17,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Load groups from ReCodEx API for given user and print them out.
  * This command is mainly designed for debugging ReCodEx API integration.
  */
+#[AsCommand(name: 'recodex:groups', description: 'Load groups from ReCodEx API for given user.')]
 class RecodexGroups extends BaseCommand
 {
-    protected static $defaultName = 'recodex:groups';
-
     /**
      * @var RecodexApiHelper
      */
@@ -53,7 +53,6 @@ class RecodexGroups extends BaseCommand
      */
     protected function configure()
     {
-        $this->setName(self::$defaultName)->setDescription('Load groups from ReCodEx API for given user.');
         $this->addArgument('ukco', InputArgument::REQUIRED, 'SIS ID of the user whose groups are being loaded.');
     }
 
@@ -95,7 +94,7 @@ class RecodexGroups extends BaseCommand
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;

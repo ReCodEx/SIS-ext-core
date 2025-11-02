@@ -4,8 +4,8 @@ namespace App\Console;
 
 use Doctrine\DBAL;
 use Nette\Utils\Finder;
-use Nette\Utils\Strings;
-use SplFileInfo;
+use Nette\Utils\FileInfo;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,10 +18,9 @@ use Zenify\DoctrineFixtures\Contract\Alice\AliceLoaderInterface;
  * in add/fixtures directory. Also, 'db:fill' command is registered to provide
  * convenient usage of this function.
  */
+#[AsCommand(name: 'db:fill', description: 'Clear the database and fill it with initial data.')]
 class DoctrineFixtures extends Command
 {
-    protected static $defaultName = 'db:fill';
-
     /**
      * Loader of YAML files with database values
      * @var AliceLoaderInterface
@@ -53,7 +52,6 @@ class DoctrineFixtures extends Command
      */
     protected function configure()
     {
-        $this->setName('db:fill')->setDescription('Clear the database and fill it with initial data.');
         $this->addOption(
             'test',
             't',
@@ -70,7 +68,7 @@ class DoctrineFixtures extends Command
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->clearDatabase();
 
@@ -80,10 +78,10 @@ class DoctrineFixtures extends Command
         foreach ($input->getArgument("groups") as $group) {
             $groupFiles = [];
 
-            /** @var SplFileInfo $file */
+            /** @var FileInfo $file */
             foreach (
                 Finder::findFiles("*.neon", "*.yml", "*.yaml", "*.json")
-                ->in($fixtureDir . "/" . $group) as $file
+                    ->in($fixtureDir . "/" . $group) as $file
             ) {
                 $groupFiles[] = $file->getRealPath();
             }

@@ -8,6 +8,7 @@ use App\Model\Repository\SisCourses;
 use App\Model\Repository\SisScheduleEvents;
 use App\Model\Repository\SisTerms;
 use App\Model\Repository\Users;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,10 +18,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Test SIS API by fetching all courses related to a user.
  */
+#[AsCommand(name: 'sis:course', description: 'Get courses from SIS related to given user.')]
 class SisGetCourse extends BaseCommand
 {
-    protected static $defaultName = 'sis:course';
-
     /**
      * @var SisHelper
      */
@@ -76,7 +76,6 @@ class SisGetCourse extends BaseCommand
      */
     protected function configure()
     {
-        $this->setName(self::$defaultName)->setDescription('Get courses from SIS related to given user.');
         $this->addArgument('ukco', InputArgument::REQUIRED, 'SIS ID of the user whose courses are being loaded.');
         $this->addOption(
             'year',
@@ -100,7 +99,7 @@ class SisGetCourse extends BaseCommand
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;

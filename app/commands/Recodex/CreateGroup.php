@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Helpers\RecodexApiHelper;
 use App\Model\Repository\SisScheduleEvents;
 use App\Model\Repository\Users;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,10 +15,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Create a new group in ReCodEx form selected SIS event.
  * This command is mainly designed for debugging ReCodEx API integration.
  */
+#[AsCommand(name: 'recodex:create-group', description: 'Create a new group in ReCodEx.')]
 class RecodexCreateGroup extends BaseCommand
 {
-    protected static $defaultName = 'recodex:create-group';
-
     /**
      * @var RecodexApiHelper
      */
@@ -51,7 +51,6 @@ class RecodexCreateGroup extends BaseCommand
      */
     protected function configure()
     {
-        $this->setName(self::$defaultName)->setDescription('Create a new group in ReCodEx.');
         $this->addArgument('eventId', InputArgument::REQUIRED, 'The SIS ID of the event associated with the group.');
         $this->addArgument('parentId', InputArgument::REQUIRED, 'ReCodEx ID of the the parent group.');
         $this->addArgument('adminId', InputArgument::REQUIRED, 'ReCodEx ID of the admin of the newly created group.');
@@ -62,7 +61,7 @@ class RecodexCreateGroup extends BaseCommand
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;
