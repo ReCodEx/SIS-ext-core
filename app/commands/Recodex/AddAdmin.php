@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Helpers\RecodexApiHelper;
 use App\Model\Repository\Users;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,10 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Add admin into a group as a member.
  * This command is mainly designed for debugging ReCodEx API integration.
  */
+#[AsCommand(name: 'recodex:add-admin', description: 'Add admin into a group as a member.')]
 class RecodexAddAdmin extends BaseCommand
 {
-    protected static $defaultName = 'recodex:add-admin';
-
     /**
      * @var RecodexApiHelper
      */
@@ -43,7 +43,6 @@ class RecodexAddAdmin extends BaseCommand
      */
     protected function configure()
     {
-        $this->setName(self::$defaultName)->setDescription('Add admin into a group as a member.');
         $this->addArgument('groupId', InputArgument::REQUIRED, 'ID of the group to which the admin will be added.');
         $this->addArgument('adminId', InputArgument::REQUIRED, 'ID of the admin to be added.');
     }
@@ -53,7 +52,7 @@ class RecodexAddAdmin extends BaseCommand
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;

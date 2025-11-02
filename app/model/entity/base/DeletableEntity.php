@@ -5,6 +5,7 @@ namespace App\Model\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
+// @phpstan-ignore trait.unused
 trait DeletableEntity
 {
     /**

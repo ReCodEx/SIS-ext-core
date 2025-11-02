@@ -3,10 +3,10 @@
 namespace App\Console;
 
 use App\Helpers\SisHelper;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tracy\Debugger;
 use Exception;
@@ -14,10 +14,9 @@ use Exception;
 /**
  * Test SIS API by fetching personal data of a user.
  */
+#[AsCommand(name: 'sis:user', description: 'Get personal data of a user from SIS.')]
 class SisGetUser extends BaseCommand
 {
-    protected static $defaultName = 'sis:user';
-
     /**
      * @var SisHelper
      */
@@ -37,7 +36,6 @@ class SisGetUser extends BaseCommand
      */
     protected function configure()
     {
-        $this->setName(self::$defaultName)->setDescription('Get personal data of a user from SIS.');
         $this->addArgument('ukco', InputArgument::REQUIRED, 'SIS ID of the user.');
     }
 
@@ -46,7 +44,7 @@ class SisGetUser extends BaseCommand
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;

@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Helpers\RecodexApiHelper;
 use App\Model\Repository\Users;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,10 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Remove admin from a group.
  * This command is mainly designed for debugging ReCodEx API integration.
  */
+#[AsCommand(name: 'recodex:remove-admin', description: 'Remove admin from a group.')]
 class RecodexRemoveAdmin extends BaseCommand
 {
-    protected static $defaultName = 'recodex:remove-admin';
-
     /**
      * @var RecodexApiHelper
      */
@@ -43,7 +43,6 @@ class RecodexRemoveAdmin extends BaseCommand
      */
     protected function configure()
     {
-        $this->setName(self::$defaultName)->setDescription('Remove admin from a group.');
         $this->addArgument(
             'groupId',
             InputArgument::REQUIRED,
@@ -57,7 +56,7 @@ class RecodexRemoveAdmin extends BaseCommand
      * @param OutputInterface $output Console output for logging
      * @return int 0 on success, 1 on error
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;
