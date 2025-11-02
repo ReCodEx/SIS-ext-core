@@ -17,7 +17,6 @@ parameters:
     issuer: "%webapp.address%"
     audience: "%webapp.address%"
     expiration: 86400  # of regular auth tokens (seconds)
-    invitationExpiration: 86400  # of an invitation token (seconds)
     usedAlgorithm: HS256
     verificationKey: "sis-ext-123"
 
@@ -44,17 +43,6 @@ parameters:
     debugMode: false  # in debug mode, no messages are sent via SMTP
     archivingDir: ""  # a directory where copies of all emails sent are stored (in text files)
     defaultAdminTo: "Administrator <admin@your.sis-ext.domain>"  # admin mail address
-
-  linkTemplates:
-    assignmentUrl: "%webapp.address%/app/assignment/{id}"
-    exerciseUrl: "%webapp.address%/app/exercises/{id}"
-    shadowAssignmentUrl: "%webapp.address%/app/shadow-assignment/{id}"
-    solutionUrl: "%webapp.address%/app/assignment/{assignmentId}/solution/{solutionId}"
-    referenceSolutionUrl: "%webapp.address%/app/exercises/{exerciseId}/reference-solution/{solutionId}"
-    forgottenPasswordUrl: "%webapp.address%/forgotten-password/change?{token}"  # URL of web application where the password can be changed
-    emailVerificationUrl: "%webapp.address%/email-verification?{token}"
-    invitationUrl: "%webapp.address%/accept-invitation?{token}"
-    solutionSourceFilesUrl: "%webapp.address%/app/assignment/{assignmentId}/solution/{solutionId}/sources"
 
 application:
   errorPresenter: ApiError
@@ -138,7 +126,6 @@ services:
   - App\Helpers\SisHelper(%sis%)
   - App\Helpers\UserActions
   - App\Helpers\UserUpdater
-  - App\Helpers\WebappLinks(%webapp.address%, %linkTemplates%)
 
   # emails
   - App\Helpers\Emails\EmailLocalizationHelper
