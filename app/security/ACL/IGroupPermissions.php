@@ -11,4 +11,6 @@ interface IGroupPermissions
     public function canViewTeacher(): bool;
 
     public function canEditRawAttributes(): bool;
+
+    public function canCreateTermGroup(): bool;
 }

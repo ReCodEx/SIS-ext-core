@@ -82,6 +82,7 @@ class RouterFactory
         $router[] = new PostRoute("$prefix/<id>/join", "Groups:join");
         $router[] = new PostRoute("$prefix/<id>/add-attribute", "Groups:addAttribute");
         $router[] = new PostRoute("$prefix/<id>/remove-attribute", "Groups:removeAttribute");
+        $router[] = new PostRoute("$prefix/<parentId>/create-term/<term>", "Groups:createTerm");
         return $router;
     }
 }

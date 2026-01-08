@@ -55,6 +55,29 @@ class GroupsPresenter extends BasePresenterWithApi
         }
     }
 
+    private function isGroupSuitableForTerm(array $groups, string $groupId, string $term): void
+    {
+        if (empty($groups[$groupId])) {
+            throw new NotFoundException("Group $groupId does not exist or is not accessible by the user.");
+        }
+
+        $group = $groups[$groupId];
+        if (!$group->hasCourseAttribute()) {
+            throw new ForbiddenRequestException("Group $groupId does not have any course attributes.");
+        }
+        if ($group->hasTermAttribute()) {
+            throw new ForbiddenRequestException("Group $groupId have term attributes.");
+        }
+
+        foreach ($groups as $group) {
+            if ($group->parentGroupId === $groupId && $group->hasTermAttribute($term)) {
+                throw new ForbiddenRequestException(
+                    "One of the children of group $groupId already have associated term $term."
+                );
+            }
+        }
+    }
+
     private function canUserAdministrateGroup(array $groups, string $groupId): void
     {
         if (empty($groups[$groupId])) {
@@ -162,6 +185,42 @@ class GroupsPresenter extends BasePresenterWithApi
     {
         $event = $this->sisEvents->findOrThrow($eventId);
         $this->recodexApi->createGroup($event, $parentId, $this->getCurrentUser());
+        $this->sendSuccessResponse("OK");
+    }
+
+    public function checkCreateTerm(string $parentId, string $term)
+    {
+        if (!$this->groupAcl->canCreateTermGroup()) {
+            throw new ForbiddenRequestException("You do not have permissions to create term groups.");
+        }
+
+        $groups = $this->recodexApi->getGroups($this->getCurrentUser());
+        $this->isGroupSuitableForTerm($groups, $parentId, $term); // throws exception if not suitable
+    }
+
+    /**
+     * Proxy to ReCodEx that creates a new organizational group for a term.
+     * @POST
+     * @Param(type="query", name="parentId", validation="string:1..",
+     *        description="ReCodEx ID of a group that will be the parent group.")
+     * @Param(type="query", name="term", validation="string:6",
+     *        description="Term for which the organizational group will be created (e.g. '2025-2').")
+     * @Param(type="post", name="texts", validation="array",
+     *        description="Localized texts for the group (locale => ['name' => ..., 'description' => ...]).")
+     */
+    public function actionCreateTerm(string $parentId, string $term)
+    {
+        $texts = $this->getRequest()->getPost('texts');
+        foreach (['en', 'cs'] as $locale) {
+            if (
+                !array_key_exists($locale, $texts) ||
+                !array_key_exists('name', $texts[$locale]) ||
+                !array_key_exists('description', $texts[$locale])
+            ) {
+                throw new BadRequestException("Localized texts for locale '$locale' are missing.");
+            }
+        }
+        $this->recodexApi->createTermGroup($this->getCurrentUser()->getInstanceId(), $parentId, $term, $texts);
         $this->sendSuccessResponse("OK");
     }
 
