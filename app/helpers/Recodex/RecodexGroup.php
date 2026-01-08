@@ -236,22 +236,30 @@ class RecodexGroup implements JsonSerializable
     /*
      * Public helper methods (data getters)
      */
-    public function hasAttribute(string $key, string $value): bool
+
+    /**
+     * Checks whether the group has the specified attribute (with optional value).
+     * @param string $key Attribute key
+     * @param string|null $value Optional attribute value to check for (null means any value for the key)
+     * @return bool True if the attribute (with specified value) is present, false otherwise
+     */
+    public function hasAttribute(string $key, ?string $value = null): bool
     {
-        return in_array($value, $this->attributes[$key] ?? [], true);
+        return $value === null ? (count($this->attributes[$key] ?? []) > 0)
+            : in_array($value, $this->attributes[$key] ?? [], true);
     }
 
-    public function hasGroupAttribute($groupId)
+    public function hasGroupAttribute(?string $groupId = null): bool
     {
         return $this->hasAttribute(self::ATTR_GROUP_KEY, $groupId);
     }
 
-    public function hasTermAttribute($term)
+    public function hasTermAttribute(?string $term = null): bool
     {
         return $this->hasAttribute(self::ATTR_TERM_KEY, $term);
     }
 
-    public function hasCourseAttribute($courseId)
+    public function hasCourseAttribute(?string $courseId = null): bool
     {
         return $this->hasAttribute(self::ATTR_COURSE_KEY, $courseId);
     }

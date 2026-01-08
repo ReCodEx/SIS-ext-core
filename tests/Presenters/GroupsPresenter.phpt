@@ -803,6 +803,144 @@ class TestGroupsPresenter extends Tester\TestCase
         }, ForbiddenRequestException::class);
     }
 
+    public function testCreateTermGroup()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+        $user = $this->users->findOneBy(['email' => PresenterTestHelper::TEACHER1_LOGIN]);
+        Assert::notNull($user);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $texts =  [
+            'cs' => ['name' => 'Skupina', 'description' => 'Popis skupiny'],
+            'en' => ['name' => 'Group', 'description' => 'Group description'],
+        ];
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                ]
+            ])));
+
+        $this->client->shouldReceive("post")->with('groups', Mockery::on(function ($arg) use ($user, $texts) {
+            Assert::type('array', $arg);
+            Assert::type('array', $arg['json'] ?? null);
+            $body = $arg['json'];
+            Assert::equal($user->getInstanceId(), $body['instanceId']);
+            Assert::equal('c1', $body['parentGroupId']);
+            Assert::false($body['publicStats']);
+            Assert::false($body['detaining']);
+            Assert::false($body['isPublic']);
+            Assert::true($body['isOrganizational']);
+            Assert::false($body['isExam']);
+            Assert::true($body['noAdmin']);
+            Assert::count(2, $body['localizedTexts']);
+            foreach ($body['localizedTexts'] as $localizedText) {
+                Assert::type('array', $localizedText);
+                Assert::count(3, $localizedText);
+                $locale = $localizedText['locale'] ?? '';
+                Assert::contains($locale, ['en', 'cs']);
+                Assert::equal($texts[$locale]['name'], $localizedText['name'] ?? null);
+                Assert::equal($texts[$locale]['description'], $localizedText['description'] ?? null);
+            }
+            return true;
+        }))->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'success' => true,
+            'code' => 200,
+            'payload' => ['id' => 'g1']
+        ])));
+
+        $this->client->shouldReceive("post")->with('group-attributes/g1', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => "OK"
+            ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Groups',
+            'POST',
+            ['action' => 'createTerm', 'parentId' => 'c1', 'term' => '2025-1'],
+            ['texts' => $texts]
+        );
+
+        Assert::equal("OK", $payload);
+    }
+
+    public function testCreateTermGroupWrongParent()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+        $user = $this->users->findOneBy(['email' => PresenterTestHelper::TEACHER1_LOGIN]);
+        Assert::notNull($user);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $texts =  [
+            'cs' => ['name' => 'Skupina', 'description' => 'Popis skupiny'],
+            'en' => ['name' => 'Group', 'description' => 'Group description'],
+        ];
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, []),
+                ]
+            ])));
+
+        Assert::exception(function () use ($texts) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Groups',
+                'POST',
+                ['action' => 'createTerm', 'parentId' => 'c1', 'term' => '2025-1'],
+                ['texts' => $texts]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
+    public function testCreateTermGroupAlreadyExist()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+        $user = $this->users->findOneBy(['email' => PresenterTestHelper::TEACHER1_LOGIN]);
+        Assert::notNull($user);
+        $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
+        Assert::notNull($event);
+
+        $texts =  [
+            'cs' => ['name' => 'Skupina', 'description' => 'Popis skupiny'],
+            'en' => ['name' => 'Group', 'description' => 'Group description'],
+        ];
+
+        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('r', null, 'Root', true, []),
+                    self::group('c1', 'r', 'Course group', true, [RecodexGroup::ATTR_COURSE_KEY => [$event->getCourse()->getCode()]]),
+                    self::group('t1', 'c1', 'Term group', true, [RecodexGroup::ATTR_TERM_KEY => [$event->getTerm()->getYearTermKey()]]),
+                ]
+            ])));
+
+        Assert::exception(function () use ($texts) {
+            PresenterTestHelper::performPresenterRequest(
+                $this->presenter,
+                'Groups',
+                'POST',
+                ['action' => 'createTerm', 'parentId' => 'c1', 'term' => '2025-1'],
+                ['texts' => $texts]
+            );
+        }, ForbiddenRequestException::class);
+    }
+
     public function testAddAttribute()
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);

@@ -10,6 +10,7 @@ use Nette;
 use GuzzleHttp;
 use Nette\Utils\Arrays;
 use Tracy\Debugger;
+use InvalidArgumentException;
 
 /**
  * Wrapper for ReCodEx API calls.
@@ -448,6 +449,55 @@ class RecodexApiHelper
         if ($group && !empty($group['id'])) {
             $this->addAdminToGroup($group['id'], $admin);
             $this->addAttribute($group['id'], RecodexGroup::ATTR_GROUP_KEY, $event->getSisId());
+            return $group['id'];
+        }
+
+        return null;
+    }
+
+    /**
+     * Create a new organizational group for a semester.
+     * @param string $instanceId ID of the instance where the group is being created
+     * @param string $parentGroupId ID of the parent group
+     * @param string $term semester identifier (e.g. "2025-2")
+     * @param array $texts localized texts for the group (locale => ['name' => ..., 'description' => ...])
+     * @return string|null ID of the created group or null on failure
+     * @throws InvalidArgumentException
+     */
+    public function createTermGroup(string $instanceId, string $parentGroupId, string $term, array $texts): ?string
+    {
+        Debugger::log("ReCodEx::createTermGroup('$parentGroupId')", Debugger::INFO);
+
+        $localizedTexts = [];
+        foreach (['en', 'cs'] as $locale) {
+            if (
+                !array_key_exists($locale, $texts) ||
+                !array_key_exists('name', $texts[$locale]) ||
+                !array_key_exists('description', $texts[$locale])
+            ) {
+                throw new InvalidArgumentException("Localized texts for locale '$locale' are missing.");
+            }
+            $localizedTexts[] = [
+                'locale' => $locale,
+                'name' => $texts[$locale]['name'],
+                'description' => $texts[$locale]['description'],
+            ];
+        }
+
+        $group = $this->post("groups", [], [
+            'instanceId' => $instanceId,
+            'parentGroupId' => $parentGroupId,
+            'publicStats' => false,
+            'detaining' => false,
+            'isPublic' => false,
+            'isOrganizational' => true,
+            'isExam' => false,
+            'noAdmin' => true,
+            'localizedTexts' => $localizedTexts,
+        ]);
+
+        if ($group && !empty($group['id'])) {
+            $this->addAttribute($group['id'], RecodexGroup::ATTR_TERM_KEY, $term);
             return $group['id'];
         }
 
