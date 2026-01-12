@@ -63,15 +63,15 @@ class GroupsPresenter extends BasePresenterWithApi
 
         $group = $groups[$groupId];
         if (!$group->hasCourseAttribute()) {
-            throw new ForbiddenRequestException("Group $groupId does not have any course attributes.");
+            throw new BadRequestException("Group $groupId does not have any course attributes.");
         }
         if ($group->hasTermAttribute()) {
-            throw new ForbiddenRequestException("Group $groupId have term attributes.");
+            throw new BadRequestException("Group $groupId have term attributes.");
         }
 
         foreach ($groups as $group) {
             if ($group->parentGroupId === $groupId && $group->hasTermAttribute($term)) {
-                throw new ForbiddenRequestException(
+                throw new BadRequestException(
                     "One of the children of group $groupId already have associated term $term."
                 );
             }
