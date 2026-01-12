@@ -903,7 +903,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ['action' => 'createTerm', 'parentId' => 'c1', 'term' => '2025-1'],
                 ['texts' => $texts]
             );
-        }, ForbiddenRequestException::class);
+        }, BadRequestException::class);
     }
 
     public function testCreateTermGroupAlreadyExist()
@@ -938,7 +938,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ['action' => 'createTerm', 'parentId' => 'c1', 'term' => '2025-1'],
                 ['texts' => $texts]
             );
-        }, ForbiddenRequestException::class);
+        }, BadRequestException::class);
     }
 
     public function testAddAttribute()
