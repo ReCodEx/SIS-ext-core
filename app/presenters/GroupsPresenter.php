@@ -5,6 +5,7 @@ namespace App\Presenters;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
 use App\Exceptions\NotFoundException;
+use App\Exceptions\RecodexApiException;
 use App\Helpers\RecodexGroup;
 use App\Model\Entity\SisScheduleEvent;
 use App\Model\Repository\SisScheduleEvents;
@@ -399,6 +400,37 @@ class GroupsPresenter extends BasePresenterWithApi
         }
 
         $this->recodexApi->removeAttribute($id, $key, $value);
+        $this->sendSuccessResponse("OK");
+    }
+
+    public function checkSetArchived()
+    {
+        if (!$this->groupAcl->canSetArchived()) {
+            throw new ForbiddenRequestException("You do not have permissions to set archived flag.");
+        }
+    }
+
+    /**
+     * Proxy to ReCodEx that sets or unsets the 'archived' flag of a group.
+     * @POST
+     * @Param(type="query", name="id", validation="string:1..",
+     *       description="ReCodEx ID of a group for which the archived flag will be set or unset.")
+     * @Param(type="post", name="value", validation="bool",
+     *       description="Boolean value indicating whether the group should be archived or not.")
+     */
+    public function actionSetArchived(string $id)
+    {
+        $archived = $this->getRequest()->getPost('value');
+        if (!is_bool($archived)) {
+            throw new BadRequestException("Missing or invalid 'value' parameter (expected boolean).");
+        }
+
+        try {
+            $this->recodexApi->setGroupArchivedFlag($id, $archived);
+        } catch (RecodexApiException $e) {
+            throw new BadRequestException("Failed to set archived flag for group $id: " . $e->getMessage());
+        }
+
         $this->sendSuccessResponse("OK");
     }
 }

@@ -13,4 +13,6 @@ interface IGroupPermissions
     public function canEditRawAttributes(): bool;
 
     public function canCreateTermGroup(): bool;
+
+    public function canSetArchived(): bool;
 }
