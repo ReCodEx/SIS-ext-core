@@ -1114,6 +1114,30 @@ class TestGroupsPresenter extends Tester\TestCase
             );
         }, BadRequestException::class);
     }
+
+    public function testSetArchivedFlag()
+    {
+        PresenterTestHelper::loginDefaultAdmin($this->container);
+
+        $this->client->shouldReceive("post")->with('groups/g1/archived', Mockery::any())
+            ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'success' => true,
+                'code' => 200,
+                'payload' => [
+                    self::group('g1', null, 'Root', true, ['foo' => ['bar', 'baz']]),
+                ]
+            ])));
+
+        $payload = PresenterTestHelper::performPresenterRequest(
+            $this->presenter,
+            'Groups',
+            'POST',
+            ['action' => 'setArchived', 'id' => 'g1'],
+            ['value' => true]
+        );
+
+        Assert::equal("OK", $payload);
+    }
 }
 
 Debugger::$logDirectory = __DIR__ . '/../../log';
