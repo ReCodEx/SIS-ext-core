@@ -503,4 +503,18 @@ class RecodexApiHelper
 
         return null;
     }
+
+    /**
+     * Set or unset archived flag of a group.
+     * @param string $groupId ReCodEx ID of a group which is being updated
+     * @param bool $archived true to set archived flag, false to unset
+     */
+    public function setGroupArchivedFlag(string $groupId, bool $archived): void
+    {
+        Debugger::log(
+            "ReCodEx::setGroupArchivedFlag('$groupId', " . ($archived ? 'true' : 'false') . ")",
+            Debugger::INFO
+        );
+        $this->post("groups/$groupId/archived", [], ['value' => $archived]);
+    }
 }
