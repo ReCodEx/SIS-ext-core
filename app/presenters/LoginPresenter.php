@@ -54,7 +54,6 @@ class LoginPresenter extends BasePresenter
     {
         // part of the token is stored in the database, suffix goes into our token (payload)
         $tokenSuffix = $user->setRecodexToken($token);
-        $user->updatedNow();
         $this->users->persist($user);
 
         // generate our token for our frontend
@@ -100,6 +99,7 @@ class LoginPresenter extends BasePresenter
         } else {
             $recodexUser->updateUser($user);
         }
+        $user->updatedNow();
 
         $this->finalizeLogin($user, $recodexResponse['accessToken']);
     }
@@ -127,13 +127,27 @@ class LoginPresenter extends BasePresenter
      */
     public function actionRefresh()
     {
+        // We need to inject the token manually here (this class is not derived from BasePresenterWithApi)
+        $user = $this->getCurrentUser();
+        $prefix = $user->getRecodexToken();
+        $suffix = $this->getAccessToken()->getPayloadOrDefault('suffix', null);
+
+        if (!$prefix || !$suffix) {
+            throw new ForbiddenRequestException("Cannot refresh token - user does not have a ReCodEx token.");
+        }
+
+        // Call ReCodEx API to refresh the token
+        $this->recodexApi->setAuthToken($prefix . $suffix);
         $recodexResponse = $this->recodexApi->refreshToken();
         /** @var RecodexUser */
         $recodexUser = $recodexResponse['user'];
 
-        // Update the user entity with new info from ReCodEx.
-        $user = $this->users->findOrThrow($recodexUser->getId());
-        $recodexUser->updateUser($user);
+        // Update the user entity if the token uses the same identity as the user
+        // (token may use identity override, in which case we do not want to update the user)
+        if ($recodexUser->getId() === $user->getId()) {
+            $recodexUser->updateUser($user);
+            $user->updatedNow();
+        }
 
         $this->finalizeLogin($user, $recodexResponse['accessToken']);
     }
