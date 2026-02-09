@@ -4,7 +4,9 @@ namespace App\Presenters;
 
 use App\Exceptions\ForbiddenRequestException;
 use App\Exceptions\InvalidAccessTokenException;
+use App\Exceptions\NotFoundException;
 use App\Exceptions\WrongCredentialsException;
+use App\Model\Entity\User;
 use App\Model\Repository\Users;
 use App\Helpers\RecodexApiHelper;
 use App\Helpers\RecodexUser;
@@ -12,6 +14,7 @@ use App\Security\AccessManager;
 use App\Security\Roles;
 use App\Security\TokenScope;
 use Nette\Security\AuthenticationException;
+use Exception;
 
 /**
  * Endpoints used to log a user in
@@ -43,6 +46,34 @@ class LoginPresenter extends BasePresenter
     public $roles;
 
     /**
+     * Split the ReCodEx API token (save it to DB and suffix to the newly generated token),
+     * generate a new token for our frontend and send the response.
+     * @param User $user The user to log in
+     * @param string $token The token from ReCodEx API to split and save
+     */
+    private function finalizeLogin(User $user, string $token): void
+    {
+        // part of the token is stored in the database, suffix goes into our token (payload)
+        $tokenSuffix = $user->setRecodexToken($token);
+        $user->updatedNow();
+        $this->users->persist($user);
+
+        // generate our token for our frontend
+        $token = $this->accessManager->issueToken(
+            $user,
+            null, // no effective role override
+            [TokenScope::MASTER, TokenScope::REFRESH],
+            null, // default expiration
+            ['suffix' => $tokenSuffix]
+        );
+
+        $this->sendSuccessResponse([
+            "accessToken" => $token,
+            "user" => $user,
+        ]);
+    }
+
+    /**
      * Log in using temp token from ReCodEx.
      * @POST
      * @Param(type="post", name="token", validation="string:1..", description="Tmp. token from ReCodEx")
@@ -70,25 +101,8 @@ class LoginPresenter extends BasePresenter
         } else {
             $recodexUser->updateUser($user);
         }
-        $user->updatedNow();
 
-        // part of the token is stored in the database, suffix goes into our token (payload)
-        $tokenSuffix = $user->setRecodexToken($recodexResponse['accessToken']);
-        $this->users->persist($user);
-
-        // generate our token for our frontend
-        $token = $this->accessManager->issueToken(
-            $user,
-            null, // no effective role override
-            [TokenScope::MASTER, TokenScope::REFRESH],
-            null, // default expiration
-            ['suffix' => $tokenSuffix]
-        );
-
-        $this->sendSuccessResponse([
-            "accessToken" => $token,
-            "user" => $user,
-        ]);
+        $this->finalizeLogin($user, $recodexResponse['accessToken']);
     }
 
     /**
@@ -104,23 +118,24 @@ class LoginPresenter extends BasePresenter
     }
 
     /**
-     * Refresh the access token of current user
+     * Refresh the access token of current user (as well as the ReCodEx API token).
      * @GET
      * @LoggedIn
+     * @throws AuthenticationException
      * @throws ForbiddenRequestException
+     * @throws NotFoundException
+     * @throws InvalidAccessTokenException
      */
     public function actionRefresh()
     {
-        $token = $this->getAccessToken();
+        $recodexResponse = $this->recodexApi->refreshToken();
+        /** @var RecodexUser */
+        $recodexUser = $recodexResponse['user'];
 
-        $user = $this->getCurrentUser();
-        $this->users->flush();
+        // Update the user entity with new info from ReCodEx.
+        $user = $this->users->findOrThrow($recodexUser->getId());
+        $recodexUser->updateUser($user);
 
-        $this->sendSuccessResponse(
-            [
-                "accessToken" => $this->accessManager->issueRefreshedToken($token),
-                "user" => $user,
-            ]
-        );
+        $this->finalizeLogin($user, $recodexResponse['accessToken']);
     }
 }

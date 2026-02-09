@@ -108,9 +108,9 @@ class AccessManager
      */
     public function issueToken(
         User $user,
-        string $effectiveRole = null,
+        ?string $effectiveRole = null,
         array $scopes = [],
-        int $exp = null,
+        ?int $exp = null,
         array $payload = []
     ) {
         if ($exp === null) {
@@ -155,7 +155,7 @@ class AccessManager
     {
         $accessToken = $request->getQuery("access_token");
         if ($accessToken !== null && Strings::length($accessToken) > 0) {
-            return $accessToken; // the token specified in the URL is prefered
+            return $accessToken; // the token specified in the URL is preferred
         }
 
         // if the token is not in the URL, try to find the "Authorization" header with the bearer token
