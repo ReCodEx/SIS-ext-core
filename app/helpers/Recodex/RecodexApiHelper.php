@@ -162,16 +162,41 @@ class RecodexApiHelper
     }
 
     /**
+     * Perform an HTTP request and return decoded JSON response.
+     * @param string $method HTTP method
+     * @param string $url suffix for the base URL
+     * @param array $options for GuzzleHttp request
+     * @return array|string|int|bool|null decoded JSON response
+     * @throws RecodexApiException
+     * @throws InvalidAccessTokenException
+     */
+    private function request(string $method, string $url, array $options)
+    {
+        try {
+            $response = $this->client->request($method, $url, $options);
+        } catch (GuzzleHttp\Exception\ClientException $e) {
+            if ($e->hasResponse()) {
+                return $this->processJsonBody($e->getResponse());
+            }
+            throw new RecodexApiException("HTTP request to ReCodEx API failed: " . $e->getMessage(), $e);
+        } catch (GuzzleHttp\Exception\GuzzleException $e) {
+            throw new RecodexApiException("HTTP request to ReCodEx API failed: " . $e->getMessage(), $e);
+        }
+        return $this->processJsonBody($response);
+    }
+
+    /**
      * Perform a GET request and return decoded JSON response.
      * @param string $url suffix for the base URL
      * @param array $params to be encoded in URL query
      * @param array $headers initial HTTP headers
      * @return array|string|int|bool|null decoded JSON response
+     * @throws RecodexApiException
+     * @throws InvalidAccessTokenException
      */
     private function get(string $url, array $params = [], array $headers = [])
     {
-        $response = $this->client->get($url, $this->prepareOptions($params, null, $headers));
-        return $this->processJsonBody($response);
+        return $this->request('GET', $url, $this->prepareOptions($params, null, $headers));
     }
 
     /**
@@ -181,11 +206,12 @@ class RecodexApiHelper
      * @param string|array|null $body (array is encoded as JSON)
      * @param array $headers initial HTTP headers
      * @return array|string|int|bool|null decoded JSON response
+     * @throws RecodexApiException
+     * @throws InvalidAccessTokenException
      */
     private function post(string $url, array $params = [], $body = null, array $headers = [])
     {
-        $response = $this->client->post($url, $this->prepareOptions($params, $body, $headers));
-        return $this->processJsonBody($response);
+        return $this->request('POST', $url, $this->prepareOptions($params, $body, $headers));
     }
 
     /**
@@ -194,11 +220,12 @@ class RecodexApiHelper
      * @param array $params to be encoded in URL query
      * @param array $headers initial HTTP headers
      * @return array|string|int|bool|null decoded JSON response
+     * @throws RecodexApiException
+     * @throws InvalidAccessTokenException
      */
     private function delete(string $url, array $params = [], array $headers = [])
     {
-        $response = $this->client->delete($url, $this->prepareOptions($params, null, $headers));
-        return $this->processJsonBody($response);
+        return $this->request('DELETE', $url, $this->prepareOptions($params, null, $headers));
     }
 
     /**
