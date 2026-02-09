@@ -14,7 +14,6 @@ use App\Security\AccessManager;
 use App\Security\Roles;
 use App\Security\TokenScope;
 use Nette\Security\AuthenticationException;
-use Exception;
 
 /**
  * Endpoints used to log a user in

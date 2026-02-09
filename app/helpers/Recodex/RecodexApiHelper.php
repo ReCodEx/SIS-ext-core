@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Exceptions\ConfigException;
 use App\Exceptions\RecodexApiException;
+use App\Exceptions\InvalidAccessTokenException;
 use App\Model\Entity\SisScheduleEvent;
 use App\Model\Entity\User;
 use Nette;
@@ -129,10 +130,15 @@ class RecodexApiHelper
      * Decode and verify JSON body.
      * @return array|string|int|bool|null decoded JSON response
      * @throws RecodexApiException
+     * @throws InvalidAccessTokenException
      */
     private function processJsonBody($response)
     {
         $code = $response->getStatusCode();
+        if ($code === 401) { // unauthorized, token is probably invalid
+            throw new InvalidAccessTokenException("Unauthorized request to ReCodEx API. Token is probably invalid.");
+        }
+
         if ($code !== 200) {
             Debugger::log("HTTP request to ReCodEx API failed (response $code).", Debugger::DEBUG);
             throw new RecodexApiException("HTTP request failed (response $code).");
