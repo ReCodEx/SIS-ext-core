@@ -225,14 +225,31 @@ class RecodexApiHelper
     /**
      * Complete the authentication process. Use tmp token to fetch full-token and user info.
      * The tmp token is expected to be set as the auth token already.
-     * @return array|null ['accessToken' => string, 'user' => RecodexUser] on success
+     * @return array ['accessToken' => string, 'user' => RecodexUser] on success
      */
-    public function getTokenAndUser(): ?array
+    public function getTokenAndUser(): array
     {
         Debugger::log('ReCodEx::getTokenAndUser()', Debugger::DEBUG);
         $body = $this->post('extensions/' . $this->extensionId);
         if (!is_array($body) || empty($body['accessToken']) || empty($body['user'])) {
             throw new RecodexApiException("Unexpected ReCodEx API response from extension token endpoint.");
+        }
+
+        // wrap the user into a structure
+        $body['user'] = new RecodexUser($body['user'], $this);
+        return $body;
+    }
+
+    /**
+     * Refresh the token using ReCodEx API. The current token is expected to be set as the auth token already.
+     * @return array ['accessToken' => string, 'user' => RecodexUser] on success (same as getTokenAndUser())
+     */
+    public function refreshToken(): array
+    {
+        Debugger::log('ReCodEx::refreshToken()', Debugger::DEBUG);
+        $body = $this->post('login/refresh');
+        if (!is_array($body) || empty($body['accessToken']) || empty($body['user'])) {
+            throw new RecodexApiException("Unexpected ReCodEx API response from token refresh endpoint.");
         }
 
         // wrap the user into a structure
