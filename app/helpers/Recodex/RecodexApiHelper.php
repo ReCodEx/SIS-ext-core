@@ -136,6 +136,7 @@ class RecodexApiHelper
     {
         $code = $response->getStatusCode();
         if ($code === 401) { // unauthorized, token is probably invalid
+            Debugger::log("HTTP request to ReCodEx API failed (response $code).", Debugger::DEBUG);
             throw new InvalidAccessTokenException("Unauthorized request to ReCodEx API. Token is probably invalid.");
         }
 
@@ -238,6 +239,7 @@ class RecodexApiHelper
         Debugger::log('ReCodEx::getTokenAndUser()', Debugger::DEBUG);
         $body = $this->post('extensions/' . $this->extensionId);
         if (!is_array($body) || empty($body['accessToken']) || empty($body['user'])) {
+            Debugger::log($body, Debugger::DEBUG);
             throw new RecodexApiException("Unexpected ReCodEx API response from extension token endpoint.");
         }
 
@@ -255,6 +257,7 @@ class RecodexApiHelper
         Debugger::log('ReCodEx::refreshToken()', Debugger::DEBUG);
         $body = $this->post('login/refresh');
         if (!is_array($body) || empty($body['accessToken']) || empty($body['user'])) {
+            Debugger::log($body, Debugger::DEBUG);
             throw new RecodexApiException("Unexpected ReCodEx API response from token refresh endpoint.");
         }
 
