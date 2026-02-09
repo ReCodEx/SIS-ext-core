@@ -126,7 +126,7 @@ class TestGroupsPresenter extends Tester\TestCase
     public function testListGroupsAll()
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -166,7 +166,7 @@ class TestGroupsPresenter extends Tester\TestCase
     public function testListGroupsStudent()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -202,7 +202,7 @@ class TestGroupsPresenter extends Tester\TestCase
     public function testListGroupsTeacher()
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::TEACHER1_LOGIN);
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -239,7 +239,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -251,7 +251,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("post")->with('group-attributes/g1', Mockery::any())
+        $this->client->shouldReceive("request")->with('POST', 'group-attributes/g1', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -274,7 +274,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -285,7 +285,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("post")->with('group-attributes/t1', Mockery::any())
+        $this->client->shouldReceive("request")->with('POST', 'group-attributes/t1', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -324,7 +324,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -352,7 +352,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -380,7 +380,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -408,7 +408,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -436,7 +436,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -463,7 +463,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -474,7 +474,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("delete")->with('group-attributes/g1', Mockery::any())
+        $this->client->shouldReceive("request")->with('DELETE', 'group-attributes/g1', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -497,7 +497,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -507,7 +507,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("delete")->with('group-attributes/g1', Mockery::any())
+        $this->client->shouldReceive("request")->with('DELETE', 'group-attributes/g1', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -546,7 +546,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -572,7 +572,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -599,7 +599,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -609,7 +609,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("post")->with("groups/g1/students/$studentId", Mockery::any())
+        $this->client->shouldReceive("request")->with('POST', "groups/g1/students/$studentId", Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -630,7 +630,7 @@ class TestGroupsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::login($this->container, PresenterTestHelper::STUDENT1_LOGIN);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -656,7 +656,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -684,7 +684,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -695,7 +695,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("post")->with('groups', Mockery::on(function ($arg) use ($user, $event) {
+        $this->client->shouldReceive("request")->with('POST', 'groups', Mockery::on(function ($arg) use ($user, $event) {
             Assert::type('array', $arg);
             Assert::type('array', $arg['json'] ?? null);
             $body = $arg['json'];
@@ -723,14 +723,14 @@ class TestGroupsPresenter extends Tester\TestCase
             'payload' => ['id' => 'g1']
         ])));
 
-        $this->client->shouldReceive("post")->with('groups/g1/members/' . $user->getId(), Mockery::any())
+        $this->client->shouldReceive("request")->with('POST', 'groups/g1/members/' . $user->getId(), Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
                 'payload' => "OK"
             ])));
 
-        $this->client->shouldReceive("post")->with('group-attributes/g1', Mockery::any())
+        $this->client->shouldReceive("request")->with('POST', 'group-attributes/g1', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -753,7 +753,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -781,7 +781,7 @@ class TestGroupsPresenter extends Tester\TestCase
         $event = $this->presenter->sisEvents->findOneBy(['sisId' => 'gl1p']);
         Assert::notNull($event);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -816,7 +816,7 @@ class TestGroupsPresenter extends Tester\TestCase
             'en' => ['name' => 'Group', 'description' => 'Group description'],
         ];
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -826,7 +826,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("post")->with('groups', Mockery::on(function ($arg) use ($user, $texts) {
+        $this->client->shouldReceive("request")->with('POST', 'groups', Mockery::on(function ($arg) use ($user, $texts) {
             Assert::type('array', $arg);
             Assert::type('array', $arg['json'] ?? null);
             $body = $arg['json'];
@@ -854,7 +854,7 @@ class TestGroupsPresenter extends Tester\TestCase
             'payload' => ['id' => 'g1']
         ])));
 
-        $this->client->shouldReceive("post")->with('group-attributes/g1', Mockery::any())
+        $this->client->shouldReceive("request")->with('POST', 'group-attributes/g1', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -885,7 +885,7 @@ class TestGroupsPresenter extends Tester\TestCase
             'en' => ['name' => 'Group', 'description' => 'Group description'],
         ];
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -919,7 +919,7 @@ class TestGroupsPresenter extends Tester\TestCase
             'en' => ['name' => 'Group', 'description' => 'Group description'],
         ];
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -945,7 +945,7 @@ class TestGroupsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -954,7 +954,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("post")->with('group-attributes/g1', Mockery::on(function ($arg) {
+        $this->client->shouldReceive("request")->with('POST', 'group-attributes/g1', Mockery::on(function ($arg) {
             Assert::type('array', $arg);
             Assert::type('array', $arg['json'] ?? null);
             $body = $arg['json'];
@@ -984,7 +984,7 @@ class TestGroupsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -1008,7 +1008,7 @@ class TestGroupsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -1032,7 +1032,7 @@ class TestGroupsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -1041,7 +1041,7 @@ class TestGroupsPresenter extends Tester\TestCase
                 ]
             ])));
 
-        $this->client->shouldReceive("delete")->with('group-attributes/g1', Mockery::on(function ($arg) {
+        $this->client->shouldReceive("request")->with('DELETE', 'group-attributes/g1', Mockery::on(function ($arg) {
             Assert::type('array', $arg);
             Assert::type('array', $arg['query'] ?? null);
             $query = $arg['query'];
@@ -1071,7 +1071,7 @@ class TestGroupsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -1095,7 +1095,7 @@ class TestGroupsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $this->client->shouldReceive("get")->with('group-attributes', Mockery::any())
+        $this->client->shouldReceive("request")->with('GET', 'group-attributes', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
@@ -1119,7 +1119,7 @@ class TestGroupsPresenter extends Tester\TestCase
     {
         PresenterTestHelper::loginDefaultAdmin($this->container);
 
-        $this->client->shouldReceive("post")->with('groups/g1/archived', Mockery::any())
+        $this->client->shouldReceive("request")->with('POST', 'groups/g1/archived', Mockery::any())
             ->andReturn(new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'success' => true,
                 'code' => 200,
