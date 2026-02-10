@@ -2,9 +2,11 @@
 
 namespace App\Presenters;
 
+use App\Exceptions\BadRequestException;
 use App\Exceptions\ForbiddenRequestException;
 use App\Exceptions\InvalidAccessTokenException;
 use App\Exceptions\NotFoundException;
+use App\Exceptions\RecodexApiException;
 use App\Exceptions\WrongCredentialsException;
 use App\Model\Entity\User;
 use App\Model\Repository\Users;
@@ -84,7 +86,11 @@ class LoginPresenter extends BasePresenter
     {
         $req = $this->getRequest();
         $tempToken = $req->getPost("token");
-        $instanceId = $this->recodexApi->getTempTokenInstance($tempToken);
+        try {
+            $instanceId = $this->recodexApi->getTempTokenInstance($tempToken);
+        } catch (RecodexApiException $e) {
+            throw new BadRequestException("Invalid token from ReCodEx API", $e);
+        }
 
         // Call ReCodEx API and get full token + user info using the temporary token
         $this->recodexApi->setAuthToken($tempToken);
