@@ -142,6 +142,7 @@ class RecodexApiHelper
 
         if ($code !== 200) {
             Debugger::log("HTTP request to ReCodEx API failed (response $code).", Debugger::DEBUG);
+            Debugger::log("Response body:\n" . $response->getBody()->getContents(), Debugger::DEBUG);
             throw new RecodexApiException("HTTP request failed (response $code).");
         }
 
@@ -152,7 +153,6 @@ class RecodexApiHelper
         }
 
         $body = json_decode($response->getBody()->getContents(), true);
-        Debugger::log($body, Debugger::DEBUG);
         if (($body['success'] ?? false) !== true) {
             $code = $body['code'];
             throw new RecodexApiException($body['error']['message'] ?? "API responded with error code $code.");
