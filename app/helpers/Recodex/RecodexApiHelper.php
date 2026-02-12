@@ -20,6 +20,8 @@ class RecodexApiHelper
 {
     use Nette\SmartObject;
 
+    private const GROUP_DUPLICATE_NAME_ERROR_CODE = '400-504';
+
     /** @var string Base of the API URL */
     private string $apiBase;
 
@@ -43,6 +45,10 @@ class RecodexApiHelper
 
     /** @var GuzzleHttp\Client */
     private $client;
+
+    // caches
+    private $groupsCache = null;
+    private $groupsCacheUserId = null;
 
     /**
      * @param array $config
@@ -143,19 +149,24 @@ class RecodexApiHelper
         if ($code !== 200) {
             Debugger::log("HTTP request to ReCodEx API failed (response $code).", Debugger::DEBUG);
             Debugger::log("Response body:\n" . $response->getBody()->getContents(), Debugger::DEBUG);
-            throw new RecodexApiException("HTTP request failed (response $code).");
+            throw new RecodexApiException("HTTP request failed (response $code).", null, $response);
         }
 
         $type = $response->getHeaderLine("Content-Type") ?? '';
         if (!str_starts_with($type, 'application/json')) {
             Debugger::log("JSON response expected from ReCodEx API but '$type' returned instead.", Debugger::DEBUG);
-            throw new RecodexApiException("JSON response was expected but '$type' returned instead.");
+            throw new RecodexApiException("JSON response was expected but '$type' returned instead.", null, $response);
         }
 
         $body = json_decode($response->getBody()->getContents(), true);
         if (($body['success'] ?? false) !== true) {
             $code = $body['code'];
-            throw new RecodexApiException($body['error']['message'] ?? "API responded with error code $code.");
+            throw new RecodexApiException(
+                $body['error']['message'] ?? "API responded with error code $code.",
+                null,
+                $response,
+                $body
+            );
         }
 
         return $body['payload'] ?? null;
@@ -370,17 +381,24 @@ class RecodexApiHelper
      */
     public function getGroups(User $user): array
     {
-        Debugger::log('ReCodEx::getGroups(' . $user->getId() . ')', Debugger::DEBUG);
-        $body = $this->get(
-            "group-attributes",
-            ['instance' => $user->getInstanceId(), 'service' => $this->extensionId, 'user' => $user->getId()]
-        );
-        $groups = [];
-        foreach ($body as $groupData) {
-            $group = new RecodexGroup($groupData, $this->extensionId);
-            $groups[$group->id] = $group;
+        if ($this->groupsCacheUserId !== $user->getId()) {
+            $this->groupsCacheUserId = $user->getId();
+
+            Debugger::log('ReCodEx::getGroups(' . $user->getId() . ')', Debugger::DEBUG);
+            $body = $this->get(
+                "group-attributes",
+                ['instance' => $user->getInstanceId(), 'service' => $this->extensionId, 'user' => $user->getId()]
+            );
+            $groups = [];
+            foreach ($body as $groupData) {
+                $group = new RecodexGroup($groupData, $this->extensionId);
+                $groups[$group->id] = $group;
+            }
+
+            $this->groupsCache = $groups;
         }
-        return $groups;
+
+        return $this->groupsCache;
     }
 
     /**
@@ -464,6 +482,96 @@ class RecodexApiHelper
     }
 
     /**
+     * @param RecodexGroup[] $groups
+     * @param array $localizedTexts
+     * @return bool true if any of the groups has the same name in any of the locales as given in $localizedTexts
+     */
+    private function isNameDuplicated(array $groups, array $localizedTexts): bool
+    {
+        foreach ($groups as $group) {
+            foreach ($localizedTexts as $text) {
+                if (($group->name[$text['locale']] ?? null) === $text['name']) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Compute suffix for group name in case of duplicate name error. The suffix is incremented until no duplication
+     * is detected. The suffix is added in format " [num]" to the end of the name.
+     * @param RecodexGroup[] $groups
+     * @param array $localizedTexts
+     * @param string $parentGroupId
+     * @return int|null suffix to be added to the name in case of duplicate name error, null if no duplication detected
+     */
+    private function getAntiDuplicateSuffix(array $groups, array $localizedTexts, string $parentGroupId): ?int
+    {
+        $suffix = null;
+        $siblings = array_filter($groups, function (RecodexGroup $group) use ($parentGroupId) {
+            return $group->parentGroupId === $parentGroupId;
+        });
+
+        $originalTexts = $localizedTexts;
+        while ($this->isNameDuplicated($siblings, $localizedTexts)) {
+            $suffix = ($suffix ?? 1) + 1; // starting suffix is 2, then 3, etc.
+            $localizedTexts = $originalTexts;
+            foreach ($localizedTexts as &$text) {
+                $text['name'] .= " [$suffix]";
+            }
+        }
+
+        return $suffix;
+    }
+
+    /**
+     * Create a new group with given parameters. If the group name is duplicated,
+     * null is returned (can be retried with different name).
+     * @param string $instanceId ID of the instance where the group is being created
+     * @param string $parentGroupId ID of the parent group
+     * @param array $localizedTexts localized texts for the group (locale => ['name' => ..., 'description' => ...])
+     * @param int|null $localizedSuffix optional suffix [num] added to the name in case of duplicate name error
+     * @return array|null
+     */
+    private function createGroupInternal(
+        string $instanceId,
+        string $parentGroupId,
+        array $localizedTexts,
+        ?int $localizedSuffix = null
+    ): ?array {
+        if ($localizedSuffix !== null) {
+            foreach ($localizedTexts as &$text) {
+                $text['name'] .= " [$localizedSuffix]";
+            }
+        }
+
+        try {
+            return $this->post("groups", [], [
+                'instanceId' => $instanceId,
+                'parentGroupId' => $parentGroupId,
+                'publicStats' => false,
+                'detaining' => true,
+                'isPublic' => false,
+                'isOrganizational' => false,
+                'isExam' => false,
+                'noAdmin' => true,
+                'localizedTexts' => $localizedTexts,
+            ]);
+        } catch (RecodexApiException $e) {
+            $body = $e->getBody();
+            if (
+                $body && is_array($body) && ($body['code'] ?? 0) === 400 &&
+                ($body['error']['code'] ?? '')  === self::GROUP_DUPLICATE_NAME_ERROR_CODE
+            ) {
+                // special case, duplicate name error can be retried with different suffix
+                return null;
+            }
+            throw $e;
+        }
+    }
+
+    /**
      * Create a new group and make given user an admin.
      * @param SisScheduleEvent $event event for which the group is being created
      * @param string $parentGroupId ID of the parent group
@@ -487,17 +595,14 @@ class RecodexApiHelper
             }
         }
 
-        $group = $this->post("groups", [], [
-            'instanceId' => $admin->getInstanceId(),
-            'parentGroupId' => $parentGroupId,
-            'publicStats' => false,
-            'detaining' => true,
-            'isPublic' => false,
-            'isOrganizational' => false,
-            'isExam' => false,
-            'noAdmin' => true,
-            'localizedTexts' => $localizedTexts,
-        ]);
+        $groups = $this->getGroups($admin);
+        $suffix = $this->getAntiDuplicateSuffix($groups, $localizedTexts, $parentGroupId);
+
+        $retries = 5;
+        do {
+            $group = $this->createGroupInternal($admin->getInstanceId(), $parentGroupId, $localizedTexts, $suffix);
+            $suffix = ($suffix ?? 1) + 1; // starting suffix is 2, then 3, etc.
+        } while (!$group && $retries-- > 0);
 
         if ($group && !empty($group['id'])) {
             $this->addAdminToGroup($group['id'], $admin);
@@ -505,6 +610,10 @@ class RecodexApiHelper
             return $group['id'];
         }
 
+        Debugger::log(
+            "Failed to create group for '{$event->getSisId()}' after multiple attempts due to duplicate name.",
+            Debugger::WARNING
+        );
         return null;
     }
 
