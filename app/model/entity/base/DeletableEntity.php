@@ -8,11 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 // @phpstan-ignore trait.unused
 trait DeletableEntity
 {
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @var DateTime
-     */
-    protected $deletedAt = null;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    protected ?DateTime $deletedAt = null;
 
     public function getDeletedAt(): ?DateTime
     {

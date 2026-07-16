@@ -41,7 +41,7 @@ class RecodexAddAdmin extends BaseCommand
     /**
      * Register the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('groupId', InputArgument::REQUIRED, 'ID of the group to which the admin will be added.');
         $this->addArgument('adminId', InputArgument::REQUIRED, 'ID of the admin to be added.');

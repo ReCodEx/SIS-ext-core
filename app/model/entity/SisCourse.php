@@ -7,58 +7,52 @@ use Doctrine\Common\Collections\ArrayCollection;
 use DateTime;
 use JsonSerializable;
 
-/**
- * @ORM\Entity
- * Record holding information about one course from SIS.
- * This is merely a cache for SIS data.
- */
+#[ORM\Entity]
 class SisCourse implements JsonSerializable
 {
     use CreatableEntity;
     use UpdatableEntity;
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=\Ramsey\Uuid\Doctrine\UuidGenerator::class)
      * @var \Ramsey\Uuid\UuidInterface
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
     protected $id;
 
     /**
-     * @ORM\Column(type="string", unique=true)
      * Identification (code) of the course in SIS.
      */
+    #[ORM\Column(type: 'string', unique: true)]
     protected $code;
 
     /**
-     * @ORM\Column(type="string")
      * Name of the course in Czech.
      */
+    #[ORM\Column(type: 'string')]
     protected $captionCs;
 
     /**
-     * @ORM\Column(type="string")
      * Name of the course in English.
      */
+    #[ORM\Column(type: 'string')]
     protected $captionEn;
 
     /**
-     * @ORM\Column(type="text")
      * Annotation of the course in Czech.
      */
+    #[ORM\Column(type: 'text')]
     protected $annotationCs = '';
 
     /**
-     * @ORM\Column(type="text")
      * Annotation of the course in English.
      */
+    #[ORM\Column(type: 'text')]
     protected $annotationEn = '';
 
-    /**
-     * @ORM\OneToMany(targetEntity="SisScheduleEvent", mappedBy="course")
-     */
+    #[ORM\OneToMany(targetEntity: SisScheduleEvent::class, mappedBy: 'course')]
     protected $events;
 
 

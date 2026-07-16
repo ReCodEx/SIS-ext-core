@@ -41,7 +41,7 @@ class RecodexRemoveAdmin extends BaseCommand
     /**
      * Register the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument(
             'groupId',

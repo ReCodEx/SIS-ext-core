@@ -7,40 +7,31 @@ use Doctrine\Common\Collections\ArrayCollection;
 use DateTime;
 use JsonSerializable;
 
-/**
- * @ORM\Entity
- * A record representing one scheduling event (ticket) from SIS. One event corresponds to one part of a course
- * (usually a lecture or labs) visited by a group of students. This event usually corresponds to one group in ReCodEx.
- * This is merely a cache for SIS data.
- */
+#[ORM\Entity]
 class SisScheduleEvent implements JsonSerializable
 {
     use CreatableEntity;
     use UpdatableEntity;
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=\Ramsey\Uuid\Doctrine\UuidGenerator::class)
      * @var \Ramsey\Uuid\UuidInterface
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
     protected $id;
 
     /**
-     * @ORM\Column(type="string", unique=true)
      * Code of the scheduling event (ticket) denoted in SIS as 'GL'.
      */
+    #[ORM\Column(type: 'string', unique: true)]
     protected $sisId;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="SisTerm")
-     */
+    #[ORM\ManyToOne(targetEntity: SisTerm::class)]
     protected $term;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="SisCourse", inversedBy="events")
-     */
+    #[ORM\ManyToOne(targetEntity: SisCourse::class, inversedBy: 'events')]
     protected $course;
 
     public const TYPE_LECTURE = 'lecture';
@@ -48,50 +39,48 @@ class SisScheduleEvent implements JsonSerializable
     public const TYPE_UNKNOWN = '?';
 
     /**
-     * @ORM\Column(type="string")
      * One of TYPE_* values (lecture, labs, ...)
      */
+    #[ORM\Column(type: 'string')]
     protected $type;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
      * Day of the week (0=Sunday, 1=Monday...6=Saturday)
      */
+    #[ORM\Column(type: 'integer', nullable: true)]
     protected $dayOfWeek;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
      * When the lecture starts (logical weeks of the semester).
      */
+    #[ORM\Column(type: 'integer', nullable: true)]
     protected $firstWeek;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
      * Time of the day when the event starts as minutes from midnight.
      */
+    #[ORM\Column(type: 'integer', nullable: true)]
     protected $time;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
      * Length of the event in minutes.
      */
+    #[ORM\Column(type: 'integer', nullable: true)]
     protected $length;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
      * Where the event is located.
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $room;
 
     /**
-     * @ORM\Column(type="boolean")
      * If true, the event takes place once every two weeks (false = regular weekly scheduling).
      */
+    #[ORM\Column(type: 'boolean')]
     protected $fortnight = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity="SisAffiliation", mappedBy="event")
-     */
+    #[ORM\OneToMany(targetEntity: SisAffiliation::class, mappedBy: 'event')]
     protected $affiliations;
 
     public function __construct(

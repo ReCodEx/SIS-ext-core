@@ -23,8 +23,10 @@ parameters:
 
 # The most important part - a database system connection
 nettrine.dbal:
-  connection:
-    host: "localhost"
-    user: "recodex-sis-ext"
-    password: "someSecretPasswordYouNeedToSetYourself"
-    dbname: "recodex-sis-ext"
+  connections:
+    default:
+      charset: utf8mb4
+      host: "localhost"
+      user: "recodex-sis-ext"
+      password: "someSecretPasswordYouNeedToSetYourself"
+      dbname: "recodex-sis-ext"

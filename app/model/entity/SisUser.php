@@ -6,61 +6,44 @@ use Doctrine\ORM\Mapping as ORM;
 use DateTime;
 use JsonSerializable;
 
-/**
- * @ORM\Entity
- * This is a cache for user-related data from SIS.
- */
+#[ORM\Entity]
 class SisUser implements JsonSerializable
 {
     use CreatableEntity;
     use UpdatableEntity;
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="string", unique=true)
      * Also known as UKCO.
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', unique: true)]
     protected $id;
 
     /**
-     * @ORM\Column(type="string", unique=true, nullable=true)
      * Alphanumerical login generated from name (which is used as alternative login to SIS).
      */
+    #[ORM\Column(type: 'string', unique: true, nullable: true)]
     protected $login = null;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $titlesBeforeName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $firstName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $lastName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $titlesAfterName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $email;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     protected $student = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     protected $teacher = false;
 
     public function __construct(

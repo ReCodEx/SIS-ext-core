@@ -74,7 +74,7 @@ class SisGetCourse extends BaseCommand
     /**
      * Register the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('ukco', InputArgument::REQUIRED, 'SIS ID of the user whose courses are being loaded.');
         $this->addOption(

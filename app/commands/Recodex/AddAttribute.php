@@ -33,7 +33,7 @@ class RecodexAddAttribute extends BaseCommand
     /**
      * Register the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('groupId', InputArgument::REQUIRED, 'ID of the group to which the attribute will be added.');
         $this->addArgument('key', InputArgument::REQUIRED, 'The key of the attribute being added.');

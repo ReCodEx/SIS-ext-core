@@ -7,11 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait CreatableEntity
 {
-    /**
-     * @ORM\Column(type="datetime")
-     * @var DateTime
-     */
-    protected $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    protected DateTime $createdAt;
 
     public function getCreatedAt(): DateTime
     {

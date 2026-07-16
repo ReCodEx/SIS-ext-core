@@ -7,11 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait UpdatableEntity
 {
-    /**
-     * @ORM\Column(type="datetime")
-     * @var DateTime
-     */
-    protected $updatedAt;
+    #[ORM\Column(type: 'datetime')]
+    protected DateTime $updatedAt;
 
     public function getUpdatedAt(): DateTime
     {

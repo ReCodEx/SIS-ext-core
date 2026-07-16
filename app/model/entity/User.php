@@ -8,104 +8,89 @@ use DateTime;
 use JsonSerializable;
 use InvalidArgumentException;
 
-/**
- * @ORM\Entity
- * This holds a copy of user-related data from ReCodEx.
- */
+#[ORM\Entity]
 class User implements JsonSerializable
 {
     use CreatableEntity;
     use UpdatableEntity;
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      * A copy of ID from ReCodEx
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     protected $id;
 
     /**
-     * @ORM\Column(type="uuid")
      * ID of ReCodEx instance where the user belongs to.
      */
+    #[ORM\Column(type: 'uuid')]
     protected $instanceId;
 
     /**
-     * @ORM\Column(type="string", unique=true, nullable=true)
      * Also known as UKCO.
      */
+    #[ORM\Column(type: 'string', unique: true, nullable: true)]
     protected $sisId = null;
 
     /**
-     * @ORM\Column(type="string", unique=true, nullable=true)
      * Alphanumerical login generated from name (which is used as alternative login to SIS).
      */
+    #[ORM\Column(type: 'string', unique: true, nullable: true)]
     protected $sisLogin = null;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $titlesBeforeName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $firstName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $lastName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $titlesAfterName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $email;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected $role;
 
     /**
-     * @ORM\Column(type="string", length=32)
      * Copied from UserSettings
      */
+    #[ORM\Column(type: 'string', length: 32)]
     protected $defaultLanguage;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
      * This is not a copy of ReCodEx field, it is used to manage validity of SIS-ext tokens.
      */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected $tokenValidityThreshold;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
      * When the user data (corresponding SisUser entity) were last loaded from SIS.
-     * This needs to be kept here as well since no SisUser entity may have been loaded (yet).
-     */
+    This needs to be kept here as well since no SisUser entity may have been loaded (yet).
+    */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected $sisUserLoaded = null;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
      * When the SIS events were loaded for the last time (events, affiliations...).
-     * This needs to be kept here since the events and courses may be shared and (also)
-     * no affiliations may have been loaded the last time.
-     */
+    This needs to be kept here since the events and courses may be shared and (also)
+    no affiliations may have been loaded the last time.
+    */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected $sisEventsLoaded = null;
 
     /**
-     * @ORM\Column(type="text", length=1024, nullable=true)
      * Prefix of the ReCodEx authentication token used to perform operations on ReCodEx API.
-     * The suffix is stored in our token used to authenticate against this API as a payload.
-     * The division of the token in two parts makes it more difficult to get the whole token and breach the security.
-     * This column SHOULD NEVER be sent over to the client side (or anywhere else).
-     */
+    The suffix is stored in our token used to authenticate against this API as a payload.
+    The division of the token in two parts makes it more difficult to get the whole token and breach the security.
+    This column SHOULD NEVER be sent over to the client side (or anywhere else).
+    */
+    #[ORM\Column(type: 'text', length: 1024, nullable: true)]
     protected $recodexToken = null;
 
     public function __construct(
