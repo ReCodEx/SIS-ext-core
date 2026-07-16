@@ -49,7 +49,7 @@ class RecodexCreateGroup extends BaseCommand
     /**
      * Register the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('eventId', InputArgument::REQUIRED, 'The SIS ID of the event associated with the group.');
         $this->addArgument('parentId', InputArgument::REQUIRED, 'ReCodEx ID of the the parent group.');

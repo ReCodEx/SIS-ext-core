@@ -8,75 +8,67 @@ use DateTimeInterface;
 use JsonSerializable;
 use InvalidArgumentException;
 
-/**
- * @ORM\Entity
- * A record representing one semester with all important dates, especially the ranges from-until
- * it is advertised to students/teachers. This needs to be set by admin to correctly handle SIS operations.
- */
+#[ORM\Entity]
 class SisTerm implements JsonSerializable
 {
     use CreatableEntity;
     use UpdatableEntity;
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=\Ramsey\Uuid\Doctrine\UuidGenerator::class)
      * @var \Ramsey\Uuid\UuidInterface
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
     protected $id;
 
     /**
-     * @ORM\Column(type="integer")
      * Calendar year in which the academic year begins.
      */
+    #[ORM\Column(type: 'integer')]
     protected $year;
 
     /**
-     * @ORM\Column(type="integer")
      * 1 = winter term, 2 = summer term
      */
+    #[ORM\Column(type: 'integer')]
     protected $term;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected $beginning = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected $end = null;
 
     /**
-     * @ORM\Column(type="datetime")
      * From when the term should be advertised to students (students can enroll groups).
      */
+    #[ORM\Column(type: 'datetime')]
     protected $studentsFrom;
 
     /**
-     * @ORM\Column(type="datetime")
      * Until when the term should be advertised to students (students can enroll groups).
      */
+    #[ORM\Column(type: 'datetime')]
     protected $studentsUntil;
 
     /**
-     * @ORM\Column(type="datetime")
      * From when the term should be advertised to teachers (teachers can create groups).
      */
+    #[ORM\Column(type: 'datetime')]
     protected $teachersFrom;
 
     /**
-     * @ORM\Column(type="datetime")
      * Until when the term should be advertised to teachers (teachers can create groups).
      */
+    #[ORM\Column(type: 'datetime')]
     protected $teachersUntil;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
      * After this date, semi-automated group archiving will be suggested.
      */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected $archiveAfter = null;
 
     public function __construct(

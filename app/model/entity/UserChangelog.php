@@ -6,30 +6,23 @@ use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use DateTime;
 
-/**
- * @ORM\Entity
- * Records about changes made when synchronizing user data.
- */
+#[ORM\Entity]
 class UserChangelog implements JsonSerializable
 {
     use CreatableEntity;
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer')]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     protected $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User")
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
-     * @ORM\Column(type="text", length=65535)
      * JSON encoded diff (log of changes).
      */
+    #[ORM\Column(type: 'text', length: 65535)]
     protected $diff = null;
 
 

@@ -27,13 +27,13 @@
     },
     "require": {
         "php": ">=8.4",
-        "contributte/console": "^0.10.0",
+        "contributte/console": "^0.11",
         "ext-yaml": ">=2.0",
         "ext-json": ">=1.7",
         "ext-zip": ">=1.15",
-        "firebase/php-jwt": "^6.11",
+        "firebase/php-jwt": "^7.0",
         "guzzlehttp/guzzle": "^7.10",
-        "latte/latte": "^3.0",
+        "latte/latte": "^3.1",
         "league/commonmark": "^2.3",
         "nelmio/alice": "^3.14",
         "nette/application": "^3.1",
@@ -49,12 +49,12 @@
         "nette/safe-stream": "^3.0",
         "nette/security": "^3.1",
         "nette/utils": "^4.0",
-        "nettrine/dbal": "^0.9.0",
-        "nettrine/extensions-atlantic18": "^0.6.0",
-        "nettrine/orm": "^0.9.0",
-        "nettrine/migrations": "^0.9.0",
-        "ramsey/uuid-doctrine": "^2.0",
-        "tracy/tracy": "^2.8"
+        "nettrine/dbal": "^0.10",
+        "nettrine/extensions-atlantic18": "^0.7",
+        "nettrine/orm": "^0.10",
+        "nettrine/migrations": "^0.10",
+        "ramsey/uuid-doctrine": "^2.1",
+        "tracy/tracy": "^2.11"
     },
     "require-dev": {
         "mockery/mockery": "@stable",
@@ -62,7 +62,8 @@
         "nette/tester": "^2.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-nette": "^2.0",
-        "symfony/process": "^7.1"
+        "symfony/process": "^8.1",
+        "rector/rector": "^2.5"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

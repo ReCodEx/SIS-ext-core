@@ -28,7 +28,7 @@ class TestAccessManager extends Tester\TestCase
     public function testDecodeToken()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
         $payload = ["sub" => "123", "exp" => time() + 123];
         $token = JWT::encode($payload, $verificationKey, "HS256");
@@ -40,7 +40,7 @@ class TestAccessManager extends Tester\TestCase
     public function testDecodeUnverifiedToken()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
         $payload = ["sub" => "123", "exp" => time() + 123];
         $token = JWT::encode($payload, $verificationKey . "!!!", "HS256");
@@ -57,7 +57,7 @@ class TestAccessManager extends Tester\TestCase
     public function testDecodeExpiredToken()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
         $payload = ["sub" => "123", "exp" => time() - 123, "leeway" => 0];
         $token = JWT::encode($payload, $verificationKey, "HS256");
@@ -74,7 +74,7 @@ class TestAccessManager extends Tester\TestCase
     public function testDecodeExpiredTokenWithEnoughLeeway()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
         $payload = ["sub" => "123", "exp" => time() - 5, "leeway" => 10];
         $token = JWT::encode($payload, $verificationKey, "HS256");
@@ -84,7 +84,7 @@ class TestAccessManager extends Tester\TestCase
     public function testDecodeTokenBeforeNBF()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
         $payload = ["sub" => "123", "exp" => time() + 1000, "nbf" => time() + 100];
         $token = JWT::encode($payload, $verificationKey, "HS256");
@@ -105,7 +105,7 @@ class TestAccessManager extends Tester\TestCase
     public function testIssueToken()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(
             [
                 "verificationKey" => $verificationKey,
@@ -134,7 +134,7 @@ class TestAccessManager extends Tester\TestCase
     public function testIssueTokenWithScopes()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
 
         $user = Mockery::mock(App\Model\Entity\User::class);
@@ -149,7 +149,7 @@ class TestAccessManager extends Tester\TestCase
     public function testIssueTokenWithEffectiveRole()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
 
         $user = Mockery::mock(App\Model\Entity\User::class);
@@ -164,7 +164,7 @@ class TestAccessManager extends Tester\TestCase
     public function testIssueTokenWithExplicitExpiration()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
 
         $user = Mockery::mock(App\Model\Entity\User::class);
@@ -179,7 +179,7 @@ class TestAccessManager extends Tester\TestCase
     public function testCustomPayload()
     {
         $users = Mockery::mock(App\Model\Repository\Users::class);
-        $verificationKey = "abc";
+        $verificationKey = "abc-1234567890-1234567890-1234567890";
         $manager = new AccessManager(["verificationKey" => $verificationKey], $users);
 
         $user = Mockery::mock(App\Model\Entity\User::class);

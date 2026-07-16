@@ -3,6 +3,8 @@
 namespace App\Console;
 
 use Doctrine\DBAL;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Nette\Utils\Finder;
 use Nette\Utils\FileInfo;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -50,7 +52,7 @@ class DoctrineFixtures extends Command
     /**
      * Register the 'db:fill' command in the framework
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption(
             'test',
@@ -101,50 +103,44 @@ class DoctrineFixtures extends Command
      */
     protected function clearDatabase()
     {
-        $platform = $this->dbConnection->getDatabasePlatform()->getName();
+        $platform = $this->dbConnection->getDatabasePlatform();
 
-        if ($platform === 'mysql') {
+        if ($platform instanceof AbstractMySQLPlatform) {
             $this->dbConnection->executeQuery("SET FOREIGN_KEY_CHECKS = 0");
-        } else {
-            if ($platform === 'sqlite') {
-                $this->dbConnection->executeQuery("PRAGMA foreign_keys = OFF");
-            }
+        } elseif ($platform instanceof SQLitePlatform) {
+            $this->dbConnection->executeQuery("PRAGMA foreign_keys = OFF");
         }
 
-        foreach ($this->dbConnection->getSchemaManager()->listTables() as $table) {
+
+        foreach ($this->dbConnection->createSchemaManager()->introspectTables() as $table) {
             $tableName = $table->getName();
             if ($tableName === "doctrine_migrations") {
                 // do not clear migrations table... it is crucial
                 continue;
             }
 
-            if ($platform === 'mysql') {
+            if ($platform instanceof AbstractMySQLPlatform) {
                 if (!str_starts_with($tableName, '``')) {
                     $tableName = '`' . $tableName . '`';
                 }
-            } else {
-                if ($platform === 'sqlite') {
-                    if (!str_starts_with($tableName, '``')) {
-                        $tableName = '"' . $tableName . '"';
-                    }
+            } elseif ($platform instanceof SQLitePlatform) {
+                if (!str_starts_with($tableName, '``')) {
+                    $tableName = '"' . $tableName . '"';
                 }
             }
 
-            if ($platform === "mysql") {
+
+            if ($platform instanceof AbstractMySQLPlatform) {
                 $this->dbConnection->executeQuery(sprintf("TRUNCATE %s", $tableName));
-            } else {
-                if ($platform === "sqlite") {
-                    $this->dbConnection->executeQuery(sprintf("DELETE FROM %s", $tableName));
-                }
+            } elseif ($platform instanceof SQLitePlatform) {
+                $this->dbConnection->executeQuery(sprintf("DELETE FROM %s", $tableName));
             }
         }
 
-        if ($platform === 'pdo_mysql') {
+        if ($platform instanceof AbstractMySQLPlatform) {
             $this->dbConnection->executeQuery("SET FOREIGN_KEY_CHECKS = 1");
-        } else {
-            if ($platform === 'sqlite') {
-                $this->dbConnection->executeQuery("PRAGMA foreign_keys = ON");
-            }
+        } elseif ($platform instanceof SQLitePlatform) {
+            $this->dbConnection->executeQuery("PRAGMA foreign_keys = ON");
         }
     }
 }

@@ -51,7 +51,7 @@ class RecodexGroups extends BaseCommand
     /**
      * Register the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('ukco', InputArgument::REQUIRED, 'SIS ID of the user whose groups are being loaded.');
     }

@@ -41,7 +41,7 @@ class RecodexAddStudent extends BaseCommand
     /**
      * Register the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('groupId', InputArgument::REQUIRED, 'ID of the group to which the student will be added.');
         $this->addArgument('studentId', InputArgument::REQUIRED, 'ID of the student to be added.');
