@@ -1,29 +1,38 @@
 # Apache configuration file (see httpd.apache.org/docs/current/mod/quickreference.html)
 
-# disable directory listing
+<IfModule mod_headers.c>
+	# Enable CORS for all origins, headers and methods
+	Header always set Access-Control-Allow-Origin "*"
+	Header always set Access-Control-Allow-Headers "*"
+	Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+</IfModule>
+
 <IfModule mod_autoindex.c>
+	# disable directory listing
 	Options -Indexes
 </IfModule>
 
-# enable cool URL
 <IfModule mod_rewrite.c>
+	# enable cool URL, the RewriteBase (and optionally the HTTPS enforcement) must be set in the main Apache configuration file
+	# (since these things rely on the deployment location)
 	RewriteEngine On
-	# RewriteBase /
 
-	# use HTTPS
-	# RewriteCond %{HTTPS} !on
-	# RewriteRule .? https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+    # RewriteBase /
+    # RewriteCond %{HTTPS} !on
+    # RewriteRule .? https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-	# prevents files starting with dot to be viewed by browser
-	RewriteRule /\.|^\.(?!well-known/) - [F]
+    # prevents files starting with dot to be viewed by browser
+    RewriteRule /\.|^\.(?!well-known/) - [F]
 
-	# front controller
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule !\.(pdf|js|ico|gif|jpg|png|css|rar|zip|tar\.gz|map)$ index.php [L]
+    # front controller
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule !\.(pdf|js|ico|gif|jpg|png|css|rar|zip|tar\.gz|map)$ index.php [L]
+
 </IfModule>
 
 # enable gzip compression
+
 <IfModule mod_deflate.c>
 	<IfModule mod_filter.c>
 		AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json application/xml image/svg+xml
