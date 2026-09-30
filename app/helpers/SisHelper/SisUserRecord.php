@@ -60,7 +60,7 @@ class SisUserRecord implements JsonSerializable
         $result->firstName = self::getOrThrow($data, 'jmeno');
         $result->lastName = self::getOrThrow($data, 'prijmeni');
         $result->titlesAfterName = $data['titulza'] ?? '';
-        $result->email = self::getOrThrow($data, 'osobni_mail');
+        $result->email = $data['osobni_mail'] ?? '';
 
         $studia = $data['studia'] ?? [];
         foreach ($studia as $studium) {
@@ -72,6 +72,12 @@ class SisUserRecord implements JsonSerializable
                 || $sstav === 'D'; // proceeding to termination (but still studying)
 
             if ($result->student) {
+                if (!$result->email && !empty($studium['smail'])) {
+                    $result->email = $studium['smail'];
+                }
+                if (!$result->email && !empty($studium['fakultni_mail'])) {
+                    $result->email = $studium['fakultni_mail'];
+                }
                 break; // no need to continue (perf. optimization)
             }
         }
@@ -79,6 +85,10 @@ class SisUserRecord implements JsonSerializable
         $ucitel = $data['ucitel'] ?? [];
         foreach ($ucitel as $ucit) {
             $result->teacher = $result->teacher || ($ucit['uaktivni'] ?? '') === 'T';
+        }
+
+        if (!$result->email) {
+            throw new SisException("User $ukco has no email address specified.");
         }
 
         return $result;
