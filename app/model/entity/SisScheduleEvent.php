@@ -29,6 +29,7 @@ class SisScheduleEvent implements JsonSerializable
     protected $sisId;
 
     #[ORM\ManyToOne(targetEntity: SisTerm::class)]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     protected $term;
 
     #[ORM\ManyToOne(targetEntity: SisCourse::class, inversedBy: 'events')]

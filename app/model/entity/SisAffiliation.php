@@ -18,6 +18,7 @@ class SisAffiliation
     protected $user;
 
     #[ORM\ManyToOne(targetEntity: SisScheduleEvent::class, inversedBy: 'affiliations')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     protected $event;
 
     public const TYPE_STUDENT = 'student';
