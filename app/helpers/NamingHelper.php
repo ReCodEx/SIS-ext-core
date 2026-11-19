@@ -61,12 +61,12 @@ class NamingHelper
      * Get the description of the group for a given SIS schedule event.
      * @param SisScheduleEvent $event The SIS schedule event.
      * @param string $locale The locale to use for translation ('cs' or 'en').
-     * @return string|null The group description or null if it cannot be determined.s
+     * @return string|null The group description or null if it cannot be determined.
      */
     public function getGroupDescription(SisScheduleEvent $event, string $locale): ?string
     {
         $templates = [
-            'en' => 'A group create from SIS scheduling event `%s` for course `%s`.',
+            'en' => 'A group created from SIS scheduling event `%s` for course `%s`.',
             'cs' => 'Skupina vytvořená z rozvrhového lístku SISu `%s` pro předmět `%s`.',
         ];
         if (empty($templates[$locale])) {
